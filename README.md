@@ -9,6 +9,7 @@ Small, quick games you play in your web browser. Each one takes about a minute.
 | **Hue Recall** | See a color for a few seconds, then rebuild it from memory. |
 | **Glimpse**    | A cloud of dots flashes for a moment. Guess how many there were. |
 | **Beatween**   | Not a game: a calm tone generator. Each ear gets its own tone, and you hear a slow "beat" between them. Use headphones. |
+| **Orbit**      | Not a game: a toy solar system. Drag on the sky to fling a planet, then watch it orbit, crash or fly away. |
 
 ---
 

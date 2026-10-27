@@ -30,6 +30,22 @@
   list-style: none;
 }
 
+.hub__section {
+  margin-top: 48px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.hub__note {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.hub__grid--toys {
+  margin-top: 20px;
+}
+
 .game-tile {
   display: flex;
   flex-direction: column;
@@ -66,6 +82,15 @@ a.game-tile:hover {
     radial-gradient(ellipse 34% 60% at 42% 50%, transparent 62%, #ff8a5c 64%, transparent 70%),
     radial-gradient(ellipse 34% 60% at 58% 50%, transparent 62%, #46d0de 64%, transparent 70%),
     #07090d;
+}
+
+.game-tile__art--orbit {
+  background:
+    radial-gradient(circle at 74% 34%, #82c8ff 0 5px, transparent 6px),
+    radial-gradient(circle at 30% 70%, #ffb26b 0 3.5px, transparent 4.5px),
+    radial-gradient(circle at 50% 50%, #fffbea 0 9px, #ffae45 12px, rgba(255, 168, 70, 0.28) 14px, transparent 36px),
+    radial-gradient(ellipse 30% 46% at 50% 50%, transparent 96%, rgba(170, 190, 255, 0.22) 97% 100%, transparent 101%),
+    radial-gradient(ellipse 120% 90% at 50% 45%, #121c3e 0%, #04060f 100%);
 }
 
 .game-tile__art--soon {

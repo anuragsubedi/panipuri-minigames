@@ -36,7 +36,7 @@ Each idea is scored 1–5 on three axes (feasibility means feasible as vanilla J
 
 | Rank | Working name | Inspired by | Novelty | Wow | Feasibility | Score | Effort | Type |
 |---|---|---|---|---|---|---|---|---|
-| 1 | [**Orbit**](games/orbit.md) | solar system sandbox | 3 | 5 | 4 | **12** | 1–2 sessions | toy |
+| 1 | [**Orbit**](games/orbit.md) ✅ shipped | solar system sandbox | 3 | 5 | 4 | **12** | 1–2 sessions | toy |
 | 2 | [**Pin Drop**](games/pin-drop.md) | geo-guessing (map-only) | 3 | 3 | 5 | **11** | 1–1.5 sessions | game |
 | 3 | [**Keyfall**](games/keyfall.md) | falling-tile piano games | 3 | 4 | 4 | **11** | 1–2 sessions + chart prep | game |
 | 4 | [**Breakbench**](games/breakbench.md) | live-coded DnB (Strudel / "Switch Angel"-style) | 4 | 5 | 2 | **11** ⚠️ | 2–3 sessions | toy |
@@ -47,11 +47,13 @@ Each idea is scored 1–5 on three axes (feasibility means feasible as vanilla J
 **Ties are broken by feasibility.** Each game spec ends with a **Sanity check**: a one-pass review of what's verified, what's risky, and what changed from the first draft. Read it before building.
 
 **Suggested build order** (this differs from the rank, because it front-loads cheap wins):
-1. Quick wins: ~~Drift~~ (shipped as Beatween) → Pin Drop.
-2. Showpieces: Orbit → Keyfall.
-3. Ambitious: Breakbench → Lost Lens (reusing Pin Drop's map) → Blockyard.
+1. ~~Drift~~ (shipped as Beatween) → ~~Orbit~~ (shipped) → Pin Drop.
+2. Keyfall → Breakbench.
+3. Lost Lens (after Pin Drop; reuses its map) → Blockyard.
 
-**Hub note:** Drift, Orbit and Breakbench are toys or tools, not scored games. When the first one ships, give the hub a "Toys" section (small `index.html` / `hub.css` change).
+**Hub note:** Beatween, Orbit and Breakbench are toys or tools, not scored games; they go in the hub's "Toys" section (added with Orbit).
+
+**Future idea (not specced):** a 3D take on Orbit as its own toy.
 
 ---
 

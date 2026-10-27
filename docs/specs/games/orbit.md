@@ -1,6 +1,6 @@
 # Orbit — solar system sandbox (toy)
 
-> **Status:** proposed · **Rank:** 1 / 7 · **Effort:** 1–2 sessions · **Type:** toy
+> **Status:** shipped v0.1 (`games/orbit/`, D-029) · **Rank:** 1 / 7 · **Effort:** 1–2 sessions · **Type:** toy
 > Shared rules for every spec: [`../README.md`](../README.md). Update this header when status changes (proposed → approved → in progress → shipped).
 
 **Pitch:** A pocket solar system you can poke. Fling a planet, crank up the sun's mass, and watch orbits wobble, slingshot or fall apart.
@@ -17,7 +17,7 @@
   - collisions: merge or bounce
   - reset
   - presets: "Inner planets", "Binary star", "Chaos"
-- Optional "mission" mode (stretch): keep a launched body in orbit for 30 s.
+- Optional "mission" mode (stretch, **not in v0.1**; candidate for v0.2): keep a launched body in orbit for 30 s.
 
 **Tech approach**
 - Physics is pure: `src/physics/` uses velocity-Verlet / leapfrog integration with a fixed timestep, an accumulator, and softening ε to avoid singularities.
@@ -36,7 +36,7 @@
 - Pause, resize and theme switch don't break the simulation.
 - Light and dark themes.
 
-**Out of scope:** real ephemeris data, 3D, relativistic effects.
+**Out of scope:** real ephemeris data, 3D, relativistic effects. A 3D version could be a separate future spec (user idea, 2026-10-27).
 
 **Risks:** tuning units so default orbits look good. Keep everything in "sim units" in `config.js`.
 

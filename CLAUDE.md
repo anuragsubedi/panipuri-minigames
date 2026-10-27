@@ -7,6 +7,7 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 | Hue Recall — memorize a color, rebuild it | `games/hue-recall/` | v0.1 shipped; polish **parked** by the user |
 | Glimpse — flash of dots, guess how many | `games/glimpse/` | v0.1 shipped |
 | Beatween — binaural beats generator (tool) | `games/beatween/` | v0.1 shipped |
+| Orbit — gravity sandbox (toy) | `games/orbit/` | v0.1 shipped |
 
 ## Who reads what
 

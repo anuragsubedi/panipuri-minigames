@@ -191,3 +191,15 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Controls:** per-ear typed value + log slider + ½ / −1 / +1 / ×2; link toggle keeps the beat when either ear moves; beat ± on the scope moves the right ear.
 - **Audio:** ChannelMerger for exact L/R separation; `navigator.audioSession.type = 'playback'` (iOS silent switch) when available; screen wake lock while playing (phones stop audio on lock); context suspended after fade-out.
 - **Copy:** no health claims ("Not medical advice", "keep the volume low").
+
+## D-029 · Orbit (gravity sandbox) design choices
+
+- **Date:** 2026-10-27
+- **Scope:** v0.1 is the spec minus the "mission" stretch mode (candidate for v0.2). 2D only; a 3D take could be a separate spec later.
+- **Physics:** leapfrog (kick-drift-kick) with fixed `DT = 0.05`, accumulator, real time clamped to 0.25 s, ≤ 400 steps/frame; Plummer softening 1.5; O(n²); cap 50 bodies; bodies > 2400 units from the center of mass are dropped. Energy drift < 1% over 20 000 steps (tested).
+- **Units:** G = 1, Sun mass 1000, view radius 250, 20 sim time units per real second at 1×. Gravity and Sun mass are **multipliers** on a log₂ slider (0.25×–4×, 1× in the middle; tap the value to snap back to 1×).
+- **Stars are flagged** (`star: true`), not inferred from mass, so the Sun-mass slider can scale them down and back. Merges keep the heavier body's id and colour.
+- **Camera** eases toward the center of mass, so launched momentum doesn't carry the system off screen.
+- **Launch:** drag from empty sky; arrow + predicted path (others frozen, 300 coarse steps, dots at equal time so spacing shows speed, ✕ on a hit). Tap selects. Launch size cycles Moon / Planet / Giant.
+- **Look:** sky is night (canvas starfield) in dark mode and a pale daylight chart in light mode; planets lit from the brightest star; tapered fading trails; merge ring flash (off with reduced motion, which also starts at ½×). Deck uses the house tokens.
+- **Hub:** new "Toys" section (Beatween + Orbit).

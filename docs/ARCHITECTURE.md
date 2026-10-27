@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: **Hue Recall v0.1** and **Glimpse v0.1** playable. Both games share `shared/js` + `shared/styles/game-kit.css`.
+> Status: **Hue Recall v0.1**, **Glimpse v0.1**, **Beatween v0.1** and **Orbit v0.1** playable. Both games share `shared/js` + `shared/styles/game-kit.css`.
 > The module table and state section below describe Hue Recall in detail; Glimpse mirrors the same shape (see "Glimpse" section).
 
 ## Principles
@@ -63,13 +63,15 @@ panipuri-minigames/
 │                   ├── round-result.js
 │                   └── summary.js
 │   ├── glimpse/                  # same shape; see "Glimpse" below
-│   └── beatween/                 # tool; see "Beatween" below
+│   ├── beatween/                 # tool; see "Beatween" below
+│   └── orbit/                    # toy; see "Orbit" below
 └── tests/
     ├── shared/
     │   ├── rng.test.js
     │   └── score.test.js
     ├── glimpse/                  # dots, error, game
     ├── beatween/                 # core (settings, scale, bands, lissajous), noise
+    ├── orbit/                    # physics (energy, merge, bounce, preview), presets, world, camera, trails
     └── hue-recall/
         ├── convert.test.js
         ├── distance.test.js
@@ -190,6 +192,39 @@ games/beatween/src/
 ```
 
 Styles: `games/beatween/styles/app.css` (doesn't use `game-kit.css`). Layout: scope over deck on phones; side by side when ≥ 860 px wide or landscape ≤ 540 px tall; `body` is one screen tall and `.app` scrolls only as a fallback.
+
+## Orbit (toy)
+
+A gravity sandbox. Like Beatween it is a one-screen toy with no phase machine and no card: **one continuous `requestAnimationFrame` loop** in `main.js`. Controls are built once and updated in place.
+
+```
+games/orbit/src/
+├── main.js                 # owns world + loop; accumulator → advance(); camera eases to the center of mass
+├── config.js               # sim units: G, softening, DT, SIM_RATE, speeds, ranges, launch, preview, trails
+├── physics/                # pure
+│   ├── gravity.js          # O(n²) softened accelerations, energy, momentum
+│   ├── integrate.js        # leapfrog (kick-drift-kick) step
+│   ├── collide.js          # merge (momentum-conserving) or bounce (impulse + COM-neutral separation)
+│   └── predict.js          # aim preview: probe vs frozen bodies, capped steps, stops on a hit
+├── sim/                    # pure
+│   ├── bodies.js           # body shape, radiusOf, kindOf, centerOfMass, recenter
+│   ├── presets.js          # Inner planets, Binary star, Chaos (seeded rng)
+│   └── world.js            # world object + transitions (advance, launch, remove, setGravity, setStarMass…), stepsFor accumulator
+├── view/                   # pure, no DOM
+│   ├── camera.js           # world ↔ screen, hit test, easing
+│   └── trails.js           # per-body history sampled on sim time
+└── ui/
+    ├── canvas-renderer.js  # draws a frame; colours from CSS custom properties; DPR-aware; starfield layer
+    ├── launcher.js         # pointer input: tap = select, drag from empty sky = aim + launch
+    ├── controls.js         # deck: play/pause, speed, reset, presets, log₂ sliders, chips
+    ├── sky-overlay.js      # body count, paused badge, hint, inspector card
+    └── icons.js
+```
+
+- **Time:** fixed `DT` steps fed by an accumulator (`stepsFor`); real frame time is clamped to `MAX_FRAME_SECONDS` (hidden tabs) and steps per frame are capped.
+- **World is immutable from outside:** `advance(world, n)` copies bodies once, mutates its copies for n steps, returns a new world plus the merges (used for selection follow + flash).
+- **Body:** `{id, x, y, vx, vy, mass, radius, color, star}`; `color` is a palette slot (theme decides the colour), `star` marks what the Sun-mass slider scales and what glows.
+- **Styles:** `games/orbit/styles/app.css`. Sky is night in dark mode, a pale daylight chart in light mode; canvas has `touch-action: none`. Same responsive breakpoints as Beatween.
 
 ## Adding a new game
 

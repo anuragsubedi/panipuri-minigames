@@ -5,13 +5,14 @@
 - **Hue Recall v0.1** — shipped. Polish parked (D-014).
 - **Glimpse v0.1** — shipped. Verified in browser (full game, keyboard, no console errors).
 - **Beatween v0.1** — shipped (binaural beats tool, was "Drift"). Audio graph verified via an AudioContext probe (oscillators match L/R; noise loop; suspend on pause); layout verified at 375×667, ~426×826, 740×360 landscape and desktop, light + dark. **Not verified by ear**: needs a headphone listen.
-- 68 tests passing (`npm test`).
+- **Orbit v0.1** — shipped (gravity sandbox toy). Verified at 375×667, 740×360 landscape and 1280×800, light + dark; drag-launch, preview, select/delete, presets; 61 fps with 30 bodies (physics ≈ 0.3 ms/frame at 8×). Touch drag tested with synthetic pointer events only: **needs a real-phone try**.
+- 89 tests passing (`npm test`).
 - `README.md` + `start.command` for non-technical players.
 - **Live site:** https://anuragsubedi.github.io/panipuri-minigames/. GitHub Pages serves the **`live`** branch (release branch, D-025); every push publishes.
 
 ## Next step
 
-Nothing scheduled. Next games are specced and ranked in `docs/specs/README.md` (Orbit, Pin Drop, Keyfall, Breakbench, Drift, Lost Lens, Blockyard), meant to be built independently in fresh sessions or other agent tools. Suggested order: ~~Drift~~ (shipped as Beatween) → Pin Drop → Orbit → Keyfall → Breakbench → Lost Lens → Blockyard. Ask the user which one.
+Nothing scheduled. Next games are specced and ranked in `docs/specs/README.md`, meant to be built independently in fresh sessions or other agent tools. Suggested order: ~~Beatween~~ → ~~Orbit~~ → Pin Drop → Keyfall → Breakbench → Lost Lens (after Pin Drop) → Blockyard. Ask the user which one.
 
 Open repo-wide questions (user's call):
 - **No LICENSE file** in the public repo.
@@ -27,6 +28,11 @@ Open repo-wide questions (user's call):
 - Separate verdict words for whole-game summary (currently uses average round score).
 - Brief "color hidden" transition between memorize and recreate.
 - Per-channel hint on round result ("too dark", "hue off by 20°").
+
+### Orbit ideas
+- "Mission" mode (spec stretch): keep a launched body in orbit for 30 s.
+- Pinch/wheel zoom; follow-selected-body camera.
+- A 3D take as its own toy (would need its own spec).
 
 ### Collection-wide ideas
 - Best score per game saved in `localStorage` (shown on hub tiles).
@@ -55,3 +61,4 @@ Open repo-wide questions (user's call):
 - Recorded the phone-first goal; pipeline spec gained a "Phone-first workflow" section; agent guides note cloud sessions. D-024.
 - Harness overhaul on new release branch `live`: specs split into `docs/specs/` (README + one file per game; pipeline + architect specs moved there); GitHub Pages enabled from `live` → https://anuragsubedi.github.io/panipuri-minigames/. Architect agent marked long-term. D-025, D-026.
 - Built **Beatween** (spec "Drift"): pure core (settings/link logic, log scale, bands, noise, Lissajous) + 15 tests, Web Audio engine, scope/channel/transport UI, responsive one-screen layout. Hub tile + README row. D-028.
+- Built **Orbit** (gravity sandbox): pure physics (leapfrog, softening, merge/bounce, path preview) + presets + world + camera/trails, 21 new tests (89 total); canvas renderer, launcher, deck, sky overlay; hub gained a "Toys" section. Mission mode deferred. D-029.
