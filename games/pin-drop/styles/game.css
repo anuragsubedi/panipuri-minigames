@@ -8,6 +8,7 @@
   --map-grid: rgba(60, 90, 120, 0.16);
   --map-pin: var(--accent);
   --map-target: #2f9a5c;
+  --map-river: #8fb8d4;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,6 +19,7 @@
     --map-border: #6f6559;
     --map-grid: rgba(160, 200, 230, 0.12);
     --map-target: #5fd08f;
+    --map-river: #3d6680;
   }
 }
 
@@ -451,6 +453,32 @@
 .map__locals {
   stroke-width: 0.4;
   opacity: clamp(0, calc((var(--zoom, 1) - 1.6) * 0.6), 0.8);
+}
+
+/* Rivers on the base map; a river or area being answered is highlighted. */
+.map__rivers {
+  fill: none;
+  stroke: var(--map-river);
+  stroke-width: 0.9;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.map__shape {
+  stroke: var(--map-target);
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.map__shape--line {
+  fill: none;
+  stroke-width: 3;
+}
+
+.map__shape--area {
+  fill: color-mix(in srgb, var(--map-target) 22%, transparent);
+  stroke-width: 1.5;
 }
 
 .map__note {

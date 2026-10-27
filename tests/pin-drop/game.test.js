@@ -82,6 +82,18 @@ test('submitPin scores by distance; exact pin is full marks', () => {
   assert.throws(() => submitPin(exact, { lat, lon }), /Invalid transition/);
 });
 
+test('submitPin: a river scores against its nearest point, and that point is the round target', () => {
+  const s = started();
+  const round = currentRound(s);
+  const river = { ...round, place: { ...round.place, shape: { kind: 'line', paths: [[[84, 27], [84, 28]]] } } };
+  const withRiver = { ...s, rounds: s.rounds.map((r, i) => (i === s.roundIndex ? river : r)) };
+  const on = currentRound(submitPin(withRiver, { lat: 27.5, lon: 84 }));
+  assert.equal(on.distanceKm, 0);
+  assert.deepEqual(on.target, { lat: 27.5, lon: 84 });
+  const off = currentRound(submitPin(withRiver, { lat: 27.5, lon: 85 }));
+  assert.ok(Math.abs(off.distanceKm - 98.7) < 1);
+});
+
 test('full game: clue → reveal → … → summary; total adds up', () => {
   let s = started();
   for (let i = 0; i < 5; i++) {

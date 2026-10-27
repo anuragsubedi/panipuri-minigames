@@ -7,13 +7,15 @@ import { createWorldMap } from '../components/world-map.js';
  * @param {HTMLElement} root
  * @param {{roundNumber: number, totalRounds: number, answer: string, guess: object, target: object,
  *          distance: string, direction: string, score: number, maxScore: number, verdict: string,
- *          isLast: boolean, blurb: string | null, map: object, mapView: object, gridStep: number}} props
+ *          isLast: boolean, blurb: string | null, shape: object | null, map: object, mapView: object, gridStep: number}} props
+ *   target: the nearest point of the place (its shape's, for rivers and areas).
  * @param {{onNext: () => void}} handlers
  * @returns {() => void} cleanup
  */
 export function renderReveal(root, props, { onNext }) {
   const { roundNumber, totalRounds, answer, guess, target, distance, direction, score, maxScore, verdict, isLast } = props;
   const worldMap = createWorldMap({ map: props.map, view: props.mapView, gridStep: props.gridStep, label: `Map showing ${answer}` });
+  if (props.shape) worldMap.showShapes([props.shape]);
   worldMap.showResults([{ guess, target }]);
   worldMap.frame([guess, target]);
 

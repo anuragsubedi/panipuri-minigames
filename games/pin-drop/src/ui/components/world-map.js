@@ -18,6 +18,7 @@ let clipCount = 0;
  * @returns {{element: HTMLElement, setPin: (pin: object | null) => void,
  *            setDots: (points: Array<{lat: number, lon: number}>) => void,
  *            showResults: (pairs: Array<{guess: object, target: object, label?: string}>) => void,
+ *            showShapes: (list: Array<{kind: string, paths: number[][][]}>) => void,
  *            frame: (points: Array<{lat: number, lon: number}> | null) => void, destroy: () => void}}
  */
 export function createWorldMap({ map, view: limits, gridStep, interactive = false, still = false, pin = null, onPin = () => {}, label = 'World map' }) {
@@ -42,12 +43,13 @@ export function createWorldMap({ map, view: limits, gridStep, interactive = fals
     // wide neighbour-coloured stroke just under it hides the gaps and doubled border lines.
     ...(map.districts ? [svgEl('path', { class: 'map__seam', d: map.focus })] : []),
     ...(map.focus ? [svgEl('path', { class: 'map__land', d: map.focus })] : []),
-    ...['locals', 'districts', 'states'].filter((layer) => map[layer]).map((layer) => svgEl('path', { class: `map__${layer}`, d: map[layer] })),
+    ...['rivers', 'locals', 'districts', 'states'].filter((layer) => map[layer]).map((layer) => svgEl('path', { class: `map__${layer}`, d: map[layer] })),
   ]);
+  const shapes = svgEl('g', { class: 'map__shapes' });
   const lines = svgEl('g', { class: 'map__lines' });
   // Zero-length round-capped segments with a non-scaling stroke: one path, constant-size dots.
   const dots = svgEl('path', { class: 'map__places', d: '', 'vector-effect': 'non-scaling-stroke' });
-  svg.append(dots, lines);
+  svg.append(shapes, dots, lines);
   const markers = el('div', { class: 'map__markers' });
   const pinEl = el('div', { class: 'map__pin', attrs: { hidden: '' } });
   markers.append(pinEl);
@@ -136,6 +138,16 @@ export function createWorldMap({ map, view: limits, gridStep, interactive = fals
     apply(clampView(target, rect, size, limits.maxZoom));
   }
 
+  // Highlights rivers and areas being answered.
+  function showShapes(list) {
+    shapes.replaceChildren(
+      ...list.map((shape) => {
+        const d = shape.paths.map((path) => path.map(([lon, lat], i) => `${i ? 'L' : 'M'}${lon} ${-lat}`).join('') + (shape.kind === 'area' ? 'z' : '')).join('');
+        return svgEl('path', { class: `map__shape map__shape--${shape.kind}`, d, 'vector-effect': 'non-scaling-stroke' });
+      }),
+    );
+  }
+
   function showResults(pairs) {
     for (const r of results) {
       r.guessEl.remove();
@@ -161,6 +173,7 @@ export function createWorldMap({ map, view: limits, gridStep, interactive = fals
       draw();
     },
     showResults,
+    showShapes,
     setDots: (points) => {
       dots.setAttribute('d', points.map((p) => `M${p.lon} ${-p.lat}h0`).join(''));
     },

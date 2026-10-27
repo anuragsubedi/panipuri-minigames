@@ -5,6 +5,7 @@ import { ROUND_OPTIONS, MAPS, DEFAULT_MAP, DEFAULT_TOPIC, DIFFICULTIES, DEFAULT_
 import { poolFor, pickPlaces } from '../data/pick-places.js';
 import { clueFor } from '../data/clue.js';
 import { distanceKm } from '../geo/haversine.js';
+import { nearestOnShape } from '../geo/shape.js';
 import { roundScore, totalScore } from '../../../../shared/js/score.js';
 
 export const PHASES = Object.freeze({
@@ -32,7 +33,10 @@ export function createGame({ mapId = DEFAULT_MAP, topic = DEFAULT_TOPIC, difficu
  */
 export function setOptions(state, changes) {
   assertPhase(state, PHASES.INTRO, PHASES.SUMMARY);
-  const { mapId, topic, difficulty, roundCount } = { ...state, ...changes };
+  const { mapId, difficulty, roundCount } = { ...state, ...changes };
+  let { topic } = { ...state, ...changes };
+  // Maps don't all share topics (Nepal has no Capitals): fall back to the new map's first.
+  if (changes.mapId && !changes.topic && MAPS[mapId] && !(topic in MAPS[mapId].topics)) topic = Object.keys(MAPS[mapId].topics)[0];
   return { ...state, ...assertOptions({ mapId, topic, difficulty, roundCount }) };
 }
 
@@ -53,6 +57,7 @@ export function startGame(state, packsById, rng) {
   const rounds = pickPlaces(pool, state.roundCount, rng).map((place) => ({
     place,
     guess: null,
+    target: null,
     distanceKm: null,
     score: null,
   }));
@@ -69,10 +74,13 @@ export function submitPin(state, guess) {
   assertPhase(state, PHASES.CLUE);
   if (!isValidPin(guess)) throw new RangeError(`Pin must have lat in [-90, 90] and lon in [-180, 180]`);
   const current = state.rounds[state.roundIndex];
-  const km = distanceKm(guess, current.place);
+  // Rivers and areas score against their nearest point (or the pin, inside an area).
+  const target = current.place.shape ? nearestOnShape(guess, current.place.shape) : { lat: current.place.lat, lon: current.place.lon };
+  const km = distanceKm(guess, target);
   const scored = {
     ...current,
     guess: { lat: guess.lat, lon: guess.lon },
+    target,
     distanceKm: km,
     score: roundScore(km, { ...SCORE_CURVE, scale: current.place.scaleKm }),
   };

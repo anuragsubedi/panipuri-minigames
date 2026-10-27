@@ -2,12 +2,14 @@
 // takes an injectable fetch so it also runs under Node.
 
 const TIERS = [1, 2, 3];
+const SHAPE_KINDS = ['line', 'area'];
 
 /**
  * Check a parsed pack and return it, or throw naming the first problem.
  * @param {unknown} pack
  * @returns {{id: string, name: string, map: string, scoreScaleKm: number,
- *            places: Array<{name: string, detail?: string, lat: number, lon: number, tier: number, region: string, clue?: object}>}}
+ *            places: Array<{name: string, detail?: string, lat: number, lon: number, tier: number, region: string,
+ *                           clue?: object, shape?: {kind: string, paths: number[][][]}}>}}
  */
 export function validatePack(pack) {
   const fail = (message) => {
@@ -29,8 +31,18 @@ export function validatePack(pack) {
     if (typeof place.region !== 'string' || !place.region) fail(`${where}: missing region`);
     if (place.blurb != null && typeof place.blurb !== 'string') fail(`${where}: blurb must be text`);
     if (place.clue != null && typeof place.clue?.type !== 'string') fail(`${where}: clue needs a type`);
+    if (place.shape != null && !isShape(place.shape)) fail(`${where}: shape needs kind 'line' or 'area' and paths of [lon, lat]`);
   });
   return pack;
+}
+
+function isShape(shape) {
+  return (
+    SHAPE_KINDS.includes(shape?.kind) &&
+    Array.isArray(shape.paths) &&
+    shape.paths.length > 0 &&
+    shape.paths.every((path) => Array.isArray(path) && path.length >= 2 && path.every((p) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite)))
+  );
 }
 
 /**
