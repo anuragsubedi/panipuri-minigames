@@ -4,7 +4,7 @@
 
 - **Hue Recall v0.1** — shipped. Polish parked (D-014).
 - **Glimpse v0.1** — shipped. Verified in browser (full game, keyboard, no console errors).
-- **Pin Drop v0.1** — built (map geo-guessing; D-032). Verified in headless Chromium at 375×667 (light) and 1280×800 (dark): full games incl. Hard · Mix · 10 rounds, no console errors, no page scroll, no network requests during play; pinch / tap / pin-drag / pan tested with synthetic touch events only: **needs a real-phone try**.
+- **Pin Drop v0.1** — shipped and live (map geo-guessing; D-032, D-033: OSM landmark coordinates, intro preview map). Verified in headless Chromium at 375×667 (light) and 1280×800 (dark): full games incl. Hard · Mix · 10 rounds, no console errors, no page scroll, no network requests during play; pinch / tap / pin-drag / pan tested with synthetic touch events only: **needs a real-phone try**.
 - **Beatween v0.1** — shipped (binaural beats tool, was "Drift"). Audio graph verified via an AudioContext probe (oscillators match L/R; noise loop; suspend on pause); layout verified at 375×667, ~426×826, 740×360 landscape and desktop, light + dark. **Not verified by ear**: needs a headphone listen.
 - **Orbit v0.2** — shipped and live (real units + clock, heaviest-bodies list, Solar system preset, zoom, saves; D-030). Gravity sandbox toy. Verified at 375×667, 740×360 landscape and 1280×800, light + dark; drag-launch, preview, select/delete, presets; 61 fps with 30 bodies (physics ≈ 0.3 ms/frame at 8×). Touch drag and pinch tested with synthetic pointer events only: **needs a real-phone try**.
 - **How it works** pages for all four games (`games/<name>/how.html`, D-031).
@@ -32,6 +32,11 @@ Open repo-wide questions (user's call):
 - Separate verdict words for whole-game summary (currently uses average round score).
 - Brief "color hidden" transition between memorize and recreate.
 - Per-channel hint on round result ("too dark", "hue off by 20°").
+
+### Pin Drop v0.2 data sources (checked reachable 2026-10-27)
+- **Region maps:** Natural Earth 1:10m admin-1 states/provinces (public domain) for state borders; Natural Earth also ships *point-of-view* country files (e.g. `ne_10m_admin_0_countries_ind`) that draw disputed borders as a given country does, which matters for an India map. geoBoundaries ADM1/ADM2 (mostly CC BY 4.0, per-country simplified files; NZ from Stats NZ). US Census cartographic boundary files (public domain).
+- **Places:** GeoNames `cities15000`/`cities5000` (CC BY 4.0: needs attribution) with population and admin codes, for regional city packs and state capitals. Natural Earth 1:10m populated places (public domain) as a lighter option.
+- **Landmarks + fame:** Wikidata (CC0) has coordinates, country/state and sitelink counts (a good "fame tier" signal), but Wikimedia rate-limits this cloud IP; run that query from the user's machine or a fresh session. OpenStreetMap Nominatim (ODbL, attribution) works and is what the landmarks pack uses.
 
 ### Pin Drop ideas
 - Great-circle reveal arcs (and wrap across the antimeridian).
@@ -80,3 +85,4 @@ Open repo-wide questions (user's call):
 - Core + 30 tests: projection, haversine/bearing, viewport math, pack validation (bundled packs checked for size per topic × difficulty), seeded region/pack-spread picking, pluggable clue, state machine.
 - Data: Natural Earth → `data/maps/world.json` and capitals/cities packs via committed scripts; 76 hand-picked landmarks.
 - UI: intro with three choices, clue/reveal/summary screens, map component + gestures, `how.html`, hub tile, README row. D-032.
+- Pushed v0.1. Then, on user feedback: landmark coordinates regenerated from OpenStreetMap via a committed tool (all 76 reviewed); intro redesigned with a preview map of the current pool and labelled choices; v0.2 data sources surveyed (see Backlog). D-033.

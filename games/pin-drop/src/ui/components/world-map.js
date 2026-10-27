@@ -11,14 +11,16 @@ let clipCount = 0;
 
 /**
  * @param {{map: {bounds: object, countries: string}, view: object, gridStep: number,
- *          interactive?: boolean, pin?: {lat: number, lon: number} | null,
+ *          interactive?: boolean, still?: boolean, pin?: {lat: number, lon: number} | null,
  *          onPin?: (pin: {lat: number, lon: number}) => void, label?: string}} options
  *   view: MAP_VIEW from config. interactive: taps place the pin (otherwise pan/zoom only).
+ *   still: a picture only, with no gestures or zoom buttons.
  * @returns {{element: HTMLElement, setPin: (pin: object | null) => void,
+ *            setDots: (points: Array<{lat: number, lon: number}>) => void,
  *            showResults: (pairs: Array<{guess: object, target: object, label?: string}>) => void,
  *            frame: (points: Array<{lat: number, lon: number}> | null) => void, destroy: () => void}}
  */
-export function createWorldMap({ map, view: limits, gridStep, interactive = false, pin = null, onPin = () => {}, label = 'World map' }) {
+export function createWorldMap({ map, view: limits, gridStep, interactive = false, still = false, pin = null, onPin = () => {}, label = 'World map' }) {
   const rect = boundsRect(map.bounds);
   let size = null;
   let view = fullView(rect);
@@ -36,7 +38,9 @@ export function createWorldMap({ map, view: limits, gridStep, interactive = fals
     svgEl('path', { class: 'map__land', d: map.countries, 'clip-path': `url(#${clipId})` }),
   ]);
   const lines = svgEl('g', { class: 'map__lines' });
-  svg.append(lines);
+  // Zero-length round-capped segments with a non-scaling stroke: one path, constant-size dots.
+  const dots = svgEl('path', { class: 'map__places', d: '', 'vector-effect': 'non-scaling-stroke' });
+  svg.append(dots, lines);
   const markers = el('div', { class: 'map__markers' });
   const pinEl = el('div', { class: 'map__pin', attrs: { hidden: '' } });
   markers.append(pinEl);
@@ -50,12 +54,12 @@ export function createWorldMap({ map, view: limits, gridStep, interactive = fals
     zoomButton('⤢', 'Show whole map', () => size && apply(fullView(rect))),
   ]);
 
-  const surface = el('div', { class: 'map__surface', attrs: { role: 'application', 'aria-label': label } }, [svg, markers]);
-  const element = el('div', { class: `map${interactive ? ' map--interactive' : ''}` }, [surface, controls]);
+  const surface = el('div', { class: 'map__surface', attrs: still ? { role: 'img', 'aria-label': label } : { role: 'application', 'aria-label': label } }, [svg, markers]);
+  const element = el('div', { class: `map${interactive ? ' map--interactive' : ''}${still ? ' map--still' : ''}` }, still ? [surface] : [surface, controls]);
 
   const toLatLon = (px) => clampToBounds(unproject(screenToMap(px, view, rect, size)), map.bounds);
 
-  const stopGestures = attachMapGestures(surface, {
+  const stopGestures = still ? () => {} : attachMapGestures(surface, {
     tapSlopPx: limits.tapSlopPx,
     wheelZoomPerPixel: limits.wheelZoomPerPixel,
     isOnPin: (px) => {
@@ -146,6 +150,9 @@ export function createWorldMap({ map, view: limits, gridStep, interactive = fals
       draw();
     },
     showResults,
+    setDots: (points) => {
+      dots.setAttribute('d', points.map((p) => `M${p.lon} ${-p.lat}h0`).join(''));
+    },
     frame,
     destroy: () => {
       stopGestures();

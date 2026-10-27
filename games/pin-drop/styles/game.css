@@ -32,58 +32,56 @@
   font-weight: 650;
 }
 
-/* Intro */
+/* Intro: title, a preview map of the current pool, then the choices.
+   Phones stack them with the map taking the leftover height; wide cards put
+   the map in its own column. */
 
 .screen--intro {
-  justify-content: space-between;
-  overflow-y: auto;
-}
-
-.intro__art {
-  position: relative;
-  width: 72px;
-  height: 56px;
-  border-radius: 14px;
-  background:
-    linear-gradient(var(--map-grid) 0 0) 0 50% / 100% 1px no-repeat,
-    linear-gradient(90deg, var(--map-grid) 0 0) 50% 0 / 1px 100% no-repeat,
-    radial-gradient(ellipse 30% 26% at 30% 40%, var(--map-land) 96%, transparent),
-    radial-gradient(ellipse 22% 30% at 70% 62%, var(--map-land) 96%, transparent),
-    var(--map-sea);
-}
-
-.intro__art .intro__pin {
-  left: 56%;
-  top: 62%;
+  display: grid;
+  grid-template-rows: auto minmax(110px, 1fr) auto;
+  gap: 16px;
+  padding: 20px;
 }
 
 .intro__title {
-  margin: 18px 0 12px;
-  font-size: clamp(44px, 13vw, 64px);
+  font-size: clamp(40px, 12vw, 64px);
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: -0.045em;
 }
 
 .intro__lede {
-  font-size: 20px;
+  margin-top: 8px;
+  font-size: 17px;
   font-weight: 600;
   line-height: 1.3;
+  color: var(--muted);
 }
 
-.intro__rules {
-  margin-top: 10px;
-  font-size: 15px;
-  line-height: 1.45;
-  color: var(--muted);
+.intro__preview {
+  display: flex;
+  min-height: 0;
 }
 
 .intro__options {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 10px;
-  margin-top: 16px;
+}
+
+.intro__field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.intro__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .intro__options .segmented {
@@ -92,16 +90,60 @@
 }
 
 .intro__options .segmented__option {
-  padding: 8px 10px;
+  padding: 7px 10px;
+}
+
+.intro__pool {
+  font-size: 14px;
+  color: var(--muted);
 }
 
 .intro__footer {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
-  width: 100%;
+}
+
+.map__places {
+  fill: none;
+  stroke: var(--map-pin);
+  stroke-width: 4.5;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+
+.map--still .map__surface {
+  cursor: default;
+}
+
+@media (min-width: 720px) {
+  .screen--intro {
+    gap: 20px;
+    padding: 28px;
+  }
+
+  .intro__options {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    column-gap: 24px;
+  }
+
+  /* The pool line sits under the choices, full width. */
+  .intro__pool {
+    order: 1;
+    flex-basis: 100%;
+  }
+
+  .intro__footer {
+    flex: 1;
+    gap: 24px;
+  }
+
+  .intro__lede {
+    font-size: 19px;
+  }
 }
 
 /* Play + reveal share one layout: header, map (fills), footer. */
@@ -232,8 +274,7 @@
 
 /* Pins sit on a 0×0 anchor; the transform moves the anchor to the spot. */
 .map__pin,
-.map__dot,
-.intro__pin {
+.map__dot {
   position: absolute;
   left: 0;
   top: 0;
@@ -241,8 +282,7 @@
   height: 0;
 }
 
-.map__pin::before,
-.intro__pin::before {
+.map__pin::before {
   content: '';
   position: absolute;
   left: -11px;

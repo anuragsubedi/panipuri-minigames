@@ -7,6 +7,7 @@ import { el } from '../../../shared/js/dom.js';
 import { verdictFor } from '../../../shared/js/verdict.js';
 import { loadPack } from './data/load-pack.js';
 import { answerLabel } from './data/clue.js';
+import { poolFor } from './data/pick-places.js';
 import { formatKm, directionHint } from './geo/describe.js';
 import {
   PHASES,
@@ -44,6 +45,8 @@ const screens = {
         topics: TOPICS,
         difficulties: DIFFICULTIES,
         roundOptions: ROUND_OPTIONS,
+        placesFor: ({ topic, difficulty }) => poolFor(TOPICS[topic].packs.map((id) => packs[id]), DIFFICULTIES[difficulty].tiers),
+        ...mapProps(),
       },
       {
         // The intro toggles its own buttons, so no re-render (keeps focus).

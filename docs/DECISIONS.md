@@ -237,3 +237,9 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Gestures are Pin Drop's own**, not shared with Orbit: Orbit's launcher is about aiming; here a short tap drops the pin, a drag that starts on the pin moves it, any other drag pans. Pins are HTML over the SVG, so they keep their size at any zoom.
 - **Straight reveal line** on the flat map (not a great-circle arc); the distance is always the true great-circle one. Noted on the how page.
 - **Card is wider/taller** for this game (up to 880 × 820 px) since the map needs room.
+
+## D-033 · Pin Drop: OSM landmark coordinates, intro preview map
+
+- **Date:** 2026-10-27
+- **Landmark coordinates come from OpenStreetMap** (user ask: real data, not typed from memory). `tools/landmarks-source.json` holds the hand-made part (name, tier, region, ISO country codes, optional search text); `tools/geocode-landmarks.py` asks Nominatim (1 req/s, country-restricted so e.g. "Lalibela" can't hit a restaurant abroad) and writes each place with its `osm` id. Matches were reviewed by hand; areas (Baikal, Kakadu…) use OSM's own centroid. Attribution: © OpenStreetMap contributors (ODbL) in the pack, how page and README. Wikimedia APIs rate-limit the cloud IP, so Wikipedia wasn't usable as a source.
+- **Intro preview map:** the empty middle of the start screen now shows the real map with a dot for every place the current topic + difficulty can draw from, plus labelled choices and a one-line pool summary ("Lesser-known places, country hidden · 445 places"). Dots are one SVG path of zero-length round-capped segments with a non-scaling stroke (constant size, cheap). Same stacked layout on phone and desktop; the map takes the leftover height.

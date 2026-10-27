@@ -183,7 +183,8 @@ Round: `{ count, dots: [{x, y}], guess, error, score }`. Transitions: `startGame
 games/pin-drop/
 ├── data/maps/world.json     # {bounds, countries: SVG path}; equirectangular, x = lon, y = −lat (degrees)
 ├── data/packs/*.json        # {id, name, map, scoreScaleKm, source, places: [{name, detail, lat, lon, tier 1–3, region, clue?}]}
-├── tools/                   # run by hand, stdlib Python: geojson-to-map.py, places-to-packs.py (Natural Earth → data/)
+├── tools/                   # run by hand, stdlib Python: geojson-to-map.py, places-to-packs.py (Natural Earth → data/),
+│                            #   geocode-landmarks.py (landmarks-source.json → OSM Nominatim → landmarks pack, keeps osm ids)
 ├── how.html
 └── src/
     ├── main.js              # fetches packs + maps once, then the usual render loop
@@ -200,7 +201,7 @@ games/pin-drop/
         ├── components/world-map.js     # SVG map + HTML pins/dots (constant size), ResizeObserver, frame()
         ├── components/map-gestures.js  # pointer → tap / pin drag / pan / pinch / wheel intents
         ├── components/clue.js          # one renderer per clue type (text now; photo later for Lost Lens)
-        └── screens/                    # intro, clue, reveal, summary
+        └── screens/                    # intro (preview map of the current pool), clue, reveal, summary
 ```
 
 Round: `{ place (with packId, scaleKm), guess, distanceKm, score }`. Transitions: `createGame({topic, difficulty, roundCount})`, `setOptions`, `startGame(state, packsById, rng)`, `submitPin` (throws `RangeError` unless `isValidPin`), `nextRound`. The clue screen keeps the working pin locally and reports it once on "Lock it in". Score scale comes from the place's pack, so a regional pack can be stricter. **Adding a region (v0.2):** new `data/maps/<id>.json` (same tool, different source/bounds) + a pack with `"map": "<id>"` and its own `scoreScaleKm` + a `TOPICS` entry.

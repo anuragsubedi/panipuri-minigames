@@ -21,9 +21,9 @@ export const DEFAULT_TOPIC = 'capitals';
  * whether the clue names the country.
  */
 export const DIFFICULTIES = {
-  easy: { label: 'Easy', tiers: [1], showDetail: true },
-  medium: { label: 'Medium', tiers: [1, 2], showDetail: true },
-  hard: { label: 'Hard', tiers: [2, 3], showDetail: false },
+  easy: { label: 'Easy', tiers: [1], showDetail: true, blurb: 'Famous places, country shown' },
+  medium: { label: 'Medium', tiers: [1, 2], showDetail: true, blurb: 'Famous and well-known places, country shown' },
+  hard: { label: 'Hard', tiers: [2, 3], showDetail: false, blurb: 'Lesser-known places, country hidden' },
 };
 
 export const DEFAULT_DIFFICULTY = 'easy';

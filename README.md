@@ -58,6 +58,8 @@ Use this if the double-click doesn't work, or you're on Windows or Linux.
 
 **Why not just double-click `index.html`?** Browsers block games like these from loading their pieces straight off your disk, for security. The command above starts a small private web server that only your own computer can see, and that fixes it. Nothing is installed and nothing goes on the internet.
 
+**Map data:** Pin Drop uses country shapes, capitals and cities from [Natural Earth](https://www.naturalearthdata.com/) (public domain), and landmark locations © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.
+
 **Want the same game as a friend?** Add `?seed=` and any number to a game's address, for example `http://localhost:5173/games/hue-recall/?seed=42`. Everyone using that number gets the same game, which is handy for challenging a friend.
 
 ---
