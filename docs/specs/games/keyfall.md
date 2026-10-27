@@ -1,6 +1,6 @@
 # Keyfall — keyboard rhythm game (game)
 
-> **Status:** proposed · **Rank:** 3 / 7 · **Effort:** 1–2 sessions + chart prep · **Type:** game
+> **Status:** proposed · **Rank:** 4 / 8 · **Effort:** 1–2 sessions + chart prep · **Type:** game
 > Shared rules for every spec: [`../README.md`](../README.md). Update this header when status changes (proposed → approved → in progress → shipped).
 
 **Pitch:** Notes fall down four (or six) lanes. Hit the matching key as each one lands, and you're playing a classical piece.

@@ -6,7 +6,8 @@ export const ROUND_OPTIONS = [5, 10];
 /**
  * Each map (`data/maps/<id>.json`) has its own topics; a topic is a set of
  * packs (`data/packs/<id>.json`) drawn on that map, and Mix pools them all.
- * Topic keys are shared across maps so switching map keeps the topic.
+ * Topic keys are shared across maps so switching map keeps the topic when the
+ * new map has it (otherwise it falls back to that map's first topic).
  * gridStep: graticule spacing in degrees.
  */
 export const MAPS = {
@@ -30,6 +31,18 @@ export const MAPS = {
       cities: { label: 'Cities', packs: ['india-cities'] },
       landmarks: { label: 'Landmarks', packs: ['india-landmarks'] },
       mix: { label: 'Mix', packs: ['india-capitals', 'india-cities', 'india-landmarks'] },
+    },
+  },
+  // No Capitals topic: Nepal has only 8. Cities covers all 753 palikas (rural ones on Hard).
+  nepal: {
+    label: 'Nepal',
+    detailLabel: 'district',
+    gridStep: 1,
+    topics: {
+      cities: { label: 'Cities', packs: ['nepal-cities'] },
+      landmarks: { label: 'Landmarks', packs: ['nepal-landmarks'] },
+      nature: { label: 'Nature', packs: ['nepal-nature'] },
+      mix: { label: 'Mix', packs: ['nepal-cities', 'nepal-landmarks', 'nepal-nature'] },
     },
   },
 };

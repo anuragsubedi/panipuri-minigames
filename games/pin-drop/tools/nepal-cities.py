@@ -14,6 +14,7 @@ district HQs, province capitals and towns with enough Wikipedia editions are 2;
 every other municipality and all rural municipalities are 3 (Hard only).
 A district HQ or alias is placed at its town (e.g. Salleri), named
 "Salleri (Solududhkunda)"; rural municipalities are "X Rural Municipality".
+A name used in more than one district gets the district added.
 """
 
 import json
@@ -69,6 +70,13 @@ def main():
         if p.get("wikidata"):
             place["wikidata"] = p["wikidata"]
         places.append(place)
+    # Same name in two districts (e.g. four Madis): add the district so each is unique.
+    counts = {}
+    for place in places:
+        counts[place["name"]] = counts.get(place["name"], 0) + 1
+    for place in places:
+        if counts[place["name"]] > 1:
+            place["name"] += f" ({place['detail'].split(',')[0]})"
     missing_hq = [d for d, (palika, _) in source["hq"].items() if (palika, d) not in {(p["name"], p["district"]) for p in palikas}]
     if missing_hq or len(districts_seen) != 77:
         sys.exit(f"Expected 77 districts with HQs; missing HQ palikas for {missing_hq}, saw {len(districts_seen)} districts")

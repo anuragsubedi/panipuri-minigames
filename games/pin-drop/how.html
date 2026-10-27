@@ -35,8 +35,10 @@
       <p>A game is <span data-value="roundOptions">5 or 10</span> rounds. The summary puts every round on one map.</p>
 
       <h2>Maps</h2>
-      <p>Pick the <strong>World</strong> or a country map (so far <strong>India</strong>). A country map shows its state borders and has its own capitals, cities and landmarks.</p>
-      <p>Some borders are disputed. A country map draws them the way <em>that country's</em> official map does, using Natural Earth's "point of view" data, and says so in the corner of the map. The world map uses Natural Earth's default lines.</p>
+      <p>Pick the <strong>World</strong> or a country map (so far <strong>India</strong> and <strong>Nepal</strong>). A country map shows its state or province borders and has its own topics.</p>
+      <p>Some borders are disputed. A country map draws them the way <em>that country's</em> official map does, and says so in the corner of the map. India's map uses Natural Earth's "point of view" data. The world map uses Natural Earth's default lines.</p>
+      <p><strong>Nepal</strong> is the most detailed map: the Survey Department of Nepal's own boundaries (2024, via <a href="https://data.humdata.org/dataset/cod-ab-npl">OCHA HDX</a>, CC BY 3.0 IGO), so it includes Kalapani, Lipulekh and Limpiyadhura as Nepal's official map does. It shows the 7 provinces, all 77 districts and, as you zoom in, all 753 local levels (palikas), plus the big rivers. Its topics are Cities (every palika; rural ones only on Hard), Landmarks and Nature (parks, lakes, rivers, peaks).</p>
+      <p>A river, park or lake counts as its whole shape: drop the pin anywhere on the river's course in Nepal, or inside the park, and you're right on it. Otherwise the distance is to the nearest point of the shape, and the reveal highlights it.</p>
 
       <h2>Topics and difficulty</h2>
       <p>Topic and difficulty are separate. Every place has a <strong>fame tier</strong>: 1 for places most people could find, 3 for ones only geography fans know. A world capital can be tier 3 (Palikir) and a landmark can be tier 1 (the Eiffel Tower).</p>
@@ -52,11 +54,11 @@
           <tbody id="topics"></tbody>
         </table>
       </div>
-      <p>Capitals and cities come from <a href="https://www.naturalearthdata.com/">Natural Earth</a> (public domain). Landmarks are hand-picked, with coordinates from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> (© OpenStreetMap contributors, ODbL). On the world map, places whose capital or statehood is disputed are left out.</p>
+      <p>Capitals and cities come from <a href="https://www.naturalearthdata.com/">Natural Earth</a> (public domain); Nepal's palikas come from the Survey Department data above, placed at their town centre from OpenStreetMap. Landmarks are hand-picked, with coordinates (and river and park shapes) from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> (© OpenStreetMap contributors, ODbL). On the world map, places whose capital or statehood is disputed are left out.</p>
       <p>Tiers on country maps come from <a href="https://www.wikidata.org/">Wikidata</a>: how many Wikipedia languages have an article about the place. That's a global signal, so it can only <em>promote</em> a landmark, never push a place famous at home down a tier.</p>
 
       <h2>Picking the places</h2>
-      <p>The game shuffles every place allowed by your topic and difficulty, then works down the list. It skips any place in a region (Africa, Asia, Europe, North America, South America, Oceania) already used, until every region has had a turn. It does the same across topics in Mix. That way you don't get three European cities in a row, and Mix isn't mostly cities.</p>
+      <p>The game shuffles every place allowed by your topic and difficulty, then works down the list. It skips any place in a region (Africa, Asia, Europe, North America, South America, Oceania) already used (on a country map, a zone of states or a province), until every region has had a turn. It does the same across topics in Mix. That way you don't get three European cities in a row, and Mix isn't mostly cities.</p>
 
       <h2>The map</h2>
       <p>The map is an <strong>equirectangular</strong> projection: longitude goes straight across, latitude straight up. A tap becomes a latitude and longitude with simple arithmetic, so no mapping library is needed. Country shapes are bundled with the game, so nothing loads over the network while you play.</p>

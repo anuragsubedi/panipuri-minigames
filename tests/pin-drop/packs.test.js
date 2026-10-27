@@ -83,3 +83,25 @@ test('loadPack validates what it fetches', async () => {
   const missing = async () => ({ ok: false, status: 404 });
   await assert.rejects(loadPack('x.json', missing), /404/);
 });
+
+test('rivers and areas stay inside their map', () => {
+  for (const [mapId, { topics }] of Object.entries(MAPS)) {
+    const { bounds } = JSON.parse(readFileSync(new URL(`../../games/pin-drop/data/maps/${mapId}.json`, import.meta.url), 'utf8'));
+    for (const id of new Set(Object.values(topics).flatMap((t) => t.packs))) {
+      for (const p of packs[id].places.filter((place) => place.shape)) {
+        for (const [lon, lat] of p.shape.paths.flat()) {
+          assert.ok(lat <= bounds.north && lat >= bounds.south && lon >= bounds.west && lon <= bounds.east, `${id}: ${p.name} leaves the map`);
+        }
+      }
+    }
+  }
+});
+
+test('Nepal cities cover all 77 districts and 7 provinces, with every district HQ on Medium', () => {
+  const places = packs['nepal-cities'].places;
+  assert.equal(places.length, 753);
+  assert.equal(new Set(places.map((p) => p.detail)).size, 77);
+  assert.equal(new Set(places.map((p) => p.region)).size, 7);
+  const onMedium = new Set(places.filter((p) => p.tier <= 2).map((p) => p.detail));
+  assert.equal(onMedium.size, 77);
+});

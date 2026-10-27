@@ -1,6 +1,6 @@
 # Lost Lens — photo geo-guessing (game)
 
-> **Status:** proposed · **Rank:** 6 / 7 · **Effort:** +1 session code, +1–2 curation · **Type:** game mode (inside Pin Drop) ⚠️ needs a user decision before building
+> **Status:** proposed · **Rank:** 7 / 8 · **Effort:** +1 session code, +1–2 curation · **Type:** game mode (inside Pin Drop) ⚠️ needs a user decision before building
 > Shared rules for every spec: [`../README.md`](../README.md). Update this header when status changes (proposed → approved → in progress → shipped).
 
 **Pitch:** Pin Drop with photographs. A street corner, a market or a mountain road: where in the world is it?

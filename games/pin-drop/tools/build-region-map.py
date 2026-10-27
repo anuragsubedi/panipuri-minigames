@@ -8,7 +8,7 @@ Run by hand (not a build step), standard library only:
         > games/pin-drop/data/maps/india.json
     python3 games/pin-drop/tools/build-region-map.py nepal \
         ne_10m_admin_0_countries_nep.geojson npl_admin0.geojson npl_admin3.geojson \
-        > games/pin-drop/data/maps/nepal.json
+        games/pin-drop/data/packs/nepal-nature.json > games/pin-drop/data/maps/nepal.json
 
 Sources: Natural Earth 1:10m (public domain, https://github.com/nvkelso/natural-earth-vector).
 The countries file is a Natural Earth *point-of-view* file (e.g. `_ind`), so
@@ -18,7 +18,8 @@ Survey Department of Nepal's boundaries as published on OCHA HDX
 (https://data.humdata.org/dataset/cod-ab-npl, CC BY 3.0 IGO): npl_admin0 for
 the outline, npl_admin3 (local levels) for province, district and local
 lines, so every layer shares the same vertices. Natural Earth then only
-supplies the neighbours.
+supplies the neighbours. An optional pack adds its rivers (places with a
+line shape, from OpenStreetMap) as a faint base-map layer.
 
 Output, in the same map units as world.json (x = lon, y = -lat):
     bounds    the playable area
@@ -31,6 +32,7 @@ Output, in the same map units as world.json (x = lon, y = -lat):
               lines of control therefore never show up as state lines.
     districts (cod only) district lines that aren't province lines
     locals    (cod only) local-level (palika) lines that aren't district lines
+    rivers    (cod only, optional) river courses from a pack's line shapes
     note      provenance shown on the map
 """
 
@@ -283,11 +285,15 @@ def main(region_id, countries_path, *admin_paths):
     context = "".join(ring_paths(f["geometry"], tol * 2.5, box) for f in in_view if f is not focus[0])
     out = {"bounds": bounds, "countries": context}
     if region.get("admin") == "cod":
-        outline_path, locals_path = admin_paths
+        outline_path, locals_path, *rivers_pack = admin_paths
         out["focus"] = ring_paths(load_features(outline_path)[0]["geometry"], tol)
         layer_tol = region["layer_tolerance"]
         for name, lines in cod_lines(load_features(locals_path)).items():
             out[name] = "".join(path(simplify(line, layer_tol[name]), close=False) for line in lines)
+        if rivers_pack:
+            with open(rivers_pack[0], encoding="utf-8") as handle:
+                shapes = [p["shape"] for p in json.load(handle)["places"] if p.get("shape", {}).get("kind") == "line"]
+            out["rivers"] = "".join(path(line, close=False) for shape in shapes for line in shape["paths"])
     else:
         nearby = [f for f in load_features(admin_paths[0]) if bbox_hits(f["geometry"], bounds, margin=0)]
         lines = state_lines(nearby, region["focus"], region["remap"])

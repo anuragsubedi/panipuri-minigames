@@ -1,6 +1,6 @@
 # Blockyard — tiny voxel sandbox (toy)
 
-> **Status:** proposed · **Rank:** 7 / 7 · **Effort:** 2–3 (three.js) / 4–6 (raw WebGL) · **Type:** toy ⚠️ needs a user decision before building
+> **Status:** proposed · **Rank:** 8 / 8 · **Effort:** 2–3 (three.js) / 4–6 (raw WebGL) · **Type:** toy ⚠️ needs a user decision before building
 > Shared rules for every spec: [`../README.md`](../README.md). Update this header when status changes (proposed → approved → in progress → shipped).
 
 **Pitch:** A small floating island of blocks. Walk around, dig, build and pick from a handful of block colors. No survival, no crafting: just building.

@@ -1,6 +1,6 @@
 # Breakbench — modular DnB pattern player (toy)
 
-> **Status:** proposed · **Rank:** 4 / 7 · **Effort:** 2–3 sessions · **Type:** toy ⚠️ needs a user decision before building
+> **Status:** proposed · **Rank:** 5 / 8 · **Effort:** 2–3 sessions · **Type:** toy ⚠️ needs a user decision before building
 > Shared rules for every spec: [`../README.md`](../README.md). Update this header when status changes (proposed → approved → in progress → shipped).
 
 **Pitch:** A tiny live-coding groovebox for drum & bass. Type short patterns, hear them loop at 174 BPM, and tweak them live without stopping the beat.

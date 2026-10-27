@@ -37,19 +37,21 @@ Each idea is scored 1–5 on three axes (feasibility means feasible as vanilla J
 | Rank | Working name | Inspired by | Novelty | Wow | Feasibility | Score | Effort | Type |
 |---|---|---|---|---|---|---|---|---|
 | 1 | [**Orbit**](games/orbit.md) ✅ shipped | solar system sandbox | 3 | 5 | 4 | **12** | 1–2 sessions | toy |
-| 2 | [**Pin Drop**](games/pin-drop.md) ✅ shipped | geo-guessing (map-only) | 3 | 3 | 5 | **11** | 1–1.5 sessions | game |
-| 3 | [**Keyfall**](games/keyfall.md) | falling-tile piano games | 3 | 4 | 4 | **11** | 1–2 sessions + chart prep | game |
-| 4 | [**Breakbench**](games/breakbench.md) | live-coded DnB (Strudel / "Switch Angel"-style) | 4 | 5 | 2 | **11** ⚠️ | 2–3 sessions | toy |
-| 5 | [**Beatween**](games/beatween.md) (was Drift) ✅ shipped | binaural beats generator | 2 | 3 | 5 | **10** | < 1 session | tool |
-| 6 | [**Lost Lens**](games/lost-lens.md) | photo geo-guessing (Pin Drop pack) | 3 | 5 | 2 | **10** ⚠️ | +1 session code, +1–2 asset curation | game mode |
-| 7 | [**Blockyard**](games/blockyard.md) | voxel sandbox ("mini Minecraft") | 2 | 5 | 1 | **8** ⚠️ | 2–3 (three.js) / 4–6 (raw WebGL) | toy |
+| 2 | [**Nepal Atlas**](games/nepal-atlas.md) | school atlas, made interactive | 4 | 5 | 3 | **12** ⚠️ | v0.1 ≈ 2 sessions | tool |
+| 3 | [**Pin Drop**](games/pin-drop.md) ✅ shipped | geo-guessing (map-only) | 3 | 3 | 5 | **11** | 1–1.5 sessions | game |
+| 4 | [**Keyfall**](games/keyfall.md) | falling-tile piano games | 3 | 4 | 4 | **11** | 1–2 sessions + chart prep | game |
+| 5 | [**Breakbench**](games/breakbench.md) | live-coded DnB (Strudel / "Switch Angel"-style) | 4 | 5 | 2 | **11** ⚠️ | 2–3 sessions | toy |
+| 6 | [**Beatween**](games/beatween.md) (was Drift) ✅ shipped | binaural beats generator | 2 | 3 | 5 | **10** | < 1 session | tool |
+| 7 | [**Lost Lens**](games/lost-lens.md) | photo geo-guessing (Pin Drop pack) | 3 | 5 | 2 | **10** ⚠️ | +1 session code, +1–2 asset curation | game mode |
+| 8 | [**Blockyard**](games/blockyard.md) | voxel sandbox ("mini Minecraft") | 2 | 5 | 1 | **8** ⚠️ | 2–3 (three.js) / 4–6 (raw WebGL) | toy |
 
 **Ties are broken by feasibility.** Each game spec ends with a **Sanity check**: a one-pass review of what's verified, what's risky, and what changed from the first draft. Read it before building.
 
 **Suggested build order** (this differs from the rank, because it front-loads cheap wins):
-1. ~~Drift~~ (shipped as Beatween) → ~~Orbit~~ (shipped) → ~~Pin Drop~~ (shipped; v0.2 adds India; Nepal next).
-2. Keyfall → Breakbench.
-3. Lost Lens (after Pin Drop; reuses its map) → Blockyard.
+1. ~~Drift~~ (shipped as Beatween) → ~~Orbit~~ (shipped) → ~~Pin Drop~~ (shipped; v0.2 adds India and Nepal).
+2. **Nepal Atlas** next (user's call, 2026-10-27): it builds on Pin Drop's Nepal map.
+3. Keyfall → Breakbench.
+4. Lost Lens (after Pin Drop; reuses its map) → Blockyard.
 
 **Hub note:** Beatween, Orbit and Breakbench are toys or tools, not scored games; they go in the hub's "Toys" section (added with Orbit).
 

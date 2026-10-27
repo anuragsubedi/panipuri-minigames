@@ -1,6 +1,6 @@
 # Orbit — solar system sandbox (toy)
 
-> **Status:** shipped v0.2 (`games/orbit/`, D-029, D-030) · **Rank:** 1 / 7 · **Effort:** 1–2 sessions · **Type:** toy
+> **Status:** shipped v0.2 (`games/orbit/`, D-029, D-030) · **Rank:** 1 / 8 · **Effort:** 1–2 sessions · **Type:** toy
 > Shared rules for every spec: [`../README.md`](../README.md). Update this header when status changes (proposed → approved → in progress → shipped).
 
 **Pitch:** A pocket solar system you can poke. Fling a planet, crank up the sun's mass, and watch orbits wobble, slingshot or fall apart.
