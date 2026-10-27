@@ -359,6 +359,28 @@ function aimFrame() {
 
 // Frame loop
 
+function trailStep() {
+  return viewRadius / TRAIL.perView;
+}
+
+// Runs `steps` physics steps, sampling trails along the way (not just once
+// per frame) so fast bodies at high speed don't leave jagged chords.
+function advanceWithTrails(steps) {
+  if (!trailsOn) {
+    const result = advance(world, steps);
+    world = result.world;
+    return result;
+  }
+  const merges = [];
+  for (let done = 0; done < steps; done += TRAIL.stepsPerSample) {
+    const result = advance(world, Math.min(TRAIL.stepsPerSample, steps - done));
+    world = result.world;
+    merges.push(...result.merges);
+    trails.record(world.bodies, trailStep());
+  }
+  return { world, merges };
+}
+
 let last = performance.now();
 let lastOverlay = 0;
 
@@ -370,8 +392,7 @@ function frame(now) {
     const owed = stepsFor(carry, seconds, { rate: SIM_RATE, speed, dt: DT, maxFrame: MAX_FRAME_SECONDS, maxSteps: MAX_STEPS_PER_FRAME });
     carry = owed.carry;
     if (owed.steps > 0) {
-      const result = advance(world, owed.steps);
-      world = result.world;
+      const result = advanceWithTrails(owed.steps);
       for (const m of result.merges) {
         if (selectedId === m.from) selectedId = m.into;
         if (!reducedMotion.matches) flashes.push({ x: m.x, y: m.y, radius: bodyById(world, m.into)?.radius ?? 4, born: now });
@@ -381,7 +402,7 @@ function frame(now) {
       dirty = true;
     }
   }
-  if (trailsOn && dirty) trails.record(world.bodies, viewRadius / TRAIL.perView);
+  if (trailsOn && dirty) trails.record(world.bodies, trailStep());
 
   if (world.bodies.length) {
     const c = centerOfMass(world.bodies);

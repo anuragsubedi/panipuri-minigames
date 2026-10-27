@@ -84,8 +84,12 @@ export const PREVIEW = { steps: 300, dt: 0.25, tickEvery: 12 };
 export const VIEW_RADIUS = 250;
 export const ZOOM = { min: 40, max: 8000, buttonFactor: 1.6, wheelPerPixel: 0.0015 };
 
-/** Trails: a sample whenever a body moved 1/`perView` of the view radius; `length` kept. */
-export const TRAIL = { perView: 120, length: 100 };
+/**
+ * Trails: a sample whenever a body moved 1/`perView` of the view radius;
+ * `length` kept. At high speed a frame runs hundreds of steps, so physics runs
+ * in chunks of `stepsPerSample` with a sample after each, keeping fast orbits round.
+ */
+export const TRAIL = { perView: 120, length: 100, stepsPerSample: 8 };
 
 /** Planet colour slots; actual colours are theme tokens in app.css. */
 export const PALETTE_SIZE = 8;
