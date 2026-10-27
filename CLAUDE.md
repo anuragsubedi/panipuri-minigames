@@ -9,6 +9,8 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 
 ## Who reads what
 
+- `AGENTS.md` — short pointer here for non-Claude agents (Codex, Cursor, Antigravity). Keep it in sync with this file's essentials.
+- `docs/GAME-SPECS.md` — ranked, self-contained specs for future games (each with a sanity check).
 - `README.md` — for **non-technical humans**: how to start and play. Keep it jargon-free; update its game table when a game ships.
 - `CLAUDE.md` (this file) — for **agents**: rules, conventions, where things live.
 - `docs/` — long-term project memory (below).
@@ -83,6 +85,7 @@ Every pure module gets a test file. UI is verified by playing it in the browser 
 
 ```
 CLAUDE.md            this file (agents)
+AGENTS.md            pointer for non-Claude agents
 README.md            setup + play instructions (non-technical humans)
 start.command        macOS double-click launcher
 docs/                long-term project memory

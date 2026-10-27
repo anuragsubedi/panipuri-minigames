@@ -122,3 +122,10 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Decision:** `score.js` and `verdict.js` moved to `shared/js/` (both games use the same decaying curve and verdict lookup). Result panel and summary list CSS moved into `game-kit.css`. Glimpse renders dots as SVG in a unit-square viewBox; guesses are typed (numeric keypad on phones) with −/+ steppers.
 - **Why:** Avoid duplicate code; SVG scales crisply to any card size.
 - **Note:** The user asked for faster, terser work, so steps 2–3 were finished back to back.
+
+## D-019 · Future-game specs + AGENTS.md
+
+- **Date:** 2026-10-26
+- **Decision:** `docs/GAME-SPECS.md` holds ranked, self-contained proposals (not approved builds) for Orbit, Pin Drop, Keyfall, Breakbench, Drift, Lost Lens and Blockyard. Each has a sanity check. `AGENTS.md` points any agent tool at `CLAUDE.md`.
+- **Why:** The user wants to build games independently in fresh sessions and in other tools (Cursor, Codex, Antigravity).
+- **Notable calls:** a full street-imagery geo game is split into Pin Drop (map-only, first) and Lost Lens (a photo pack inside Pin Drop). Breakbench recommends its own engine over wrapping AGPL Strudel. Blockyard likely needs a dependency exception.

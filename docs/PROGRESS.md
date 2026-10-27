@@ -9,7 +9,9 @@
 
 ## Next step
 
-Nothing scheduled. Ask the user: another game, or something from the backlog.
+Nothing scheduled. Next games are specced and ranked in `docs/GAME-SPECS.md` (Orbit, Pin Drop, Keyfall, Breakbench, Drift, Lost Lens, Blockyard), meant to be built independently in fresh sessions or other agent tools. Suggested order: Drift → Pin Drop → Orbit → Keyfall → Breakbench → Lost Lens → Blockyard. Ask the user which one.
+
+Open repo-wide question: **no LICENSE file** in the public repo (user's call).
 
 ## Backlog (not scheduled — ask the user before picking any up)
 
@@ -40,3 +42,4 @@ Nothing scheduled. Ask the user: another game, or something from the backlog.
 - User played v0.1, chose to skip polish (D-014). Added `README.md` + `start.command` for non-technical users (D-015). Proposed game 2 "Glimpse" with spec (D-016). Rewrote `CLAUDE.md` (status table, who-reads-what, new-game pointer); added "Adding a new game" + shared-code plan to ARCHITECTURE.
 - Glimpse approved. Step 1: extracted `shared/js/` (dom, format, rng + `seedFromQuery`, countdown with caption param, round badge) and `shared/styles/game-kit.css`; Hue Recall now imports them. Tests moved/added (`tests/shared/rng.test.js`, 30 total). D-017.
 - Glimpse step 2: core + 23 tests; `score.js`/`verdict.js` moved to `shared/js`. User asked for speed and short replies → finished step 3 in the same turn: UI, hub tile, README row; result/summary CSS moved to `game-kit.css`. D-018.
+- Wrote `docs/GAME-SPECS.md`: 7 ideas ranked (novelty / wow / feasibility) with self-contained specs and a per-spec sanity check; added `AGENTS.md` for other agent tools. D-019.
