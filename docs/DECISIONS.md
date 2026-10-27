@@ -142,3 +142,16 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Date:** 2026-10-26
 - **Status:** proposed.
 - **View:** GitHub Pages is fine for Phase 1. Longer term, Cloudflare (Pages or Workers static assets) is preferred: unmetered static traffic, previews, custom headers (COOP/COEP), commercial use on free tier, and Workers/Durable Objects for future server features. Vercel is preferred only if moving to Next.js (Hobby tier is non-commercial). Host-agnostic `_site/` keeps switching cheap. Details in `docs/PIPELINE-SPEC.md` → Hosting choice.
+
+## D-022 · Host: GitHub Pages; server features on Cloudflare Workers
+
+- **Date:** 2026-10-26
+- **Decision (user):** Deploy the static site to GitHub Pages. When games need server compute (leaderboards, multiplayer, keeping API keys secret), add Cloudflare Workers as a separate backend; the site stays on Pages.
+- **Supersedes:** the open hosting question in D-020/D-021.
+
+## D-023 · Architect agent for PR review and merge (proposal)
+
+- **Date:** 2026-10-26
+- **Status:** proposed; depends on the pipeline (D-020).
+- **Decision:** Authors never merge their own PRs. A separate Architect agent (its own GitHub App identity) reviews every CI-green PR. It auto-merges only **tier A** PRs (changes confined to one game + append-only hotspot edits + docs); tier B (`shared/`, multi-game) and tier C (`.github/`, `scripts/`, `package.json`, agent guides) need the user, enforced by CODEOWNERS. The tier comes from a deterministic path-classification script, not the model.
+- **Why:** Lets builder agents ship routine work end-to-end while the user keeps control of shared code, pipeline and policy. Guards against PRs rewriting their own reviewer, the `GITHUB_TOKEN` no-trigger gotcha, and prompt injection via PR content.

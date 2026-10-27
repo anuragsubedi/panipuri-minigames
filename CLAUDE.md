@@ -10,7 +10,8 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 ## Who reads what
 
 - `AGENTS.md` — short pointer here for non-Claude agents (Codex, Cursor, Antigravity). Keep it in sync with this file's essentials.
-- `docs/PIPELINE-SPEC.md` — proposed build/release pipeline (GitHub Pages + Actions, PR flow). **Not implemented**; needs user approval.
+- `docs/PIPELINE-SPEC.md` — proposed build/release pipeline (GitHub Pages chosen, D-022; Workers for future server features). **Not implemented**; needs user approval.
+- `docs/ARCHITECT-AGENT-SPEC.md` — proposed automated PR reviewer/merger with risk tiers. **Not implemented**; depends on the pipeline.
 - `docs/GAME-SPECS.md` — ranked, self-contained specs for future games (each with a sanity check).
 - `README.md` — for **non-technical humans**: how to start and play. Keep it jargon-free; update its game table when a game ships.
 - `CLAUDE.md` (this file) — for **agents**: rules, conventions, where things live.
@@ -37,6 +38,7 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 - Keep it simple: the smallest change that solves the problem. No frameworks, bundlers or npm packages.
 - Games are **original**: a game may share a genre with existing games, but never copy a specific product's name, branding, layout or copy (D-006).
 - One commit per completed step, with a clear message.
+- **Authors never merge their own PRs.** Until the Architect agent is live, the user merges everything.
 - Keep replies **short**; it's a simple prototype. Once a feature is approved, finish it without extra review stops unless asked.
 
 ## Code conventions

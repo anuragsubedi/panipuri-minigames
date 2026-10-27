@@ -1,6 +1,6 @@
 # Build & Release Pipeline — Spec (agent-first)
 
-> **Status: proposal, not implemented.** Hosting long-run view: see "Hosting choice → Recommendation". Nothing here exists yet: no workflows, no Pages site, no branch protection. Implementing it needs the user's OK, and some steps are **user-only** (marked 👤).
+> **Status: proposal, not implemented.** **Host decided: GitHub Pages** (D-022). Server features later via Cloudflare Workers. PR review/merge automation: `docs/ARCHITECT-AGENT-SPEC.md`. Nothing here exists yet: no workflows, no Pages site, no branch protection. Implementing it needs the user's OK, and some steps are **user-only** (marked 👤).
 
 ## Goal
 
@@ -18,7 +18,7 @@ CI:    deploy main → https://anuragsubedi.github.io/panipuri-minigames/
 1. **Static artifact, zero runtime.** Everything runs in the player's browser. "Build" means *assemble and check*, not compile.
 2. **One command for agents.** `npm run verify` runs locally and runs the same checks as CI. If it's green locally, CI should be green.
 3. **`main` is always deployable.** Nobody, agent or human, pushes to `main` directly; everything lands via PR.
-4. **The user merges.** Agents open PRs; they never merge their own unless the user explicitly says so for that PR.
+4. **Authors never merge their own PRs.** Builders open PRs. Until the Architect agent exists, the user merges everything. After that, the Architect may auto-merge tier-A PRs and the user merges tier B/C (`docs/ARCHITECT-AGENT-SPEC.md`).
 5. **Zero dependencies stays true for the shipped site.** CI-only tooling may use `npx` (nothing in `package.json`) if the user approves it (see Phase 2).
 6. **Swappable build step.** The deploy contract is "a `_site/` folder". If a framework or bundler arrives later, only the build job changes.
 
@@ -49,7 +49,7 @@ CI:    deploy main → https://anuragsubedi.github.io/panipuri-minigames/
 - **Switching cost is low by design.** Every host consumes the same `_site/` folder from `npm run build`. Moving hosts = swapping the deploy job (or connecting the repo in the host's dashboard) plus DNS. Keep the site host-agnostic: relative paths only, no host-specific features until a decision says so.
 - **Custom domain** (👤 buy + DNS) is the thing that makes a move invisible to players; worth doing before any public sharing at scale.
 
-**Decision for the user:** start on GitHub Pages and move to Cloudflare when previews, headers or server code are needed, *or* go straight to Cloudflare.
+**Decided (D-022):** GitHub Pages hosts the static site. Server features (leaderboards, multiplayer, API proxies) go to **Cloudflare Workers** as a separate backend, while the static site stays on Pages. Revisit the host only if previews or custom headers become blocking.
 
 **Base path:** GitHub Pages serves at `/panipuri-minigames/`. That works because **all internal links and imports are relative** (`./`, `../`). CI enforces this (see checks). A custom domain is optional later (👤 DNS).
 
@@ -185,8 +185,8 @@ An agent may run these via `gh api` **only** with the user's explicit OK in chat
 7. Update docs (PROGRESS, ARCHITECTURE section, DECISIONS as D-XXX, README row, hub tile)
 8. git fetch && git rebase origin/main && npm run verify
 9. git push -u origin game/<name> && gh pr create --fill   # fill in the template
-10. Share the PR link (and preview URL in Phase 2) with the user. Do not merge.
-11. Address review comments with new commits; CI must stay green.
+10. Share the PR link (and preview URL in Phase 2) with the user. Do not merge or approve.
+11. Address review comments (the user's or the Architect's `architect:changes-requested` items) with new commits; CI must stay green.
 ```
 
 ### `.github/pull_request_template.md` (to add)
@@ -218,7 +218,7 @@ Optionally add issue templates (`.github/ISSUE_TEMPLATE/game.md`) so planned wor
 |---|---|
 | Add a bundler or framework (Vite, etc.) | `npm ci && npm run build` in CI; deps become allowed (new decision); output still `_site/` → nothing else changes |
 | A game needs an API key (e.g. Mapillary for Lost Lens) | Client-side keys are public by nature: use a restricted, domain-locked key. Inject at build from a secret only if the provider supports domain restriction; never commit it |
-| Needs a server (multiplayer, leaderboards) | Out of scope for Pages. Add a separate serverless backend (e.g. Cloudflare Workers); the static site stays on the same pipeline |
+| Needs a server (multiplayer, leaderboards, API-key proxy) | **Cloudflare Workers** (decided direction, D-022): a separate `workers/<name>/` folder with its own deploy job (`wrangler deploy`, 👤 Cloudflare API token secret), called from the static site via `fetch` with CORS limited to the Pages origin. Workers keep API keys server-side (e.g. Lost Lens/Mapillary). Durable Objects for realtime multiplayer |
 | Large assets (photos, audio) | Keep them in the repo while total < ~100 MB; beyond that, use Git LFS or a CDN bucket (decision) |
 
 ---
