@@ -1,7 +1,7 @@
 // Body shape and small helpers. A body is a plain object:
-// {id, x, y, vx, vy, mass, radius, color, star} — `color` is a palette slot, so
-// the theme decides the actual colour; `star` marks bodies the Sun-mass slider
-// scales and the renderer makes glow.
+// {id, x, y, vx, vy, mass, radius, color, star, name} — `color` is a palette
+// slot, so the theme decides the actual colour; `star` marks bodies the
+// Sun-mass slider scales and the renderer makes glow; `name` is optional.
 
 import { RADIUS, KINDS } from '../config.js';
 
@@ -17,7 +17,7 @@ export function radiusOf(mass) {
 const STAR = { kind: 'star', label: 'Star' };
 
 /**
- * Kind (star / moon / planet / giant) of a body.
+ * Kind (rocky planet / gas giant / brown dwarf / star) of a body.
  * @param {{mass: number, star: boolean}} body
  * @returns {{kind: string, label: string}}
  */
@@ -26,11 +26,20 @@ export function kindOf(body) {
 }
 
 /**
- * @param {{id: number, x: number, y: number, vx?: number, vy?: number, mass: number, color?: number, star?: boolean}} props
+ * Display name: its own name, or kind + id ("Gas giant 7").
+ * @param {{id: number, mass: number, star: boolean, name?: string | null}} body
+ * @returns {string}
+ */
+export function nameOf(body) {
+  return body.name || `${kindOf(body).label} ${body.id}`;
+}
+
+/**
+ * @param {{id: number, x: number, y: number, vx?: number, vy?: number, mass: number, color?: number, star?: boolean, name?: string | null}} props
  * @returns {object} body
  */
-export function createBody({ id, x, y, vx = 0, vy = 0, mass, color = 0, star = false }) {
-  return { id, x, y, vx, vy, mass, radius: radiusOf(mass), color, star };
+export function createBody({ id, x, y, vx = 0, vy = 0, mass, color = 0, star = false, name = null }) {
+  return { id, x, y, vx, vy, mass, radius: radiusOf(mass), color, star, name };
 }
 
 /**

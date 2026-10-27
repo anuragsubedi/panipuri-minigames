@@ -7,6 +7,10 @@ const MIN_BODY_PX = 3.5;
 // Planets are drawn a bit larger than their collision radius so they read on a phone.
 const PLANET_BOOST = 1.35;
 const STARFIELD_DENSITY = 1 / 2600; // background stars per px²
+// Distance rings are spaced in "nice" steps of sim units (100 = 1 AU).
+const RING_STEPS = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
+const LABEL_FONT = '600 11px ui-rounded, system-ui, sans-serif';
+const MIN_LABEL_GAP_PX = 26;
 
 /**
  * @param {HTMLCanvasElement} canvas
@@ -37,14 +41,15 @@ export function createRenderer(canvas) {
      * @param {{bodies: object[], camera: object, trails: object | null, selectedId: number | null,
      *          aim: object | null, flashes: Array<{x: number, y: number, age: number}>, origin: [number, number]}} frame
      */
-    draw({ bodies, camera, trails, selectedId, aim, flashes, origin }) {
+    draw({ bodies, camera, trails, selectedId, aim, flashes, origin, viewRadius }) {
       ctx.clearRect(0, 0, width, height);
       if (starfield) ctx.drawImage(starfield, 0, 0, width, height);
-      drawRings(ctx, camera, origin, theme);
+      drawRings(ctx, camera, origin, viewRadius, theme);
       if (trails) for (const b of bodies) drawTrail(ctx, camera, trails.get(b.id), b, theme);
       const light = brightestStar(bodies);
       for (const b of bodies) if (!b.star) drawPlanet(ctx, camera, b, light, theme);
       for (const b of bodies) if (b.star) drawStar(ctx, camera, b, theme);
+      drawNames(ctx, camera, bodies, light, theme);
       for (const f of flashes) drawFlash(ctx, camera, f, theme);
       const selected = bodies.find((b) => b.id === selectedId);
       if (selected) drawSelection(ctx, camera, selected, theme);
@@ -102,15 +107,45 @@ function brightestStar(bodies) {
   return best;
 }
 
-// Faint distance rings around the system's center: a sense of scale.
-function drawRings(ctx, camera, [x, y], theme) {
+// Faint distance rings around the system's center, labelled in AU: a sense of scale.
+function drawRings(ctx, camera, [x, y], viewRadius, theme) {
   const [sx, sy] = camera.toScreen(x, y);
+  const step = RING_STEPS.find((s) => s >= viewRadius / 5) ?? RING_STEPS.at(-1);
   ctx.strokeStyle = theme.ring;
+  ctx.fillStyle = theme.dim;
   ctx.lineWidth = 1;
-  for (const r of [60, 120, 180, 240, 300]) {
+  ctx.font = LABEL_FONT;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'bottom';
+  for (let r = step; r <= viewRadius * 1.6; r += step) {
+    const pr = r * camera.scale;
     ctx.beginPath();
-    ctx.arc(sx, sy, r * camera.scale, 0, Math.PI * 2);
+    ctx.arc(sx, sy, pr, 0, Math.PI * 2);
     ctx.stroke();
+    if ((r / step) % 2 === 0) {
+      ctx.globalAlpha = 0.55;
+      ctx.fillText(`${Number((r / 100).toPrecision(2))} AU`, sx, sy - pr - 2);
+      ctx.globalAlpha = 1;
+    }
+  }
+}
+
+// Names next to named bodies (the Solar system's planets), skipped when
+// they would crowd their star or each other.
+function drawNames(ctx, camera, bodies, light, theme) {
+  const [lx, ly] = light ? camera.toScreen(light.x, light.y) : [Infinity, Infinity];
+  const placed = [];
+  ctx.font = LABEL_FONT;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = theme.dim;
+  for (const b of bodies) {
+    if (!b.name || b.star) continue;
+    const [sx, sy] = camera.toScreen(b.x, b.y);
+    if (Math.hypot(sx - lx, sy - ly) < MIN_LABEL_GAP_PX) continue;
+    if (placed.some(([px, py]) => Math.hypot(px - sx, py - sy) < MIN_LABEL_GAP_PX)) continue;
+    placed.push([sx, sy]);
+    ctx.fillText(b.name, sx + pxRadius(b, camera) + 5, sy);
   }
 }
 
@@ -129,16 +164,21 @@ function drawTrail(ctx, camera, points, body, theme) {
     const t = (c + 1) / TRAIL_CHUNKS;
     ctx.globalAlpha = theme.trailAlpha * t * t;
     ctx.lineWidth = Math.max(0.6, width * t);
+    // Curves through segment midpoints: fast bodies sampled once a frame
+    // still draw round orbits instead of polygons.
     ctx.beginPath();
-    let [sx, sy] = camera.toScreen(points[from * 2], points[from * 2 + 1]);
-    ctx.moveTo(sx, sy);
+    let [px, py] = camera.toScreen(points[from * 2], points[from * 2 + 1]);
+    ctx.moveTo(px, py);
     for (let i = from + 1; i <= to; i++) {
-      [sx, sy] = camera.toScreen(points[i * 2], points[i * 2 + 1]);
-      ctx.lineTo(sx, sy);
+      const [sx, sy] = camera.toScreen(points[i * 2], points[i * 2 + 1]);
+      ctx.quadraticCurveTo(px, py, (px + sx) / 2, (py + sy) / 2);
+      [px, py] = [sx, sy];
     }
     if (to === n - 1) {
-      [sx, sy] = camera.toScreen(body.x, body.y);
-      ctx.lineTo(sx, sy);
+      const [sx, sy] = camera.toScreen(body.x, body.y);
+      ctx.quadraticCurveTo(px, py, sx, sy);
+    } else {
+      ctx.lineTo(px, py);
     }
     ctx.stroke();
   }

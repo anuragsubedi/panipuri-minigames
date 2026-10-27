@@ -203,3 +203,15 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Launch:** drag from empty sky; arrow + predicted path (others frozen, 300 coarse steps, dots at equal time so spacing shows speed, ✕ on a hit). Tap selects. Launch size cycles Moon / Planet / Giant.
 - **Look:** sky is night (canvas starfield) in dark mode and a pale daylight chart in light mode; planets lit from the brightest star; tapered fading trails; merge ring flash (off with reduced motion, which also starts at ½×). Deck uses the house tokens.
 - **Hub:** new "Toys" section (Beatween + Orbit).
+
+## D-030 · Orbit v0.2: real units, clock, masses, Solar system, saves
+
+- **Date:** 2026-10-27
+- **Real units, same numbers:** 1 unit = 0.01 AU, 1 mass unit = 0.001 M☉, G = 1 ⇒ 1 time unit ≈ 1.838 days (Gauss's constant). Existing presets didn't change; their readouts became honest.
+- **Clock:** elapsed time ("3 yr 4 mo"), or a calendar date when the system has an epoch (Solar system starts 1 Jan 2000); a rate line ("1 s ≈ 5.3 weeks"). Speeds changed to ¼×, 1×, 4×, 16×, 64× (≈ 9 days to 6.4 years per second).
+- **Kinds by real thresholds:** rocky < 10 M⊕, gas giant < 13 M♃, brown dwarf < 80 M♃, else star. Launch sizes Earth / Jupiter / Brown dwarf. The old "Inner planets" preset is renamed **Heavy planets** (its bodies are Jupiter-class, kept that heavy on purpose so they tug visibly).
+- **Masses:** the body count opens a list of the 10 heaviest (Suns / Jupiters / Earths); the inspector adds km/s and AU from the heaviest star.
+- **Solar system preset:** J2000 approximate elements (a, e, L, ϖ) for 8 planets, flattened to 2D, Moon left out (inside softening). Tested: periods within 0.5% of real, vis-viva reproduces a and e, Earth closes its orbit after a year.
+- **Zoom:** pinch, wheel/trackpad, −/+ buttons, +/− keys; 40–8000 units. Trails sample by distance moved (∝ view) and draw as midpoint curves, so they look the same at any zoom or speed.
+- **Saves:** up to 12 named snapshots in `localStorage`, validated on restore; Reset restarts the loaded save. A single "System" button opens a `<dialog>` sheet holding presets + saves, so the deck didn't grow.
+- **Perf:** no `backdrop-filter` over the canvas (GPU cost every frame on phones); overlays use a solid tint. 64× with the Solar system ≈ 0.5 ms/frame.

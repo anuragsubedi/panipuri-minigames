@@ -6,15 +6,16 @@ import { accelerations } from '../physics/gravity.js';
 import { leapfrogStep } from '../physics/integrate.js';
 import { resolveCollisions } from '../physics/collide.js';
 import { radiusOf, createBody, centerOfMass } from './bodies.js';
-import { buildPreset } from './presets.js';
+import { buildPreset, presetById } from './presets.js';
 
 /**
  * @param {{presetId: string, rng: () => number, gravity?: number, starMass?: number, collisions?: 'merge' | 'bounce'}} opts
- * @returns {object} world
+ * @returns {object} world; `epoch` (UTC ms or null) makes the clock a calendar date
  */
 export function createWorld({ presetId, rng, gravity = 1, starMass = 1, collisions = 'merge' }) {
   const bodies = buildPreset(presetId, rng);
-  const world = { presetId, bodies, nextId: bodies.length + 1, gravity, starMass: 1, collisions, time: 0 };
+  const { epoch } = presetById(presetId);
+  const world = { presetId, epoch, bodies, nextId: bodies.length + 1, gravity, starMass: 1, collisions, time: 0 };
   return setStarMass(world, starMass);
 }
 

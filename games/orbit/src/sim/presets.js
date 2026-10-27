@@ -3,6 +3,7 @@
 
 import { G_BASE, SUN_MASS, PALETTE_SIZE } from '../config.js';
 import { createBody, circularSpeed, recenter } from './bodies.js';
+import { solarSystem, SOLAR_EPOCH } from './solar-system.js';
 
 const TAU = Math.PI * 2;
 
@@ -73,12 +74,26 @@ function chaos(rng) {
   return bodies;
 }
 
-/** Presets in the order the deck shows them. */
+/**
+ * Presets in the order the systems sheet shows them. `view` is the starting
+ * view radius; `epoch` (UTC ms) turns the clock into a calendar date.
+ */
 export const PRESETS = [
-  { id: 'inner', label: 'Inner planets', build: innerPlanets },
-  { id: 'binary', label: 'Binary star', build: binaryStar },
-  { id: 'chaos', label: 'Chaos', build: chaos },
+  { id: 'solar', label: 'Solar system', note: 'Sun and 8 planets on 1 Jan 2000', build: () => solarSystem(G_BASE, SUN_MASS), view: 260, epoch: SOLAR_EPOCH },
+  { id: 'inner', label: 'Heavy planets', note: 'Five big worlds, close in', build: innerPlanets, view: 250, epoch: null },
+  { id: 'binary', label: 'Binary star', note: 'Two suns, three planets', build: binaryStar, view: 250, epoch: null },
+  { id: 'chaos', label: 'Chaos', note: 'Sixteen bodies on crossing paths', build: chaos, view: 250, epoch: null },
 ];
+
+/**
+ * @param {string} id
+ * @returns {object} the preset entry
+ */
+export function presetById(id) {
+  const preset = PRESETS.find((p) => p.id === id);
+  if (!preset) throw new Error(`Unknown preset: ${id}`);
+  return preset;
+}
 
 /**
  * Build a preset's bodies.
@@ -87,7 +102,5 @@ export const PRESETS = [
  * @returns {object[]} bodies
  */
 export function buildPreset(id, rng) {
-  const preset = PRESETS.find((p) => p.id === id);
-  if (!preset) throw new Error(`Unknown preset: ${id}`);
-  return recenter(preset.build(rng));
+  return recenter(presetById(id).build(rng));
 }

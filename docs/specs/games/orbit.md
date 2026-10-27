@@ -1,6 +1,6 @@
 # Orbit — solar system sandbox (toy)
 
-> **Status:** shipped v0.1 (`games/orbit/`, D-029) · **Rank:** 1 / 7 · **Effort:** 1–2 sessions · **Type:** toy
+> **Status:** shipped v0.2 (`games/orbit/`, D-029, D-030) · **Rank:** 1 / 7 · **Effort:** 1–2 sessions · **Type:** toy
 > Shared rules for every spec: [`../README.md`](../README.md). Update this header when status changes (proposed → approved → in progress → shipped).
 
 **Pitch:** A pocket solar system you can poke. Fling a planet, crank up the sun's mass, and watch orbits wobble, slingshot or fall apart.
@@ -27,6 +27,8 @@
 - Controls are plain `<input type="range">` and buttons. This is a toy, so it uses a continuous loop rather than the phase state machine (document that in ARCHITECTURE).
 
 **Modules:** `physics/{integrate.js, gravity.js, collide.js}`, `sim/{bodies.js, presets.js}`, `ui/{canvas-renderer.js, controls.js, launcher.js}`, `main.js`.
+
+**v0.2 (shipped):** real units (AU, days, km/s, Earth/Jupiter/Sun masses), a clock (elapsed or calendar date) with a "1 s ≈ …" rate, a heaviest-bodies list, a Solar system preset (J2000 elements), zoom, and saved systems in the browser.
 
 **Tests:** energy roughly conserved over N steps for a 2-body circular orbit (drift < 1%), momentum conserved on merge, presets valid.
 

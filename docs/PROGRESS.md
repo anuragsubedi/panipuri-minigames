@@ -5,8 +5,8 @@
 - **Hue Recall v0.1** — shipped. Polish parked (D-014).
 - **Glimpse v0.1** — shipped. Verified in browser (full game, keyboard, no console errors).
 - **Beatween v0.1** — shipped (binaural beats tool, was "Drift"). Audio graph verified via an AudioContext probe (oscillators match L/R; noise loop; suspend on pause); layout verified at 375×667, ~426×826, 740×360 landscape and desktop, light + dark. **Not verified by ear**: needs a headphone listen.
-- **Orbit v0.1** — shipped (gravity sandbox toy). Verified at 375×667, 740×360 landscape and 1280×800, light + dark; drag-launch, preview, select/delete, presets; 61 fps with 30 bodies (physics ≈ 0.3 ms/frame at 8×). Touch drag tested with synthetic pointer events only: **needs a real-phone try**.
-- 89 tests passing (`npm test`).
+- **Orbit v0.2** — shipped locally, not pushed yet (real units + clock, heaviest-bodies list, Solar system preset, zoom, saves; D-030). v0.1 is live (gravity sandbox toy). Verified at 375×667, 740×360 landscape and 1280×800, light + dark; drag-launch, preview, select/delete, presets; 61 fps with 30 bodies (physics ≈ 0.3 ms/frame at 8×). Touch drag and pinch tested with synthetic pointer events only: **needs a real-phone try**.
+- 99 tests passing (`npm test`).
 - `README.md` + `start.command` for non-technical players.
 - **Live site:** https://anuragsubedi.github.io/panipuri-minigames/. GitHub Pages serves the **`live`** branch (release branch, D-025); every push publishes.
 
@@ -31,7 +31,7 @@ Open repo-wide questions (user's call):
 
 ### Orbit ideas
 - "Mission" mode (spec stretch): keep a launched body in orbit for 30 s.
-- Pinch/wheel zoom; follow-selected-body camera.
+- Follow-selected-body camera; share a saved system as a link.
 - A 3D take as its own toy (would need its own spec).
 
 ### Collection-wide ideas
@@ -62,3 +62,4 @@ Open repo-wide questions (user's call):
 - Harness overhaul on new release branch `live`: specs split into `docs/specs/` (README + one file per game; pipeline + architect specs moved there); GitHub Pages enabled from `live` → https://anuragsubedi.github.io/panipuri-minigames/. Architect agent marked long-term. D-025, D-026.
 - Built **Beatween** (spec "Drift"): pure core (settings/link logic, log scale, bands, noise, Lissajous) + 15 tests, Web Audio engine, scope/channel/transport UI, responsive one-screen layout. Hub tile + README row. D-028.
 - Built **Orbit** (gravity sandbox): pure physics (leapfrog, softening, merge/bounce, path preview) + presets + world + camera/trails, 21 new tests (89 total); canvas renderer, launcher, deck, sky overlay; hub gained a "Toys" section. Mission mode deferred. D-029.
+- **Orbit v0.2:** real units (0.01 AU / 0.001 M☉ / ≈1.84 d), clock + rate, speeds ¼–64×, heaviest-bodies list, inspector km/s + AU, Solar system preset from J2000 elements, zoom (pinch/wheel/buttons), distance-sampled smooth trails, saved systems via a System sheet. 10 new tests (99). Dropped backdrop blur over the canvas for phone perf. D-030.

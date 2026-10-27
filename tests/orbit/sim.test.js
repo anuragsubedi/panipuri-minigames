@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createRng } from '../../shared/js/rng.js';
 import { SOFTENING, MAX_BODIES, DT, SIM_RATE, MAX_FRAME_SECONDS, PALETTE_SIZE } from '../../games/orbit/src/config.js';
 import { totalMomentum, totalEnergy } from '../../games/orbit/src/physics/gravity.js';
-import { centerOfMass, kindOf, radiusOf } from '../../games/orbit/src/sim/bodies.js';
+import { centerOfMass, kindOf, nameOf, radiusOf } from '../../games/orbit/src/sim/bodies.js';
 import { PRESETS, buildPreset } from '../../games/orbit/src/sim/presets.js';
 import {
   createWorld,
@@ -86,7 +86,7 @@ test('world: launch, cap, remove', () => {
   assert.equal(world.bodies.length, n + 1);
   const added = world.bodies.at(-1);
   assert.equal(added.id, n + 1);
-  assert.equal(kindOf(added).kind, 'planet');
+  assert.equal(kindOf(added).kind, 'giant');
   world = removeBody(world, added.id);
   assert.equal(bodyById(world, added.id), null);
   for (let i = 0; i < 80; i++) world = launch(world, { x: i * 30, y: 900, vx: 0, vy: 0, mass: 1, color: 0 });
@@ -102,11 +102,14 @@ test('world: star mass slider scales stars only, and round-trips', () => {
   assert.equal(setCollisions(world, 'bounce').collisions, 'bounce');
 });
 
-test('kindOf: names by mass, stars by flag', () => {
-  assert.equal(kindOf({ mass: 0.5, star: false }).label, 'Moon');
-  assert.equal(kindOf({ mass: 4, star: false }).label, 'Planet');
-  assert.equal(kindOf({ mass: 900, star: false }).label, 'Giant');
-  assert.equal(kindOf({ mass: 100, star: true }).label, 'Star');
+test('kindOf / nameOf: real mass thresholds, stars by flag, names win', () => {
+  assert.equal(kindOf({ mass: 0.003, star: false }).label, 'Rocky planet');
+  assert.equal(kindOf({ mass: 0.95, star: false }).label, 'Gas giant');
+  assert.equal(kindOf({ mass: 40, star: false }).label, 'Brown dwarf');
+  assert.equal(kindOf({ mass: 900, star: false }).label, 'Star');
+  assert.equal(kindOf({ mass: 10, star: true }).label, 'Star');
+  assert.equal(nameOf({ id: 7, mass: 0.95, star: false, name: null }), 'Gas giant 7');
+  assert.equal(nameOf({ id: 4, mass: 0.003, star: false, name: 'Earth' }), 'Earth');
 });
 
 test('stepsFor: fixed steps, carry, clamps long gaps and caps steps', () => {
@@ -134,11 +137,13 @@ test('camera: round trip, y up, hit test', () => {
   assert.equal(bodyAt(bodies, [100, 100], 1, 16), null);
 });
 
-test('trails: sample on sim time, cap length, forget gone bodies', () => {
-  const trails = createTrails({ every: 1, length: 3 });
-  for (let t = 0; t < 10; t += 0.5) trails.record([{ id: 1, x: t, y: 0 }], t);
+test('trails: sample by distance moved, cap length, forget gone bodies', () => {
+  const trails = createTrails({ length: 3 });
+  for (let x = 0; x < 10; x += 0.5) trails.record([{ id: 1, x, y: 0 }], 1);
   assert.deepEqual(trails.get(1), [7, 0, 8, 0, 9, 0]);
-  trails.record([], 11);
+  trails.record([{ id: 1, x: 9.2, y: 0 }], 1);
+  assert.deepEqual(trails.get(1), [7, 0, 8, 0, 9, 0], 'paused / tiny moves add nothing');
+  trails.record([], 1);
   assert.equal(trails.get(1), undefined);
 });
 

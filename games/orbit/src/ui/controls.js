@@ -4,14 +4,13 @@
 import { el } from '../../../../shared/js/dom.js';
 import { icon } from './icons.js';
 
-const SPEED_LABELS = { 0.25: '¼×', 0.5: '½×', 1: '1×', 2: '2×', 4: '4×', 8: '8×' };
+const SPEED_LABELS = { 0.25: '¼×', 0.5: '½×' };
 
 /**
- * @param {{speeds: number[], presets: Array<{id: string, label: string}>,
- *          launchSizes: Array<{id: string, label: string}>,
+ * @param {{speeds: number[], launchSizes: Array<{id: string, label: string}>,
  *          gravityRange: {min: number, max: number}, starMassRange: {min: number, max: number}}} options
  * @param {{onTogglePause: () => void, onSpeed: (s: number) => void, onReset: () => void,
- *          onPreset: (id: string) => void, onGravity: (g: number) => void, onStarMass: (m: number) => void,
+ *          onOpenSystems: () => void, onGravity: (g: number) => void, onStarMass: (m: number) => void,
  *          onToggleTrails: () => void, onToggleCollisions: () => void, onCycleLaunchSize: () => void}} handlers
  * @returns {{el: HTMLElement, update: (view: object) => void}}
  */
@@ -33,9 +32,12 @@ export function createControls(options, handlers) {
   });
   reset.innerHTML = icon('reset');
 
-  const presetButtons = options.presets.map((p) =>
-    el('button', { class: 'seg__item', text: p.label, attrs: { type: 'button' }, on: { click: () => handlers.onPreset(p.id) } }),
-  );
+  const systemName = el('span', { class: 'system__name' });
+  const system = el('button', { class: 'system', attrs: { type: 'button', 'aria-haspopup': 'dialog' }, on: { click: handlers.onOpenSystems } }, [
+    el('span', { class: 'system__caption', text: 'System' }),
+    systemName,
+  ]);
+  system.insertAdjacentHTML('beforeend', icon('chevron'));
 
   const gravity = slider('gravity', 'Gravity', options.gravityRange, handlers.onGravity);
   const starMass = slider('star-mass', 'Sun mass', options.starMassRange, handlers.onStarMass);
@@ -50,7 +52,7 @@ export function createControls(options, handlers) {
       el('div', { class: 'seg seg--speed', attrs: { role: 'group', 'aria-label': 'Time speed' } }, speedButtons),
       reset,
     ]),
-    el('div', { class: 'seg seg--presets', attrs: { role: 'group', 'aria-label': 'Systems' } }, presetButtons),
+    system,
     el('div', { class: 'deck__row deck__row--sliders' }, [gravity.el, starMass.el]),
     el('div', { class: 'deck__row deck__row--chips' }, [trails.el, collisions.el, size.el]),
   ]);
@@ -59,7 +61,7 @@ export function createControls(options, handlers) {
 
   return {
     el: root,
-    /** @param {{paused: boolean, speed: number, presetId: string, gravity: number, starMass: number, trails: boolean, collisions: string, launchSize: string}} view */
+    /** @param {{paused: boolean, speed: number, systemLabel: string, gravity: number, starMass: number, trails: boolean, collisions: string, launchSize: string}} view */
     update(view) {
       if (view.paused !== paused) {
         paused = view.paused;
@@ -68,7 +70,10 @@ export function createControls(options, handlers) {
         play.classList.toggle('is-paused', paused);
       }
       options.speeds.forEach((s, i) => pressed(speedButtons[i], s === view.speed));
-      options.presets.forEach((p, i) => pressed(presetButtons[i], p.id === view.presetId));
+      if (systemName.textContent !== view.systemLabel) {
+        systemName.textContent = view.systemLabel;
+        system.setAttribute('aria-label', `System: ${view.systemLabel}. Change, save or load`);
+      }
       gravity.update(view.gravity);
       starMass.update(view.starMass);
       trails.update(view.trails ? 'On' : 'Off', view.trails);

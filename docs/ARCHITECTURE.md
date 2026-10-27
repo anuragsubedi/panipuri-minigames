@@ -199,31 +199,39 @@ A gravity sandbox. Like Beatween it is a one-screen toy with no phase machine an
 
 ```
 games/orbit/src/
-├── main.js                 # owns world + loop; accumulator → advance(); camera eases to the center of mass
-├── config.js               # sim units: G, softening, DT, SIM_RATE, speeds, ranges, launch, preview, trails
+├── main.js                 # owns world + loop; accumulator → advance(); camera eases to the center of mass; zoom; saves
+├── config.js               # sim units (= real units, see UNITS), G, softening, DT, SIM_RATE, speeds, ranges, kinds, launch, zoom, trails
+├── storage.js              # guarded localStorage for saved systems
 ├── physics/                # pure
 │   ├── gravity.js          # O(n²) softened accelerations, energy, momentum
 │   ├── integrate.js        # leapfrog (kick-drift-kick) step
 │   ├── collide.js          # merge (momentum-conserving) or bounce (impulse + COM-neutral separation)
 │   └── predict.js          # aim preview: probe vs frozen bodies, capped steps, stops on a hit
 ├── sim/                    # pure
-│   ├── bodies.js           # body shape, radiusOf, kindOf, centerOfMass, recenter
-│   ├── presets.js          # Inner planets, Binary star, Chaos (seeded rng)
+│   ├── bodies.js           # body shape, radiusOf, kindOf, nameOf, centerOfMass, recenter
+│   ├── units.js            # sim ↔ days, AU, km/s, solar masses
+│   ├── solar-system.js     # J2000 elements → state vectors (Kepler), real periods
+│   ├── presets.js          # Solar system, Heavy planets, Binary star, Chaos (+ start view, epoch)
+│   ├── snapshot.js         # world ↔ JSON for saves, validated on restore
 │   └── world.js            # world object + transitions (advance, launch, remove, setGravity, setStarMass…), stepsFor accumulator
 ├── view/                   # pure, no DOM
 │   ├── camera.js           # world ↔ screen, hit test, easing
-│   └── trails.js           # per-body history sampled on sim time
+│   ├── format.js           # elapsed time, calendar date, rate, mass/speed/distance in real units
+│   └── trails.js           # per-body history, sampled by distance moved
 └── ui/
-    ├── canvas-renderer.js  # draws a frame; colours from CSS custom properties; DPR-aware; starfield layer
-    ├── launcher.js         # pointer input: tap = select, drag from empty sky = aim + launch
-    ├── controls.js         # deck: play/pause, speed, reset, presets, log₂ sliders, chips
-    ├── sky-overlay.js      # body count, paused badge, hint, inspector card
+    ├── canvas-renderer.js  # draws a frame; colours from CSS custom properties; DPR-aware; starfield; AU rings; names
+    ├── launcher.js         # pointer input: tap = select, drag = aim + launch, pinch / wheel = zoom
+    ├── controls.js         # deck: play/pause, speed, reset, System button, log₂ sliders, chips
+    ├── sky-overlay.js      # clock + rate, count → heaviest-bodies list, zoom buttons, paused badge, hint, inspector
+    ├── systems-sheet.js    # <dialog>: presets, saved systems (load/delete), save form
     └── icons.js
 ```
 
 - **Time:** fixed `DT` steps fed by an accumulator (`stepsFor`); real frame time is clamped to `MAX_FRAME_SECONDS` (hidden tabs) and steps per frame are capped.
 - **World is immutable from outside:** `advance(world, n)` copies bodies once, mutates its copies for n steps, returns a new world plus the merges (used for selection follow + flash).
-- **Body:** `{id, x, y, vx, vy, mass, radius, color, star}`; `color` is a palette slot (theme decides the colour), `star` marks what the Sun-mass slider scales and what glows.
+- **Body:** `{id, x, y, vx, vy, mass, radius, color, star, name}`; `color` is a palette slot (theme decides the colour), `star` marks what the Sun-mass slider scales and what glows, `name` is optional (Solar system planets).
+- **Units (v0.2):** 1 distance unit = 0.01 AU, 1 mass unit = 0.001 M☉, so with G = 1 one time unit ≈ 1.838 days (r = 100 → 1 year). All real-unit readouts go through `sim/units.js` + `view/format.js`.
+- **Zoom** is a view radius in `main.js` (not in the world); presets carry a starting view. Launch speed and preview step scale with it.
 - **Styles:** `games/orbit/styles/app.css`. Sky is night in dark mode, a pale daylight chart in light mode; canvas has `touch-action: none`. Same responsive breakpoints as Beatween.
 
 ## Adding a new game
