@@ -176,3 +176,8 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Decision:** `docs/GAME-SPECS.md` was split into `docs/specs/README.md` (rules, ranking, build order) plus one file per game in `docs/specs/games/`, each with a status header. `PIPELINE-SPEC.md` and `ARCHITECT-AGENT-SPEC.md` moved to `docs/specs/pipeline.md` and `docs/specs/architect-agent.md`. Earlier decision entries keep their old paths (append-only log).
 - **Why:** Agents read and edit only the spec they need, which keeps context small and avoids conflicts between parallel edits.
 - **Also (user):** The Architect PR-review/merge loop is a long-term goal for when panipuri scales massively, not near-term work.
+
+## D-027 · `live` is the default branch
+
+- **Date:** 2026-10-26
+- **Decision (user):** GitHub default branch set to `live`, so fresh clones and cloud/phone agent sessions start on the release branch.

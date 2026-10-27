@@ -17,7 +17,7 @@ Open repo-wide questions (user's call):
 - **Pipeline:** fast mode is live (push to `live` → Pages). Long-term CI/PR flow in `docs/specs/pipeline.md` (not implemented). Server features later via Cloudflare Workers (D-022).
 - **Phone-first goal (user):** start agent sessions from iOS/Android; today that means a cloud agent pushes to `live` and the user plays the public URL. Previews, smoke tests and the issue-driven flow are in the long-term plan.
 - **Architect agent:** long-term goal for when panipuri scales (`docs/specs/architect-agent.md`, D-026).
-- **`main` vs `live`:** `main` is an older snapshot; a PR `live → main` was opened for the harness overhaul. Making `live` the repo's default branch (so cloud agents clone it by default) is the user's call.
+- **`main` vs `live`:** `main` is an older snapshot; a PR `live → main` was opened for the harness overhaul. `live` is the repo's **default branch** (cloud agents clone it by default).
 
 ## Backlog (not scheduled — ask the user before picking any up)
 
