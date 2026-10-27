@@ -1,6 +1,6 @@
 # Architect Agent — Spec (automated PR review & merge)
 
-> **Status: proposal, not implemented.** It depends on the pipeline in `docs/PIPELINE-SPEC.md` (CI + deploy) existing first. Setup steps marked 👤 are user-only.
+> **Status: long-term goal** (D-026). Relevant once panipuri scales to many parallel agents. Not implemented; today agents push straight to the `live` release branch (`pipeline.md` → Current mode). Wherever this spec says `main`, read `live`. It depends on the pipeline in `docs/specs/pipeline.md` (CI + deploy) existing first. Setup steps marked 👤 are user-only.
 
 ## Purpose
 
@@ -28,21 +28,21 @@ The tier is computed **deterministically by a script** (`scripts/classify-pr.mjs
 
 | Tier | Changed paths (all files must match) | Who may merge |
 |---|---|---|
-| **A: routine** | a single `games/<name>/**` + `tests/<name>/**`; plus *append-only* edits to `index.html` (one hub tile), `shared/styles/hub.css` (one art class), `README.md` (one table row), `docs/PROGRESS.md`, `docs/DECISIONS.md`, `docs/ARCHITECTURE.md` (own game section), `docs/GAME-SPECS.md`; docs-only PRs (`docs/**`, `*.md` except the protected files below) | **Architect** (auto-merge after CI) |
+| **A: routine** | a single `games/<name>/**` + `tests/<name>/**`; plus *append-only* edits to `index.html` (one hub tile), `shared/styles/hub.css` (one art class), `README.md` (one table row), `docs/PROGRESS.md`, `docs/DECISIONS.md`, `docs/ARCHITECTURE.md` (own game section), `docs/specs/README.md`; docs-only PRs (`docs/**`, `*.md` except the protected files below) | **Architect** (auto-merge after CI) |
 | **B: shared** | anything in `shared/**`, or changes to more than one game | **User** (Architect reviews and recommends) |
-| **C: protected** | `.github/**`, `scripts/**`, `package.json`, `AGENTS.md`, `CLAUDE.md`, `CODEOWNERS`, `docs/PIPELINE-SPEC.md`, `docs/ARCHITECT-AGENT-SPEC.md`, `start.command`, `.claude/**`, any new dependency or external URL | **User only** (enforced by CODEOWNERS) |
+| **C: protected** | `.github/**`, `scripts/**`, `package.json`, `AGENTS.md`, `CLAUDE.md`, `CODEOWNERS`, `docs/specs/pipeline.md`, `docs/specs/architect-agent.md`, `start.command`, `.claude/**`, any new dependency or external URL | **User only** (enforced by CODEOWNERS) |
 
 Additional auto-escalation to `needs-human` (any tier):
 - diff > 2,000 changed lines (excluding binary assets), or binary assets > 5 MB total
 - PR from a fork, or from an author not on the allowlist (repo variable `ARCHITECT_AUTHORS`)
 - PR labelled `no-automerge`, or a draft
-- the PR touches a game whose spec in `docs/GAME-SPECS.md` is marked ⚠️ and the decision isn't logged in `DECISIONS.md`
+- the PR touches a game whose spec in `docs/specs/README.md` is marked ⚠️ and the decision isn't logged in `DECISIONS.md`
 
 ---
 
 ## What the Architect checks (review rubric)
 
-The Architect reads **from `main`**: `AGENTS.md`, `CLAUDE.md`, `docs/ARCHITECTURE.md`, the relevant `docs/GAME-SPECS.md` section, and this file. It then reviews the PR diff and reports on:
+The Architect reads **from `main`**: `AGENTS.md`, `CLAUDE.md`, `docs/ARCHITECTURE.md`, the relevant `docs/specs/README.md` section, and this file. It then reviews the PR diff and reports on:
 
 1. **Spec fit:** implements the spec's core loop and acceptance criteria; deviations are called out in the PR body.
 2. **Architecture:**
@@ -53,7 +53,7 @@ The Architect reads **from `main`**: `AGENTS.md`, `CLAUDE.md`, `docs/ARCHITECTUR
    - reuses `shared/` instead of copying
 3. **Tests:** every new pure module has tests; `npm run verify` is green (from CI, not self-reported).
 4. **Conventions:** naming, named exports, JSDoc on exports, comment density similar to existing games.
-5. **Hotspots:** edits to shared files are append-only per `PIPELINE-SPEC.md`.
+5. **Hotspots:** edits to shared files are append-only per `docs/specs/pipeline.md`.
 6. **Safety:**
    - no new dependencies, CDN scripts or external network calls
    - no `eval` / `new Function` / `innerHTML` with untrusted data
@@ -135,7 +135,7 @@ The Architect reads **from `main`**: `AGENTS.md`, `CLAUDE.md`, `docs/ARCHITECTUR
 
 ## Post-merge safety net
 
-- `deploy.yml` (from `PIPELINE-SPEC.md`) deploys `main` and checks that `version.json` matches the commit.
+- `deploy.yml` (from `docs/specs/pipeline.md`) deploys `main` and checks that `version.json` matches the commit.
 - **On failure** (Phase 2: also Playwright smoke tests):
   - open an issue `deploy failed: <sha>` labelled `needs-human`
   - open a revert PR (tier C, so the user must merge it)
@@ -165,7 +165,7 @@ The Architect reads **from `main`**: `AGENTS.md`, `CLAUDE.md`, `docs/ARCHITECTUR
 
 ## One-time setup (👤)
 
-1. The pipeline from `PIPELINE-SPEC.md` (Pages, `ci.yml`, `deploy.yml`, branch protection).
+1. The pipeline from `docs/specs/pipeline.md` (Pages, `ci.yml`, `deploy.yml`, branch protection).
 2. Create and install the GitHub App; add `ARCHITECT_APP_ID` + `ARCHITECT_APP_PRIVATE_KEY` secrets.
 3. Add `ANTHROPIC_API_KEY` (or the chosen action's credential).
 4. Repo variables: `ARCHITECT_AUTOMERGE=true`, `ARCHITECT_AUTHORS=<allowed authors>`, `ARCHITECT_DAILY_LIMIT=20`.
@@ -184,4 +184,4 @@ The Architect reads **from `main`**: `AGENTS.md`, `CLAUDE.md`, `docs/ARCHITECTUR
 
 - Which agent runs the review (Claude Code Action vs. another provider)? The design is provider-agnostic.
 - Should docs-only PRs auto-merge, or always notify the user?
-- Should the Architect also *open* issues from `docs/GAME-SPECS.md` (one per game) for builders to claim?
+- Should the Architect also *open* issues from `docs/specs/README.md` (one per game) for builders to claim?

@@ -2,6 +2,8 @@
 
 Small, quick games you play in your web browser. Each one takes about a minute.
 
+**▶ Play online: [anuragsubedi.github.io/panipuri-minigames](https://anuragsubedi.github.io/panipuri-minigames/)**, no setup needed. The instructions below are only for running it on your own computer.
+
 | Game           | What you do                                        |
 |----------------|----------------------------------------------------|
 | **Hue Recall** | See a color for a few seconds, then rebuild it from memory. |

@@ -16,8 +16,9 @@ panipuri-minigames/
 ├── CLAUDE.md                     # agent guide
 ├── README.md                     # non-technical setup + play guide
 ├── start.command                 # macOS double-click launcher (python3 http.server + open browser)
+├── .nojekyll                     # GitHub Pages: serve files as-is (Pages deploys the `live` branch root)
 ├── .claude/launch.json           # "static" server config for the Claude desktop preview
-├── docs/
+├── docs/                         # long-term memory; docs/specs/ holds specs (games/<name>.md, pipeline, architect)
 ├── package.json                  # only "type": "module" + `npm test`; no dependencies
 ├── index.html                    # hub: links to each game
 ├── shared/                       # code used by more than one game (see "Shared code")

@@ -1,6 +1,8 @@
 # Build & Release Pipeline — Spec (agent-first)
 
-> **Status: proposal, not implemented.** **Host decided: GitHub Pages** (D-022). Server features later via Cloudflare Workers. PR review/merge automation: `docs/ARCHITECT-AGENT-SPEC.md`. Nothing here exists yet: no workflows, no Pages site, no branch protection. Implementing it needs the user's OK, and some steps are **user-only** (marked 👤).
+> **Current mode (implemented, D-025):** GitHub Pages **deploys from the `live` branch** (root, "Deploy from a branch", `.nojekyll`, no Actions) → https://anuragsubedi.github.io/panipuri-minigames/. Agents commit to `live` and push; it's public within ~1 minute. No PRs, no CI, no review gate. Run `npm test` before pushing.
+>
+> **Everything below is the long-term plan** (proposal, not implemented): CI, the PR flow, previews, and later the Architect agent. When it's adopted, **read `main` below as `live`** (the release branch), and Pages switches its source from "branch" to "GitHub Actions". Host decided: GitHub Pages (D-022); server features later via Cloudflare Workers. Some steps are **user-only** (marked 👤).
 
 ## Goal
 
@@ -18,7 +20,7 @@ CI:    deploy main → https://anuragsubedi.github.io/panipuri-minigames/
 1. **Static artifact, zero runtime.** Everything runs in the player's browser. "Build" means *assemble and check*, not compile.
 2. **One command for agents.** `npm run verify` runs locally and runs the same checks as CI. If it's green locally, CI should be green.
 3. **`main` is always deployable.** Nobody, agent or human, pushes to `main` directly; everything lands via PR.
-4. **Authors never merge their own PRs.** Builders open PRs. Until the Architect agent exists, the user merges everything. After that, the Architect may auto-merge tier-A PRs and the user merges tier B/C (`docs/ARCHITECT-AGENT-SPEC.md`).
+4. **Authors never merge their own PRs.** Builders open PRs. Until the Architect agent exists, the user merges everything. After that, the Architect may auto-merge tier-A PRs and the user merges tier B/C (`docs/specs/architect-agent.md`).
 5. **Zero dependencies stays true for the shipped site.** CI-only tooling may use `npx` (nothing in `package.json`) if the user approves it (see Phase 2).
 6. **Swappable build step.** The deploy contract is "a `_site/` folder". If a framework or bundler arrives later, only the build job changes.
 
@@ -58,7 +60,7 @@ CI:    deploy main → https://anuragsubedi.github.io/panipuri-minigames/
 ## Repository conventions for agents
 
 ### Branches
-- `game/<name>`: a new game from `docs/GAME-SPECS.md` (e.g. `game/pin-drop`)
+- `game/<name>`: a new game from `docs/specs/README.md` (e.g. `game/pin-drop`)
 - `feat/<topic>`, `fix/<topic>`, `docs/<topic>`, `chore/<topic>`
 - Branch from up-to-date `main`; rebase (don't merge) `main` into your branch before opening or updating a PR.
 
@@ -167,7 +169,7 @@ It excludes: `docs/`, `tests/`, `scripts/`, `.claude/`, `.github/`, `start.comma
    - require status check `ci / verify` to pass
    - block force-pushes
 3. (Phase 2) Connect Cloudflare Pages *or* add its secrets.
-4. (Optional) Choose a LICENSE (open question from `docs/GAME-SPECS.md`).
+4. (Optional) Choose a LICENSE (open question from `docs/specs/README.md`).
 
 An agent may run these via `gh api` **only** with the user's explicit OK in chat; they change repository settings.
 
@@ -184,7 +186,7 @@ What this changes:
   - **Browser smoke tests (Playwright in CI) move up too.** They're the only "it actually runs" check when no human or agent opened the page.
 - **Two ways to kick off work from the phone:**
   1. **Interactive:** open a cloud session on the repo, describe the change, and the agent branches → builds → opens a PR (playbook below).
-  2. **Issue-driven (async):** open a GitHub issue from the GitHub mobile app (template: "New game" / "Feature" / "Fix"), then comment e.g. `@claude implement this per docs/GAME-SPECS.md#pin-drop`.
+  2. **Issue-driven (async):** open a GitHub issue from the GitHub mobile app (template: "New game" / "Feature" / "Fix"), then comment e.g. `@claude implement this per docs/specs/games/pin-drop.md`.
      - A workflow running an agent action (e.g. `anthropics/claude-code-action`, triggered by mentions) branches, builds and opens a PR linked to the issue.
      - Only collaborators' mentions trigger it (check `author_association`).
      - It uses the same rules as any builder (no self-merge, no tier-C edits).
@@ -204,7 +206,7 @@ phone: issue + "@claude …"  →  agent PR + preview link  →  Architect revie
 
 ```
 1. git clone https://github.com/anuragsubedi/panipuri-minigames && cd panipuri-minigames
-2. Read AGENTS.md → CLAUDE.md → docs/PROGRESS.md → the relevant spec in docs/GAME-SPECS.md
+2. Read AGENTS.md → CLAUDE.md → docs/PROGRESS.md → the relevant spec in docs/specs/README.md
 3. Confirm scope with the user (plan → OK)
 4. git switch -c game/<name>
 5. Build in small commits; run `npm run verify` often
@@ -223,7 +225,7 @@ phone: issue + "@claude …"  →  agent PR + preview link  →  Architect revie
 <!-- one paragraph: game/feature/fix -->
 
 ## Spec
-<!-- link to docs/GAME-SPECS.md section or issue; note any deviations -->
+<!-- link to docs/specs/README.md section or issue; note any deviations -->
 
 ## Checklist
 - [ ] `npm run verify` passes locally
@@ -235,7 +237,7 @@ phone: issue + "@claude …"  →  agent PR + preview link  →  Architect revie
 ## Screenshots
 ```
 
-Optionally add issue templates (`.github/ISSUE_TEMPLATE/game.md`) so planned work in `docs/GAME-SPECS.md` can become one GitHub issue per game, which agents can claim by assigning themselves or commenting.
+Optionally add issue templates (`.github/ISSUE_TEMPLATE/game.md`) so planned work in `docs/specs/README.md` can become one GitHub issue per game, which agents can claim by assigning themselves or commenting.
 
 ---
 
@@ -256,6 +258,6 @@ Optionally add issue templates (`.github/ISSUE_TEMPLATE/game.md`) so planned wor
 2. `.github/workflows/ci.yml`, `deploy.yml`, PR template; update `AGENTS.md` / `CLAUDE.md` with the branch → PR → merge rule.
 3. 👤 Enable Pages + branch protection → first deploy → confirm the public URL works (hub + both games).
 4. Phase 1.5 (separate approval; prioritised for phone-first use): Cloudflare Pages previews + Playwright smoke tests in CI.
-5. Phase 2: issue-driven agent workflow (`@claude` mentions) + issue templates + Architect agent (`docs/ARCHITECT-AGENT-SPEC.md`).
+5. Phase 2: issue-driven agent workflow (`@claude` mentions) + issue templates + Architect agent (`docs/specs/architect-agent.md`).
 
 Estimated effort: steps 1–2 take about one session; step 3 takes about 5 minutes of the user's time.

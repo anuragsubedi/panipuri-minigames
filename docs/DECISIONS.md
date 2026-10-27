@@ -162,3 +162,17 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Context (user):** The user wants to start agent sessions from a phone (cloud sessions) to add features and games ad hoc.
 - **Decision:** Treat cloud/phone sessions as first-class. The build/verify must need only git, Node 22 and Python 3; results reach the user as PRs with preview links. PR previews (Cloudflare Pages, previews only, production still on GitHub Pages) and CI browser smoke tests move up to Phase 1.5; an issue-driven `@claude` mention flow comes in Phase 2.
 - **Why:** On a phone, the user can't open an agent's localhost, and cloud agents may lack a browser, so previews and automated browser checks are the only practical way to see and trust changes.
+
+## D-025 · Release branch `live`, served directly by GitHub Pages
+
+- **Date:** 2026-10-26
+- **Decision (user):** A new branch **`live`** is the release branch. GitHub Pages deploys it via "Deploy from a branch" (root, `.nojekyll`, no Actions) at https://anuragsubedi.github.io/panipuri-minigames/. Agents commit and push to `live` directly (after the user OKs a change in-session), with no PR or merge step. `main` stays as an older snapshot; a PR `live → main` records the harness overhaul.
+- **Why:** The user wants agents (including phone-driven cloud sessions) to ship quickly without PR merge overhead. A static site with no build step can be served straight from the branch.
+- **Trade-off:** No CI gate, so a bad push goes live (mitigated by `npm test` before pushing; fix by pushing a revert). The CI/PR flow in `docs/specs/pipeline.md` remains the long-term plan.
+
+## D-026 · Specs folder; Architect agent is long-term
+
+- **Date:** 2026-10-26
+- **Decision:** `docs/GAME-SPECS.md` was split into `docs/specs/README.md` (rules, ranking, build order) plus one file per game in `docs/specs/games/`, each with a status header. `PIPELINE-SPEC.md` and `ARCHITECT-AGENT-SPEC.md` moved to `docs/specs/pipeline.md` and `docs/specs/architect-agent.md`. Earlier decision entries keep their old paths (append-only log).
+- **Why:** Agents read and edit only the spec they need, which keeps context small and avoids conflicts between parallel edits.
+- **Also (user):** The Architect PR-review/merge loop is a long-term goal for when panipuri scales massively, not near-term work.

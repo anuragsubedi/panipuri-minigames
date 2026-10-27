@@ -6,16 +6,18 @@
 - **Glimpse v0.1** — shipped. Verified in browser (full game, keyboard, no console errors).
 - 53 tests passing (`npm test`).
 - `README.md` + `start.command` for non-technical players.
+- **Live site:** https://anuragsubedi.github.io/panipuri-minigames/. GitHub Pages serves the **`live`** branch (release branch, D-025); every push publishes.
 
 ## Next step
 
-Nothing scheduled. Next games are specced and ranked in `docs/GAME-SPECS.md` (Orbit, Pin Drop, Keyfall, Breakbench, Drift, Lost Lens, Blockyard), meant to be built independently in fresh sessions or other agent tools. Suggested order: Drift → Pin Drop → Orbit → Keyfall → Breakbench → Lost Lens → Blockyard. Ask the user which one.
+Nothing scheduled. Next games are specced and ranked in `docs/specs/README.md` (Orbit, Pin Drop, Keyfall, Breakbench, Drift, Lost Lens, Blockyard), meant to be built independently in fresh sessions or other agent tools. Suggested order: Drift → Pin Drop → Orbit → Keyfall → Breakbench → Lost Lens → Blockyard. Ask the user which one.
 
 Open repo-wide questions (user's call):
 - **No LICENSE file** in the public repo.
-- **Pipeline:** `docs/PIPELINE-SPEC.md`. Host **decided: GitHub Pages** (D-022); Cloudflare Workers for future server features. Implementation awaiting approval.
-- **Phone-first goal (user):** start agent sessions from iOS/Android and ship via PR. That moves PR previews (Cloudflare Pages, previews only) and Playwright smoke tests up to Phase 1.5, and adds an issue-driven `@claude` flow in Phase 2. See PIPELINE-SPEC → "Phone-first workflow".
-- **Architect agent:** `docs/ARCHITECT-AGENT-SPEC.md` (automated PR review; auto-merge of low-risk tier-A PRs; CODEOWNERS guard). Depends on the pipeline. Open: which review agent/provider.
+- **Pipeline:** fast mode is live (push to `live` → Pages). Long-term CI/PR flow in `docs/specs/pipeline.md` (not implemented). Server features later via Cloudflare Workers (D-022).
+- **Phone-first goal (user):** start agent sessions from iOS/Android; today that means a cloud agent pushes to `live` and the user plays the public URL. Previews, smoke tests and the issue-driven flow are in the long-term plan.
+- **Architect agent:** long-term goal for when panipuri scales (`docs/specs/architect-agent.md`, D-026).
+- **`main` vs `live`:** `main` is an older snapshot; a PR `live → main` was opened for the harness overhaul. Making `live` the repo's default branch (so cloud agents clone it by default) is the user's call.
 
 ## Backlog (not scheduled — ask the user before picking any up)
 
@@ -46,7 +48,8 @@ Open repo-wide questions (user's call):
 - User played v0.1, chose to skip polish (D-014). Added `README.md` + `start.command` for non-technical users (D-015). Proposed game 2 "Glimpse" with spec (D-016). Rewrote `CLAUDE.md` (status table, who-reads-what, new-game pointer); added "Adding a new game" + shared-code plan to ARCHITECTURE.
 - Glimpse approved. Step 1: extracted `shared/js/` (dom, format, rng + `seedFromQuery`, countdown with caption param, round badge) and `shared/styles/game-kit.css`; Hue Recall now imports them. Tests moved/added (`tests/shared/rng.test.js`, 30 total). D-017.
 - Glimpse step 2: core + 23 tests; `score.js`/`verdict.js` moved to `shared/js`. User asked for speed and short replies → finished step 3 in the same turn: UI, hub tile, README row; result/summary CSS moved to `game-kit.css`. D-018.
-- Wrote `docs/GAME-SPECS.md`: 7 ideas ranked (novelty / wow / feasibility) with self-contained specs and a per-spec sanity check; added `AGENTS.md` for other agent tools. D-019.
-- Wrote `docs/PIPELINE-SPEC.md` (agent-first CI/CD proposal). D-020.
-- Host decided: GitHub Pages (+ Workers later). Wrote `docs/ARCHITECT-AGENT-SPEC.md`; harness updated with the no-self-merge rule. D-022, D-023.
+- Wrote `docs/specs/README.md`: 7 ideas ranked (novelty / wow / feasibility) with self-contained specs and a per-spec sanity check; added `AGENTS.md` for other agent tools. D-019.
+- Wrote `docs/specs/pipeline.md` (agent-first CI/CD proposal). D-020.
+- Host decided: GitHub Pages (+ Workers later). Wrote `docs/specs/architect-agent.md`; harness updated with the no-self-merge rule. D-022, D-023.
 - Recorded the phone-first goal; pipeline spec gained a "Phone-first workflow" section; agent guides note cloud sessions. D-024.
+- Harness overhaul on new release branch `live`: specs split into `docs/specs/` (README + one file per game; pipeline + architect specs moved there); GitHub Pages enabled from `live` → https://anuragsubedi.github.io/panipuri-minigames/. Architect agent marked long-term. D-025, D-026.

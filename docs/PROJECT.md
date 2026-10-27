@@ -19,7 +19,7 @@ A small arcade of quick, satisfying browser minigames that test perception and m
 | 1 | Hue Recall  | `games/hue-recall/` | **v0.1 shipped.** Polish parked by user (D-014). |
 | 2 | Glimpse     | `games/glimpse/`    | **v0.1 shipped.** |
 
-Future games and toys (proposals, ranked): see [`GAME-SPECS.md`](GAME-SPECS.md).
+Future games and toys (proposals, ranked): see [`specs/README.md`](specs/README.md).
 
 ---
 
