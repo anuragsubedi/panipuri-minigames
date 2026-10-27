@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
-"""Build a regional map file for Pin Drop from Natural Earth 1:10m data.
+"""Build a regional map file for Pin Drop.
 
 Run by hand (not a build step), standard library only:
 
     python3 games/pin-drop/tools/build-region-map.py india \
         ne_10m_admin_0_countries_ind.geojson ne_10m_admin_1_states_provinces.geojson \
         > games/pin-drop/data/maps/india.json
+    python3 games/pin-drop/tools/build-region-map.py nepal \
+        ne_10m_admin_0_countries_nep.geojson npl_admin0.geojson npl_admin3.geojson \
+        > games/pin-drop/data/maps/nepal.json
 
-Sources (public domain): https://github.com/nvkelso/natural-earth-vector
+Sources: Natural Earth 1:10m (public domain, https://github.com/nvkelso/natural-earth-vector).
 The countries file is a Natural Earth *point-of-view* file (e.g. `_ind`), so
 borders are drawn as that country's official map draws them.
+Nepal ("cod" regions) instead takes its outline and inner lines from the
+Survey Department of Nepal's boundaries as published on OCHA HDX
+(https://data.humdata.org/dataset/cod-ab-npl, CC BY 3.0 IGO): npl_admin0 for
+the outline, npl_admin3 (local levels) for province, district and local
+lines, so every layer shares the same vertices. Natural Earth then only
+supplies the neighbours.
 
 Output, in the same map units as world.json (x = lon, y = -lat):
     bounds    the playable area
@@ -20,6 +29,8 @@ Output, in the same map units as world.json (x = lon, y = -lat):
               control, so pieces administered by a neighbour are relabelled
               to the state the point-of-view map puts them in (REMAP);
               lines of control therefore never show up as state lines.
+    districts (cod only) district lines that aren't province lines
+    locals    (cod only) local-level (palika) lines that aren't district lines
     note      provenance shown on the map
 """
 
@@ -39,6 +50,16 @@ REGIONS = {
             ("KAS", "Kashmir"): "Ladakh",
         },
         "note": "Borders: India's official view · Natural Earth",
+    },
+    "nepal": {
+        "focus": "NPL",
+        "bounds": {"west": 79.7, "east": 88.5, "north": 30.75, "south": 26.0},
+        "admin": "cod",
+        "precision": 4,
+        # Douglas–Peucker tolerance per layer, in degrees (0.001 ≈ 100 m).
+        "tolerance": 0.0012,
+        "layer_tolerance": {"states": 0.0012, "districts": 0.0015, "locals": 0.0025},
+        "note": "Borders: Survey Department of Nepal (official map) · OCHA HDX",
     },
 }
 
@@ -166,26 +187,56 @@ def ring_paths(geometry, tolerance, box=None):
     return "".join(out)
 
 
-def state_lines(admin1, focus, remap):
-    """Edges shared by two differently-labelled states, chained into polylines."""
-    key = lambda p: (round(p[0], 6), round(p[1], 6))
+EDGE_KEY = lambda p: (round(p[0], 6), round(p[1], 6))
+
+
+def edge_owners(features, label_of):
+    """Map each polygon edge to the set of labels whose rings use it."""
     owners = {}
-    for feature in admin1:
-        props = feature["properties"]
-        code = props["adm0_a3"]
-        label = props["name"] if code == focus else None
-        for (c, prefix), target in remap.items():
-            if code == c and props["name"].startswith(prefix):
-                label = target
+    for feature in features:
+        label = label_of(feature["properties"])
         if label is None:
             continue
         for polygon in polygons(feature["geometry"]):
             for ring in polygon:
                 for a, b in zip(ring, ring[1:]):
-                    edge = tuple(sorted((key(a), key(b))))
+                    edge = tuple(sorted((EDGE_KEY(a), EDGE_KEY(b))))
                     owners.setdefault(edge, set()).add(label)
-    edges = [e for e, labels in owners.items() if len(labels) > 1]
-    # Chain edges into polylines through vertices of degree 2.
+    return owners
+
+
+def state_lines(admin1, focus, remap):
+    """Edges shared by two differently-labelled states, chained into polylines."""
+    def label_of(props):
+        label = props["name"] if props["adm0_a3"] == focus else None
+        for (c, prefix), target in remap.items():
+            if props["adm0_a3"] == c and props["name"].startswith(prefix):
+                label = target
+        return label
+
+    owners = edge_owners(admin1, label_of)
+    return chain([e for e, labels in owners.items() if len(labels) > 1])
+
+
+def cod_lines(locals_):
+    """Province, district and local lines from one local-level file. Each shared
+    edge goes to the coarsest level it separates, so no line is drawn twice."""
+    owners = edge_owners(locals_, lambda p: (p["adm1_name"], p["adm2_name"], p["adm3_pcode"]))
+    layers = {"states": [], "districts": [], "locals": []}
+    for edge, labels in owners.items():
+        if len(labels) < 2:
+            continue
+        if len({l[0] for l in labels}) > 1:
+            layers["states"].append(edge)
+        elif len({l[1] for l in labels}) > 1:
+            layers["districts"].append(edge)
+        else:
+            layers["locals"].append(edge)
+    return {name: chain(edges) for name, edges in layers.items()}
+
+
+def chain(edges):
+    """Chain edges into polylines through vertices of degree 2."""
     neighbours = {}
     for a, b in edges:
         neighbours.setdefault(a, []).append(b)
@@ -212,13 +263,17 @@ def state_lines(admin1, focus, remap):
     return lines
 
 
-def main(region_id, countries_path, admin1_path):
+def load_features(path):
+    with open(path, encoding="utf-8") as handle:
+        return json.load(handle)["features"]
+
+
+def main(region_id, countries_path, *admin_paths):
+    global PRECISION
     region = REGIONS[region_id]
     bounds, tol = region["bounds"], region["tolerance"]
-    with open(countries_path, encoding="utf-8") as handle:
-        countries = json.load(handle)["features"]
-    with open(admin1_path, encoding="utf-8") as handle:
-        admin1 = json.load(handle)["features"]
+    PRECISION = region.get("precision", PRECISION)
+    countries = load_features(countries_path)
     in_view = [f for f in countries if bbox_hits(f["geometry"], bounds)]
     focus = [f for f in in_view if f["properties"]["ADM0_A3"] == region["focus"]]
     if len(focus) != 1:
@@ -226,19 +281,22 @@ def main(region_id, countries_path, admin1_path):
     # Neighbours are only context: clip them just past the view and simplify harder.
     box = (bounds["west"] - 3, bounds["south"] - 3, bounds["east"] + 3, bounds["north"] + 3)
     context = "".join(ring_paths(f["geometry"], tol * 2.5, box) for f in in_view if f is not focus[0])
-    nearby = [f for f in admin1 if bbox_hits(f["geometry"], bounds, margin=0)]
-    lines = state_lines(nearby, region["focus"], region["remap"])
-    states = "".join(path(simplify(line, tol), close=False) for line in lines)
-    out = {
-        "bounds": bounds,
-        "countries": context,
-        "focus": ring_paths(focus[0]["geometry"], tol),
-        "states": states,
-        "note": region["note"],
-    }
+    out = {"bounds": bounds, "countries": context}
+    if region.get("admin") == "cod":
+        outline_path, locals_path = admin_paths
+        out["focus"] = ring_paths(load_features(outline_path)[0]["geometry"], tol)
+        layer_tol = region["layer_tolerance"]
+        for name, lines in cod_lines(load_features(locals_path)).items():
+            out[name] = "".join(path(simplify(line, layer_tol[name]), close=False) for line in lines)
+    else:
+        nearby = [f for f in load_features(admin_paths[0]) if bbox_hits(f["geometry"], bounds, margin=0)]
+        lines = state_lines(nearby, region["focus"], region["remap"])
+        out["focus"] = ring_paths(focus[0]["geometry"], tol)
+        out["states"] = "".join(path(simplify(line, tol), close=False) for line in lines)
+    out["note"] = region["note"]
     json.dump(out, sys.stdout, separators=(",", ":"), ensure_ascii=False)
     sys.stdout.write("\n")
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:4])
+    main(*sys.argv[1:])

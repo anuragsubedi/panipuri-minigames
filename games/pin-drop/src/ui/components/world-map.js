@@ -35,9 +35,14 @@ export function createWorldMap({ map, view: limits, gridStep, interactive = fals
     svgEl('rect', { class: 'map__sea', x: rect.x, y: rect.y, width: rect.w, height: rect.h }),
     svgEl('path', { class: 'map__grid', d: graticule(map.bounds, gridStep) }),
     svgEl('path', { class: 'map__equator', d: `M${rect.x} 0H${rect.x + rect.w}` }),
-    // Regional maps draw neighbours muted, the focus country as land, and its state lines.
+    // Regional maps draw neighbours muted, the focus country as land, and its inner lines
+    // (finest first, so coarser lines sit on top).
     svgEl('path', { class: `map__land${map.focus ? ' map__land--context' : ''}`, d: map.countries, 'clip-path': `url(#${clipId})` }),
-    ...(map.focus ? [svgEl('path', { class: 'map__land', d: map.focus }), svgEl('path', { class: 'map__states', d: map.states ?? '' })] : []),
+    // Detailed maps take the focus outline from another survey than the neighbours, so a
+    // wide neighbour-coloured stroke just under it hides the gaps and doubled border lines.
+    ...(map.districts ? [svgEl('path', { class: 'map__seam', d: map.focus })] : []),
+    ...(map.focus ? [svgEl('path', { class: 'map__land', d: map.focus })] : []),
+    ...['locals', 'districts', 'states'].filter((layer) => map[layer]).map((layer) => svgEl('path', { class: `map__${layer}`, d: map[layer] })),
   ]);
   const lines = svgEl('g', { class: 'map__lines' });
   // Zero-length round-capped segments with a non-scaling stroke: one path, constant-size dots.
@@ -58,7 +63,8 @@ export function createWorldMap({ map, view: limits, gridStep, interactive = fals
 
   const surface = el('div', { class: 'map__surface', attrs: still ? { role: 'img', 'aria-label': label } : { role: 'application', 'aria-label': label } }, [svg, markers]);
   const note = map.note ? el('p', { class: 'map__note', text: map.note }) : null;
-  const element = el('div', { class: `map${interactive ? ' map--interactive' : ''}${still ? ' map--still' : ''}` }, [surface, !still && controls, note]);
+  const detailed = map.districts ? ' map--detailed' : '';
+  const element = el('div', { class: `map${interactive ? ' map--interactive' : ''}${still ? ' map--still' : ''}${detailed}` }, [surface, !still && controls, note]);
 
   const toLatLon = (px) => clampToBounds(unproject(screenToMap(px, view, rect, size)), map.bounds);
 
@@ -103,6 +109,8 @@ export function createWorldMap({ map, view: limits, gridStep, interactive = fals
     view = next;
     const box = viewBox(view, rect, size);
     svg.setAttribute('viewBox', `${box.x} ${box.y} ${box.w} ${box.h}`);
+    // CSS fades fine lines (e.g. local levels) in as you zoom.
+    element.style.setProperty('--zoom', view.zoom.toFixed(2));
     draw();
   }
 

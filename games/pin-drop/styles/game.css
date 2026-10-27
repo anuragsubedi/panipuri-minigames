@@ -422,6 +422,37 @@
   vector-effect: non-scaling-stroke;
 }
 
+/* Detailed maps (Nepal): provinces solid, districts dashed, local levels as
+   hairlines that fade in once you zoom past ~2× so the whole map stays calm. */
+.map--detailed .map__states {
+  stroke-width: 1.2;
+  stroke-dasharray: none;
+}
+
+.map__seam {
+  fill: var(--map-context);
+  stroke: var(--map-context);
+  stroke-width: 0.1; /* map units (degrees), so it covers the same gap at any zoom */
+  stroke-linejoin: round;
+}
+
+.map__districts,
+.map__locals {
+  fill: none;
+  stroke: var(--map-border);
+  vector-effect: non-scaling-stroke;
+}
+
+.map__districts {
+  stroke-width: 0.6;
+  stroke-dasharray: 3 2;
+}
+
+.map__locals {
+  stroke-width: 0.4;
+  opacity: clamp(0, calc((var(--zoom, 1) - 1.6) * 0.6), 0.8);
+}
+
 .map__note {
   position: absolute;
   left: 8px;
