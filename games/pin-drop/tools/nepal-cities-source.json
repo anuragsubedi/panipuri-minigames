@@ -54,7 +54,7 @@
   "_tier1": "Famous: every metropolitan and sub-metropolitan city is tier 1 automatically; these are added.",
   "tier1": [
     ["Birendranagar", "Surkhet"], ["Kirtipur", "Kathmandu"], ["Dhulikhel", "Kavrepalanchok"], ["Banepa", "Kavrepalanchok"],
-    ["Madhyapur Thimi", "Bhaktapur"], ["Damak", "Jhapa"], ["Birtamod", "Jhapa"], ["Mechinagar", "Jhapa"],
+    ["Madhyapur Thimi", "Bhaktapur"], ["Bhaktapur", "Bhaktapur"], ["Damak", "Jhapa"], ["Birtamod", "Jhapa"], ["Mechinagar", "Jhapa"],
     ["Bhadrapur", "Jhapa"], ["Illam", "Ilam"], ["Dhankuta", "Dhankuta"], ["Inaruwa", "Sunsari"],
     ["Rajbiraj", "Saptari"], ["Lahan", "Siraha"], ["Tansen", "Palpa"], ["Gorkha", "Gorkha"],
     ["Siddharthanagar", "Rupandehi"], ["Tikapur", "Kailali"],

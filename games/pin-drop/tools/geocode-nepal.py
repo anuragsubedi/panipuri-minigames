@@ -10,8 +10,10 @@ Run by hand (not a build step), standard library only, ~1 request per second:
 Like geocode-landmarks.py, the source holds the hand-made part (name, detail
 "District, Province", tier, region, blurb, optional query). In addition:
 - A hit only counts if it lies in the named district (a same-named temple
-  elsewhere is skipped); places with no such hit are listed with where the
-  candidates were, so the query can be fixed by hand.
+  elsewhere is skipped) and isn't a business named after the place (a café
+  called "… Boudhanath"); hits OSM links to Wikidata come first. Places with
+  no such hit are listed with where the candidates were, so the query can be
+  fixed by hand. Every match still gets a human look (D-033).
 - "shape": "line" (rivers) or "area" (parks, lakes) keeps OSM's geometry:
   lines are clipped to Nepal, everything is simplified to ≈ 300 m, and the
   hit counts if any of it touches the named district.
@@ -35,6 +37,11 @@ PAUSE_S = 1.1
 SHAPE_TOLERANCE = 0.003  # degrees, ≈ 300 m
 # Display spellings → survey spellings.
 SURVEY_DISTRICT = {"Dhanusha": "Dhanusa", "Chitwan": "Chitawan", "Tanahun": "Tanahu", "Kapilvastu": "Kapilbastu", "Parasi": "Nawalparasi West", "Nawalpur": "Nawalparasi East"}
+# Businesses and buildings that borrow a landmark's name ("La Casita Di Boudhanath").
+# Temples are amenity=place_of_worship, so amenities are filtered by type, not wholesale.
+SKIP = {"shop", "office", "highway", "craft", "healthcare", "railway"}
+SKIP_TYPES = {"hotel", "guest_house", "hostel", "motel", "apartment", "information", "travel_agency", "restaurant", "cafe",
+              "bar", "fast_food", "school", "college", "university", "bank", "pharmacy", "clinic", "hospital", "bus_stop", "parking"}
 GEOMETRY = {"line": ("LineString", "MultiLineString"), "area": ("Polygon", "MultiPolygon")}
 
 # Reuse the map builder's Douglas–Peucker.
@@ -134,6 +141,9 @@ def main(source_path, out_path, admin2_path, admin0_path):
         hits = search(item.get("query", item["name"]), kind)
         time.sleep(PAUSE_S)
         chosen = None
+        # Usable hits, best first: ones OSM links to Wikidata, then Nominatim's own order.
+        hits = [h for h in hits if h.get("category") not in SKIP and h.get("type") not in SKIP_TYPES]
+        hits.sort(key=lambda h: not (h.get("extratags") or {}).get("wikidata"))
         for hit in hits:
             if kind:
                 geometry = hit.get("geojson", {})
