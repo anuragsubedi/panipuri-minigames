@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { VERDICTS } from '../../games/hue-recall/src/config.js';
 import { inkFor } from '../../games/hue-recall/src/color/contrast.js';
 import { channelStops } from '../../games/hue-recall/src/color/gradient.js';
-import { verdictFor } from '../../games/hue-recall/src/scoring/verdict.js';
+import { verdictFor } from '../../shared/js/verdict.js';
 
 test('inkFor: dark ink on light colors, light ink on dark colors', () => {
   assert.equal(inkFor({ h: 60, s: 100, b: 100 }), 'dark'); // yellow

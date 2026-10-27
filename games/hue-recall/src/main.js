@@ -3,7 +3,7 @@
 
 import { ROUNDS, DIFFICULTIES, CHANNEL_RANGES, START_GUESS, SCORE_CURVE, VERDICTS } from './config.js';
 import { createRng, randomInt, seedFromQuery } from '../../../shared/js/rng.js';
-import { verdictFor } from './scoring/verdict.js';
+import { verdictFor } from '../../../shared/js/verdict.js';
 import {
   PHASES,
   createGame,

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { roundScore, totalScore } from '../../games/hue-recall/src/scoring/score.js';
+import { roundScore, totalScore } from '../../shared/js/score.js';
 
 const CURVE = { max: 10, scale: 22, shape: 1.6 };
 

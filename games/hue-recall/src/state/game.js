@@ -5,7 +5,7 @@ import { ROUNDS, DIFFICULTIES, DEFAULT_DIFFICULTY, TARGET_RANGES, SCORE_CURVE } 
 import { randomHsb } from '../color/random.js';
 import { hsbToLab } from '../color/convert.js';
 import { deltaE2000 } from '../color/distance.js';
-import { roundScore, totalScore } from '../scoring/score.js';
+import { roundScore, totalScore } from '../../../../shared/js/score.js';
 
 export const PHASES = Object.freeze({
   INTRO: 'intro',

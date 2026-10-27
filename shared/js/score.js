@@ -1,13 +1,13 @@
-// Turns color difference into points.
+// Turns an error measure (≥ 0) into points with a smooth decaying curve.
 
 /**
- * Points for one round: max * exp(-(deltaE / scale) ^ shape).
- * @param {number} deltaE perceptual difference (≥ 0)
+ * Points for one round: max * exp(-(error / scale) ^ shape).
+ * @param {number} error error measure (≥ 0), e.g. color ΔE or a log ratio
  * @param {{max: number, scale: number, shape: number}} curve
  * @returns {number} points in [0, curve.max], unrounded
  */
-export function roundScore(deltaE, { max, scale, shape }) {
-  return max * Math.exp(-((Math.max(0, deltaE) / scale) ** shape));
+export function roundScore(error, { max, scale, shape }) {
+  return max * Math.exp(-((Math.max(0, error) / scale) ** shape));
 }
 
 /**
