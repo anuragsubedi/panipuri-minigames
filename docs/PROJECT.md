@@ -12,6 +12,15 @@ A small arcade of quick, satisfying browser minigames that test perception and m
 
 ---
 
+## Games at a glance
+
+| # | Game        | Folder              | Status                                   |
+|---|-------------|---------------------|------------------------------------------|
+| 1 | Hue Recall  | `games/hue-recall/` | **v0.1 shipped.** Polish parked by user (D-014). |
+| 2 | Glimpse     | `games/glimpse/`    | **Proposed** — spec below, awaiting user approval before building. |
+
+---
+
 ## Game 1: Hue Recall
 
 ### Pitch
@@ -62,3 +71,50 @@ Intro ──▶ [ Memorize ──▶ Recreate ──▶ Round result ] × 5 ─�
 ### Out of scope for v0.1
 
 Multiplayer, daily challenge, sound, sharing, accounts, leaderboards, persistence.
+
+---
+
+## Game 2: Glimpse (proposed)
+
+> Status: **proposed, not built.** Get the user's go-ahead before implementing (see `CLAUDE.md` working agreement).
+
+### Pitch
+
+How many dots was that? A cloud of dots flashes for under a second — too fast to count — and you guess the number. It tests "number sense": the gut-level estimation everyone does when glancing at a crowd or a jar of sweets.
+
+### Game flow
+
+```
+Intro ──▶ [ Ready ──▶ Flash ──▶ Guess ──▶ Round result ] × 5 ──▶ Summary ──▶ (Play again)
+```
+
+| Phase        | What the player sees                                                    | Exit              |
+|--------------|-------------------------------------------------------------------------|-------------------|
+| Intro        | Title, one-line rules, difficulty toggle, Start                         | Start             |
+| Ready        | "Round 2 / 5 · Get ready" with a short 3-2-1 (≈1.5 s total)             | Auto              |
+| Flash        | Dot cloud on the card                                                   | Auto after flash  |
+| Guess        | Empty card, big number input (numeric keypad on phones), −/+ buttons    | Submit / Enter    |
+| Round result | The dots again with the true count, your guess, % off, round score     | Next / Enter      |
+| Summary      | Five rounds (actual vs. guess), total out of 50, Menu / Play again      | Play again        |
+
+### Rounds and difficulty
+
+- Dot counts are random per round, spread across a range (≈ 8–150) so each game has small and large clouds.
+- Easy: flash 1000 ms. Hard: flash 400 ms. (Tunables in `config.js`.)
+- Dots: same size, placed with a minimum spacing so none overlap (seeded, reproducible with `?seed=`).
+
+### Scoring
+
+- Error is **ratio-based**, not absolute: guessing 110 for 100 is as good as 11 for 10.
+  `error = |ln(guess / actual)|`
+- Points = `10 · exp(-(error / scale) ^ shape)`, same curve shape as Hue Recall. Exact guess = 10.
+- Guess of 0 or empty can't be submitted.
+
+### Reuse
+
+- Shares the card look, screen contract, render loop and Enter-key flow with Hue Recall.
+- Generic helpers (`el`/`onKey`, seeded RNG, points formatting, round badge, countdown) move to `shared/js/` so both games import them instead of copying (see ARCHITECTURE "Adding a new game").
+
+### Out of scope for v0.1
+
+Shapes other than dots, colored distractors, timed streak mode, persistence.

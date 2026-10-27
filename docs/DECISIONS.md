@@ -87,3 +87,24 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Date:** 2026-10-26
 - **Decision:** Custom vertical slider (`role="slider"`, arrow / Shift / PageUp / Home / End keys, pointer capture for drag).
 - **Why:** Native vertical range inputs are inconsistent across browsers and hard to style with live gradients and a color-filled thumb.
+
+## D-014 · Hue Recall polish parked; prioritize new games
+
+- **Date:** 2026-10-26
+- **Context:** After playing v0.1 the user found it "pretty playable" and chose not to do the planned Step 4 (playtest & polish).
+- **Decision:** Hue Recall stays at v0.1. Its polish ideas move to the backlog in `PROGRESS.md`. New effort goes to new games.
+- **Consequences:** Don't tune or polish Hue Recall unless the user asks.
+
+## D-015 · Non-technical README + macOS double-click launcher
+
+- **Date:** 2026-10-26
+- **Decision:** Root `README.md` written for non-coders; `start.command` starts `python3 -m http.server 5173` bound to 127.0.0.1 and opens the browser. If the port is already in use it just opens the browser.
+- **Why:** Lowest-effort start for a layperson without adding tooling or dependencies. Python 3 ships with/is easily installed on macOS.
+- **Consequences:** README must stay jargon-free; `CLAUDE.md` remains the technical entry point.
+
+## D-016 · Second game: Glimpse (proposed)
+
+- **Date:** 2026-10-26
+- **Decision:** Proposed a dot-count estimation game ("Glimpse") as game 2; spec in `PROJECT.md`. Awaiting user approval.
+- **Why:** Quick (≈1 min), tests a different perceptual skill (number sense) than Hue Recall, reuses the card / screen / render-loop architecture, and is a generic genre rather than a copy of a specific product.
+- **Scoring:** ratio-based error `|ln(guess/actual)|` so being 10% off feels the same at 10 dots and 100 dots.

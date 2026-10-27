@@ -12,7 +12,10 @@
 
 ```
 panipuri-minigames/
-├── CLAUDE.md
+├── CLAUDE.md                     # agent guide
+├── README.md                     # non-technical setup + play guide
+├── start.command                 # macOS double-click launcher (python3 http.server + open browser)
+├── .claude/launch.json           # "static" server config for the Claude desktop preview
 ├── docs/
 ├── package.json                  # only "type": "module" + `npm test`; no dependencies
 ├── index.html                    # hub: links to each game
@@ -145,3 +148,21 @@ commit(nextState) → state = nextState → cleanup() → root.replaceChildren()
 - Exception: difficulty toggling on the intro commits with `{ rerender: false }` because the screen updates its own buttons (keeps keyboard focus).
 - Primary actions are also bound to **Enter** via `onKey`, which ignores auto-repeat so one press can't skip two phases.
 - `?seed=<n>` in the URL makes target colors and starting hues reproducible.
+
+## Adding a new game
+
+Every game follows Hue Recall's shape so any agent can find their way around.
+
+1. **Spec first.** Add a section to `docs/PROJECT.md` (pitch, flow table, difficulty, scoring, out of scope) and get the user's OK.
+2. **Folder.** `games/<kebab-name>/` with `index.html` (links `shared/styles/tokens.css`, `shared/styles/base.css`, its own `styles/game.css`; mounts into `#game.card`), `src/main.js`, `src/config.js`, `src/state/`, `src/scoring/`, `src/ui/{components,screens}/`.
+3. **Pure core + tests.** State transitions in `state/game.js` with `PHASES`, `createGame`, `startGame(state, rng)`, and phase assertions that throw. Tests in `tests/<kebab-name>/`.
+4. **Screens** follow the screen contract above (`renderX(root, props, handlers) → cleanup`), primary action also on Enter via `onKey`.
+5. **Hub + README.** Add a tile to `index.html` (+ art class in `shared/styles/hub.css`) and a row to the README game table.
+6. **Docs.** Update this file's layout, `PROGRESS.md`, and log decisions.
+
+### Shared code
+
+Today only styles are shared (`shared/styles/`). Generic JS currently lives inside `games/hue-recall/src/`:
+`ui/dom.js`, `ui/format.js`, `ui/components/round-badge.js`, `ui/components/countdown.js`, and `createRng`/`randomInt` in `color/random.js`.
+
+**When the second game is built**, move these into `shared/js/` (e.g. `shared/js/dom.js`, `shared/js/rng.js`, `shared/js/format.js`, `shared/js/components/…`) and update Hue Recall's imports — don't copy them. Keep anything game-specific (color math, sliders) inside its game. Rule of thumb: code moves to `shared/` only once a second game actually needs it.
