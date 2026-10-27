@@ -37,7 +37,7 @@ Each idea is scored 1–5 on three axes (feasibility means feasible as vanilla J
 | Rank | Working name | Inspired by | Novelty | Wow | Feasibility | Score | Effort | Type |
 |---|---|---|---|---|---|---|---|---|
 | 1 | [**Orbit**](games/orbit.md) ✅ shipped | solar system sandbox | 3 | 5 | 4 | **12** | 1–2 sessions | toy |
-| 2 | [**Pin Drop**](games/pin-drop.md) | geo-guessing (map-only) | 3 | 3 | 5 | **11** | 1–1.5 sessions | game |
+| 2 | [**Pin Drop**](games/pin-drop.md) ✅ shipped | geo-guessing (map-only) | 3 | 3 | 5 | **11** | 1–1.5 sessions | game |
 | 3 | [**Keyfall**](games/keyfall.md) | falling-tile piano games | 3 | 4 | 4 | **11** | 1–2 sessions + chart prep | game |
 | 4 | [**Breakbench**](games/breakbench.md) | live-coded DnB (Strudel / "Switch Angel"-style) | 4 | 5 | 2 | **11** ⚠️ | 2–3 sessions | toy |
 | 5 | [**Beatween**](games/beatween.md) (was Drift) ✅ shipped | binaural beats generator | 2 | 3 | 5 | **10** | < 1 session | tool |
@@ -47,7 +47,7 @@ Each idea is scored 1–5 on three axes (feasibility means feasible as vanilla J
 **Ties are broken by feasibility.** Each game spec ends with a **Sanity check**: a one-pass review of what's verified, what's risky, and what changed from the first draft. Read it before building.
 
 **Suggested build order** (this differs from the rank, because it front-loads cheap wins):
-1. ~~Drift~~ (shipped as Beatween) → ~~Orbit~~ (shipped) → Pin Drop.
+1. ~~Drift~~ (shipped as Beatween) → ~~Orbit~~ (shipped) → ~~Pin Drop~~ (shipped; v0.2 regional maps next).
 2. Keyfall → Breakbench.
 3. Lost Lens (after Pin Drop; reuses its map) → Blockyard.
 

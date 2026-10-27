@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: **Hue Recall v0.1**, **Glimpse v0.1**, **Beatween v0.1** and **Orbit v0.1** playable. Both games share `shared/js` + `shared/styles/game-kit.css`.
+> Status: **Hue Recall v0.1**, **Glimpse v0.1**, **Pin Drop v0.1**, **Beatween v0.1** and **Orbit v0.2** playable. Both games share `shared/js` + `shared/styles/game-kit.css`.
 > The module table and state section below describe Hue Recall in detail; Glimpse mirrors the same shape (see "Glimpse" section).
 
 ## Principles
@@ -64,6 +64,7 @@ panipuri-minigames/
 │                   ├── round-result.js
 │                   └── summary.js
 │   ├── glimpse/                  # same shape; see "Glimpse" below
+│   ├── pin-drop/                 # same shape + data/ and tools/; see "Pin Drop" below
 │   ├── beatween/                 # tool; see "Beatween" below
 │   └── orbit/                    # toy; see "Orbit" below
 └── tests/
@@ -71,6 +72,7 @@ panipuri-minigames/
     │   ├── rng.test.js
     │   └── score.test.js
     ├── glimpse/                  # dots, error, game
+    ├── pin-drop/                 # geo (project, haversine, describe), viewport, packs (bundled data checked), pick, game
     ├── beatween/                 # core (settings, scale, bands, lissajous), noise
     ├── orbit/                    # physics (energy, merge, bounce, preview), presets, world, camera, trails
     └── hue-recall/
@@ -174,6 +176,34 @@ games/glimpse/src/
 ```
 
 Round: `{ count, dots: [{x, y}], guess, error, score }`. Transitions: `startGame`, `endReady`, `endFlash`, `submitGuess` (throws `RangeError` unless `isValidGuess`), `nextRound`. The flash screen owns a `setTimeout`; its cleanup clears it.
+
+## Pin Drop
+
+```
+games/pin-drop/
+├── data/maps/world.json     # {bounds, countries: SVG path}; equirectangular, x = lon, y = −lat (degrees)
+├── data/packs/*.json        # {id, name, map, scoreScaleKm, source, places: [{name, detail, lat, lon, tier 1–3, region, clue?}]}
+├── tools/                   # run by hand, stdlib Python: geojson-to-map.py, places-to-packs.py (Natural Earth → data/)
+├── how.html
+└── src/
+    ├── main.js              # fetches packs + maps once, then the usual render loop
+    ├── config.js            # ROUND_OPTIONS, TOPICS (sets of packs), DIFFICULTIES (tiers, showDetail), SCORE_CURVE, VERDICTS, MAP_VIEW
+    ├── geo/project.js       # lat/lon ↔ map units, bounds rect, clamp
+    ├── geo/haversine.js     # distanceKm, bearingDeg, compassPoint
+    ├── geo/viewport.js      # pure pan/zoom: view {cx, cy, zoom} → viewBox; zoomAt, panBy, fitPoints, screen ↔ map
+    ├── geo/describe.js      # formatKm, directionHint
+    ├── data/load-pack.js    # validatePack (pure), loadPack(url, fetch)
+    ├── data/pick-places.js  # poolFor(packs, tiers), pickPlaces (seeded; spreads regions and packs)
+    ├── data/clue.js         # clueFor(place, {showDetail}) → {type: 'text', …} or the place's own clue; answerLabel
+    ├── state/game.js        # intro → clue → reveal → summary
+    └── ui/
+        ├── components/world-map.js     # SVG map + HTML pins/dots (constant size), ResizeObserver, frame()
+        ├── components/map-gestures.js  # pointer → tap / pin drag / pan / pinch / wheel intents
+        ├── components/clue.js          # one renderer per clue type (text now; photo later for Lost Lens)
+        └── screens/                    # intro, clue, reveal, summary
+```
+
+Round: `{ place (with packId, scaleKm), guess, distanceKm, score }`. Transitions: `createGame({topic, difficulty, roundCount})`, `setOptions`, `startGame(state, packsById, rng)`, `submitPin` (throws `RangeError` unless `isValidPin`), `nextRound`. The clue screen keeps the working pin locally and reports it once on "Lock it in". Score scale comes from the place's pack, so a regional pack can be stricter. **Adding a region (v0.2):** new `data/maps/<id>.json` (same tool, different source/bounds) + a pack with `"map": "<id>"` and its own `scoreScaleKm` + a `TOPICS` entry.
 
 ## Beatween (tool)
 

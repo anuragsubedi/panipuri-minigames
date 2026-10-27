@@ -4,16 +4,19 @@
 
 - **Hue Recall v0.1** — shipped. Polish parked (D-014).
 - **Glimpse v0.1** — shipped. Verified in browser (full game, keyboard, no console errors).
+- **Pin Drop v0.1** — built (map geo-guessing; D-032). Verified in headless Chromium at 375×667 (light) and 1280×800 (dark): full games incl. Hard · Mix · 10 rounds, no console errors, no page scroll, no network requests during play; pinch / tap / pin-drag / pan tested with synthetic touch events only: **needs a real-phone try**.
 - **Beatween v0.1** — shipped (binaural beats tool, was "Drift"). Audio graph verified via an AudioContext probe (oscillators match L/R; noise loop; suspend on pause); layout verified at 375×667, ~426×826, 740×360 landscape and desktop, light + dark. **Not verified by ear**: needs a headphone listen.
 - **Orbit v0.2** — shipped and live (real units + clock, heaviest-bodies list, Solar system preset, zoom, saves; D-030). Gravity sandbox toy. Verified at 375×667, 740×360 landscape and 1280×800, light + dark; drag-launch, preview, select/delete, presets; 61 fps with 30 bodies (physics ≈ 0.3 ms/frame at 8×). Touch drag and pinch tested with synthetic pointer events only: **needs a real-phone try**.
 - **How it works** pages for all four games (`games/<name>/how.html`, D-031).
-- 100 tests passing (`npm test`).
+- 130 tests passing (`npm test`).
 - `README.md` + `start.command` for non-technical players.
 - **Live site:** https://anuragsubedi.github.io/panipuri-minigames/. GitHub Pages serves the **`live`** branch (release branch, D-025); every push publishes.
 
 ## Next step
 
-Nothing scheduled. Next games are specced and ranked in `docs/specs/README.md`, meant to be built independently in fresh sessions or other agent tools. Suggested order: ~~Beatween~~ → ~~Orbit~~ → Pin Drop → Keyfall → Breakbench → Lost Lens (after Pin Drop) → Blockyard. Ask the user which one.
+**Pin Drop v0.2: regional maps** (user-approved direction). Ask the user which region first (e.g. India, USA, NZ). Per region: a finer map (Natural Earth 1:50m/10m admin-1 states, cropped to the region's bounds) via `tools/geojson-to-map.py`, a pack with `"map": "<region>"` and a smaller `scoreScaleKm`, and a region choice on the intro (see ARCHITECTURE → Pin Drop).
+
+After that, the remaining specs in `docs/specs/README.md`: Keyfall → Breakbench → Lost Lens (reuses Pin Drop's map + clue types) → Blockyard.
 
 Open repo-wide questions (user's call):
 - **No LICENSE file** in the public repo.
@@ -29,6 +32,12 @@ Open repo-wide questions (user's call):
 - Separate verdict words for whole-game summary (currently uses average round score).
 - Brief "color hidden" transition between memorize and recreate.
 - Per-channel hint on round result ("too dark", "hue off by 20°").
+
+### Pin Drop ideas
+- Great-circle reveal arcs (and wrap across the antimeridian).
+- Keyboard pin placement (arrow keys move a crosshair) for accessibility.
+- 3D globe mode.
+- Tune `scoreScaleKm`, tiers and verdicts with real plays.
 
 ### Orbit ideas
 - "Mission" mode (spec stretch): keep a launched body in orbit for 30 s.
@@ -65,3 +74,9 @@ Open repo-wide questions (user's call):
 - Built **Orbit** (gravity sandbox): pure physics (leapfrog, softening, merge/bounce, path preview) + presets + world + camera/trails, 21 new tests (89 total); canvas renderer, launcher, deck, sky overlay; hub gained a "Toys" section. Mission mode deferred. D-029.
 - **Orbit v0.2:** real units (0.01 AU / 0.001 M☉ / ≈1.84 d), clock + rate, speeds ¼–64×, heaviest-bodies list, inspector km/s + AU, Solar system preset from J2000 elements, zoom (pinch/wheel/buttons), distance-sampled smooth trails, saved systems via a System sheet. 10 new tests (99). Dropped backdrop blur over the canvas for phone perf. D-030.
 - Added lean "How it works" pages for Hue Recall, Glimpse, Beatween and Orbit; numbers and charts read from each game's config. Top-bar link in each game; one line on the hub. D-031.
+
+### 2026-10-27 — Pin Drop v0.1
+- Scope agreed with the user: 2D equirectangular map with borders, no labels; pinch/scroll/drag zoom; 5 or 10 rounds; topic (Capitals / Cities / Landmarks / Mix) separate from difficulty via per-place fame tiers; regional maps deferred to v0.2. Work happens on `live` directly (user preference).
+- Core + 30 tests: projection, haversine/bearing, viewport math, pack validation (bundled packs checked for size per topic × difficulty), seeded region/pack-spread picking, pluggable clue, state machine.
+- Data: Natural Earth → `data/maps/world.json` and capitals/cities packs via committed scripts; 76 hand-picked landmarks.
+- UI: intro with three choices, clue/reveal/summary screens, map component + gestures, `how.html`, hub tile, README row. D-032.

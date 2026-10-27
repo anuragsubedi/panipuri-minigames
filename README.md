@@ -8,6 +8,7 @@ Small, quick games you play in your web browser. Each one takes about a minute.
 |----------------|----------------------------------------------------|
 | **Hue Recall** | See a color for a few seconds, then rebuild it from memory. |
 | **Glimpse**    | A cloud of dots flashes for a moment. Guess how many there were. |
+| **Pin Drop**   | You get a place name, like a capital, a city or a famous landmark. Drop a pin where you think it is on a blank world map and see how far off you were. |
 | **Beatween**   | Not a game: a calm tone generator. Each ear gets its own tone, and you hear a slow "beat" between them. Use headphones. |
 | **Orbit**      | Not a game: a toy solar system. Start from our real Solar system or a made-up one, fling planets, speed up time and watch orbits wobble, crash or fly away. Pinch to zoom. You can save a system and come back to it. |
 

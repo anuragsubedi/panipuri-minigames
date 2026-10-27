@@ -1,6 +1,6 @@
 # Pin Drop — map geo-guessing (game)
 
-> **Status:** proposed · **Rank:** 2 / 7 · **Effort:** 1–1.5 sessions · **Type:** game
+> **Status:** v0.1 shipped (D-032); v0.2 regional maps next · **Rank:** 2 / 7 · **Effort:** 1–1.5 sessions · **Type:** game
 > Shared rules for every spec: [`../README.md`](../README.md). Update this header when status changes (proposed → approved → in progress → shipped).
 
 **Pitch:** "Where is Timbuktu?" Drop a pin on a blank world map and see how far off you were.

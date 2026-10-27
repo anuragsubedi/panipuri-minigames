@@ -14,9 +14,9 @@ export function poolFor(packs, tiers) {
 }
 
 /**
- * Draw `count` distinct places. Each pick prefers a region not used since the
- * last time every region had a turn.
- * @param {object[]} pool places with a `region`
+ * Draw `count` distinct places. Each pick prefers a place whose region (and
+ * pack, so Mix rotates topics) hasn't been used since every value had a turn.
+ * @param {object[]} pool places with `region` and `packId`
  * @param {number} count
  * @param {() => number} rng floats in [0, 1)
  * @returns {object[]}
@@ -24,14 +24,20 @@ export function poolFor(packs, tiers) {
 export function pickPlaces(pool, count, rng) {
   if (pool.length < count) throw new RangeError(`Need ${count} places, pack has ${pool.length}`);
   const remaining = shuffle(pool, rng);
-  const regions = new Set(pool.map((p) => p.region));
-  const used = new Set();
+  const spreads = ['region', 'packId'].map((key) => ({ key, used: new Set() }));
   const picks = [];
   while (picks.length < count) {
-    if ([...regions].every((r) => used.has(r) || !remaining.some((p) => p.region === r))) used.clear();
-    const index = remaining.findIndex((p) => !used.has(p.region));
+    for (const { key, used } of spreads) {
+      if (remaining.every((p) => used.has(p[key]))) used.clear();
+    }
+    // First place in shuffled order that is fresh on the most keys.
+    const fresh = (p) => spreads.filter(({ key, used }) => !used.has(p[key])).length;
+    let index = 0;
+    for (let i = 1; i < remaining.length && fresh(remaining[index]) < spreads.length; i++) {
+      if (fresh(remaining[i]) > fresh(remaining[index])) index = i;
+    }
     const [place] = remaining.splice(index, 1);
-    used.add(place.region);
+    for (const { key, used } of spreads) used.add(place[key]);
     picks.push(place);
   }
   return picks;

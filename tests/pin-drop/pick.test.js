@@ -27,6 +27,13 @@ test('pickPlaces: deterministic, distinct, and spread across regions', () => {
   assert.equal(pickPlaces(POOL, 8, createRng(1)).length, 8);
 });
 
+test('pickPlaces rotates packs too, so a big pack cannot crowd out small ones', () => {
+  const big = Array.from({ length: 30 }, (_, i) => ({ ...place(`c${i}`, ['Asia', 'Europe'][i % 2]), packId: 'cities' }));
+  const small = [place('l1', 'Asia'), place('l2', 'Europe'), place('l3', 'Asia')].map((p) => ({ ...p, packId: 'landmarks' }));
+  const picks = pickPlaces([...big, ...small], 6, createRng(5));
+  assert.equal(picks.filter((p) => p.packId === 'landmarks').length, 3);
+});
+
 test('pickPlaces throws when the pool is too small', () => {
   assert.throws(() => pickPlaces(POOL, 9, createRng(1)), RangeError);
 });

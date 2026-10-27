@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>How Pin Drop works · panipuri</title>
+    <meta name="description" content="How Pin Drop picks places, measures great-circle distance and turns kilometres into points." />
+    <link rel="stylesheet" href="../../shared/styles/tokens.css" />
+    <link rel="stylesheet" href="../../shared/styles/base.css" />
+    <link rel="stylesheet" href="../../shared/styles/doc.css" />
+    <style>
+      body { --doc-accent: #2f7de8; }
+      @media (prefers-color-scheme: dark) { body { --doc-accent: #82b6ff; } }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../../"><span class="brand__mark" aria-hidden="true"></span>panipuri</a>
+      <span class="topbar__sep" aria-hidden="true">/</span>
+      <a class="topbar__title" href="./">Pin Drop</a>
+      <span class="topbar__how">How it works</span>
+    </header>
+
+    <main class="doc">
+      <h1>How Pin Drop works</h1>
+      <p class="doc__lede">You get a place name and drop a pin on a blank world map. The game measures how far your pin is from the real spot, along the curve of the Earth, and turns that into points.</p>
+      <a class="doc__play" href="./">Play Pin Drop</a>
+
+      <h2>A round</h2>
+      <ol>
+        <li>A clue appears: a place name, plus its country unless you're on Hard.</li>
+        <li>Tap to drop your pin, drag it to adjust, and pinch or scroll to zoom in. Then lock it in.</li>
+        <li>The map shows your pin, the real spot and a line between them, with the distance and your points.</li>
+      </ol>
+      <p>A game is <span data-value="roundOptions">5 or 10</span> rounds. The summary puts every round on one map.</p>
+
+      <h2>Topics and difficulty</h2>
+      <p>Topic and difficulty are separate. Every place has a <strong>fame tier</strong>: 1 for places most people could find, 3 for ones only geography fans know. A world capital can be tier 3 (Palikir) and a landmark can be tier 1 (the Eiffel Tower).</p>
+      <div class="doc__table-wrap">
+        <table>
+          <thead><tr><th>Difficulty</th><th>Tiers drawn</th><th>Country shown</th></tr></thead>
+          <tbody id="difficulties"></tbody>
+        </table>
+      </div>
+      <div class="doc__table-wrap">
+        <table>
+          <thead><tr><th>Topic</th><th>Places</th><th>Tier 1 / 2 / 3</th></tr></thead>
+          <tbody id="topics"></tbody>
+        </table>
+      </div>
+      <p>Capitals and cities come from <a href="https://www.naturalearthdata.com/">Natural Earth</a> (public domain). Their tiers start from population and how well known the country is, with a few hand-made fixes. Landmarks are hand-picked. Places whose capital or statehood is disputed are left out.</p>
+
+      <h2>Picking the places</h2>
+      <p>The game shuffles every place allowed by your topic and difficulty, then works down the list. It skips any place in a region (Africa, Asia, Europe, North America, South America, Oceania) already used, until every region has had a turn. It does the same across topics in Mix. That way you don't get three European cities in a row, and Mix isn't mostly cities.</p>
+
+      <h2>The map</h2>
+      <p>The map is an <strong>equirectangular</strong> projection: longitude goes straight across, latitude straight up. A tap becomes a latitude and longitude with simple arithmetic, so no mapping library is needed. Country shapes are bundled with the game, so nothing loads over the network while you play.</p>
+      <p>The flat map stretches the far north and south. The reveal line is drawn straight on the flat map, not as the real curved shortest path, so a line across the Pacific can look odd. The distance itself is always the true one.</p>
+
+      <h2>Distance</h2>
+      <p>The <strong>haversine formula</strong> gives the great-circle distance between two points on a sphere of radius <span data-value="radius">6,371</span> km:</p>
+      <p class="doc__formula">d = 2R · asin √( sin²(Δφ/2) + cos φ₁ · cos φ₂ · sin²(Δλ/2) )</p>
+      <p>φ is latitude and λ is longitude. London to Paris comes out at about 344 km.</p>
+
+      <h2>Scoring</h2>
+      <p class="doc__formula">points = <span data-value="max">10</span> × e<sup>−(km / <span data-value="scale">1500</span>)</sup></p>
+      <figure>
+        <svg viewBox="0 0 320 170" role="img" aria-label="Points fall from 10 at the exact spot to about 1 at 3,000 km.">
+          <g transform="translate(28 8)">
+            <line class="plot-grid" x1="0" y1="0" x2="284" y2="0" />
+            <line class="plot-grid" x1="0" y1="60" x2="284" y2="60" />
+            <line class="plot-axis" x1="0" y1="120" x2="284" y2="120" />
+            <line class="plot-axis" x1="0" y1="0" x2="0" y2="120" />
+            <text class="plot-label" x="-6" y="4" text-anchor="end">10</text>
+            <text class="plot-label" x="-6" y="64" text-anchor="end">5</text>
+            <text class="plot-label" x="-6" y="124" text-anchor="end">0</text>
+            <path id="score-curve" class="plot-line" d="" />
+            <g id="score-ticks"></g>
+            <text class="plot-label" x="142" y="156" text-anchor="middle">km from the real spot</text>
+          </g>
+        </svg>
+        <figcaption>About 9.4 points at 100 km, 7.2 at 500 km, 5.1 at 1,000 km and 1.4 at 3,000 km.</figcaption>
+      </figure>
+      <p>The <span data-value="scaleInline">1500</span> km scale belongs to each pack. A future one-country pack can use a smaller scale, because 500 km off is great for the world and poor inside one country.</p>
+      <div class="doc__table-wrap">
+        <table>
+          <thead><tr><th>Verdict</th><th>Points</th></tr></thead>
+          <tbody id="verdicts"></tbody>
+        </table>
+      </div>
+
+      <h2>Play the same game as a friend</h2>
+      <p>Add <code>?seed=</code> and any number to the address, for example <code>?seed=42</code>. With the same topic, difficulty and rounds, everyone gets the same places.</p>
+
+      <p class="doc__foot"><a href="./">Back to Pin Drop</a>, or see <a href="../../">all games</a>.</p>
+    </main>
+
+    <script type="module">
+      import { fillValues } from '../../shared/js/dom.js';
+      import { curvePath } from '../../shared/js/plot.js';
+      import { ROUND_OPTIONS, TOPICS, DIFFICULTIES, SCORE_CURVE, VERDICTS } from './src/config.js';
+      import { EARTH_RADIUS_KM } from './src/geo/haversine.js';
+      import { loadPack } from './src/data/load-pack.js';
+
+      const ns = 'http://www.w3.org/2000/svg';
+      const row = (cells) => {
+        const tr = document.createElement('tr');
+        for (const text of cells) {
+          const td = document.createElement('td');
+          td.textContent = text;
+          tr.append(td);
+        }
+        return tr;
+      };
+
+      function drawCurve(scale, xMax, ticks) {
+        const score = (km) => SCORE_CURVE.max * Math.exp(-((km / scale) ** SCORE_CURVE.shape));
+        document.getElementById('score-curve').setAttribute('d', curvePath(score, { x0: 0, x1: xMax, y0: 0, y1: SCORE_CURVE.max, w: 284, h: 120 }));
+        document.getElementById('score-ticks').replaceChildren(
+          ...ticks.map((t) => {
+            const text = document.createElementNS(ns, 'text');
+            text.setAttribute('class', 'plot-label');
+            text.setAttribute('x', String((t / xMax) * 284));
+            text.setAttribute('y', '138');
+            text.setAttribute('text-anchor', 'middle');
+            text.textContent = t.toLocaleString('en-US');
+            return text;
+          }),
+        );
+      }
+
+      document.getElementById('difficulties').replaceChildren(
+        ...Object.values(DIFFICULTIES).map((d) => row([d.label, d.tiers.join(', '), d.showDetail ? 'Yes' : 'No'])),
+      );
+      document.getElementById('verdicts').replaceChildren(
+        ...VERDICTS.map((v, i) => row([v.label, i === 0 ? `${v.min}+` : `${v.min} to ${VERDICTS[i - 1].min}`])),
+      );
+
+      const ids = [...new Set(Object.values(TOPICS).flatMap((t) => t.packs))];
+      const packs = Object.fromEntries(
+        (await Promise.all(ids.map((id) => loadPack(new URL(`./data/packs/${id}.json`, import.meta.url))))).map((p) => [p.id, p]),
+      );
+      document.getElementById('topics').replaceChildren(
+        ...Object.values(TOPICS).map((t) => {
+          const places = t.packs.flatMap((id) => packs[id].places);
+          const tiers = [1, 2, 3].map((n) => places.filter((p) => p.tier === n).length).join(' / ');
+          return row([t.label, String(places.length), tiers]);
+        }),
+      );
+
+      const scale = packs[ids[0]].scoreScaleKm;
+      fillValues(document, {
+        roundOptions: ROUND_OPTIONS.join(' or '),
+        radius: Math.round(EARTH_RADIUS_KM).toLocaleString('en-US'),
+        max: SCORE_CURVE.max,
+        scale,
+        scaleInline: scale.toLocaleString('en-US'),
+      });
+      drawCurve(scale, 4000, [0, 1000, 2000, 3000, 4000]);
+    </script>
+  </body>
+</html>
