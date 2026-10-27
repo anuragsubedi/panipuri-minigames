@@ -43,3 +43,23 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 
 - **Date:** 2026-10-26
 - **Decision:** The game is named **Hue Recall** with its own visual design and copy. The memorize-and-recreate mechanic is a common genre; we do not copy any existing product's branding, layout or text.
+
+## D-007 · Minimal package.json for ESM + test script
+
+- **Date:** 2026-10-26
+- **Context:** Node treats `.js` as CommonJS unless told otherwise; tests import the browser ES modules directly.
+- **Decision:** Root `package.json` with only `"type": "module"` and `"test": "node --test \"tests/**/*.test.js\""`. No dependencies, ever.
+- **Why:** Same source files run in the browser and in Node without duplication or renaming to `.mjs`.
+
+## D-008 · Score curve: max · exp(-(ΔE / scale) ^ shape)
+
+- **Date:** 2026-10-26
+- **Decision:** Starting values `scale = 22`, `shape = 1.6` (in `config.js`).
+- **Resulting points:** ΔE 2.3 → 9.73 · 5 → 9.11 · 10 → 7.53 · 20 → 4.24 · 30 → 1.93 · 50 → 0.24.
+- **Why:** `shape > 1` keeps barely-noticeable errors near-perfect; decay is smooth with no cliffs. To be tuned in Step 4.
+
+## D-009 · Pure state transitions throw on invalid phase
+
+- **Date:** 2026-10-26
+- **Decision:** `state/game.js` transitions assert the current phase and throw otherwise.
+- **Why:** Wiring bugs in `main.js` (e.g. double submit) fail loudly instead of corrupting state.

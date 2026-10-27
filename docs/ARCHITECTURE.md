@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: **planned**. Modules below are not written yet; update this file as they land.
+> Status: pure core (`config`, `color/*`, `scoring/*`, `state/*`) **implemented and tested**. `ui/*`, `main.js`, styles and HTML are **planned** (Step 3).
 
 ## Principles
 
@@ -14,6 +14,7 @@
 panipuri-minigames/
 ├── CLAUDE.md
 ├── docs/
+├── package.json                  # only "type": "module" + `npm test`; no dependencies
 ├── index.html                    # hub: links to each game
 ├── games/
 │   └── hue-recall/
@@ -63,7 +64,7 @@ panipuri-minigames/
 | `color/distance.js`       | CIEDE2000 ΔE between two Lab colors                                    | yes   |
 | `color/random.js`         | Seedable RNG + constrained random HSB target                           | yes   |
 | `scoring/score.js`        | ΔE → round points; total                                               | yes   |
-| `state/game.js`           | Game state shape + transitions (start, submit, next, restart)          | yes   |
+| `state/game.js`           | Game state shape + transitions (start, submit, next, restart), selectors | yes   |
 | `ui/dom.js`               | Tiny helpers (`el()`, `clear()`), nothing game-specific                | no    |
 | `ui/components/slider.js` | One vertical slider: pointer + keyboard input, gradient track          | no    |
 | `ui/components/countdown.js` | Visual countdown driven by a timer; calls `onDone`                  | no    |
@@ -86,13 +87,19 @@ panipuri-minigames/
 
 Transitions (all pure, `(state, ...args) → newState`):
 
-| Function            | From          | To                          |
-|---------------------|---------------|-----------------------------|
-| `createGame(opts)`  | —             | `intro`                     |
-| `startGame(s, rng)` | `intro`/`summary` | `memorize` (targets generated) |
-| `endMemorize(s)`    | `memorize`    | `recreate`                  |
-| `submitGuess(s, g)` | `recreate`    | `roundResult` (scored)      |
-| `nextRound(s)`      | `roundResult` | `memorize` or `summary`     |
+| Function               | From              | To                             |
+|------------------------|-------------------|--------------------------------|
+| `createGame(opts)`     | —                 | `intro`                        |
+| `setDifficulty(s, d)`  | `intro`/`summary` | same phase, new difficulty     |
+| `startGame(s, rng)`    | `intro`/`summary` | `memorize` (targets generated) |
+| `endMemorize(s)`       | `memorize`        | `recreate`                     |
+| `submitGuess(s, g)`    | `recreate`        | `roundResult` (scored)         |
+| `nextRound(s)`         | `roundResult`     | `memorize` or `summary`        |
+
+Invalid transitions **throw**. Selectors: `currentRound(s)`, `gameTotal(s)`, `memorizeMs(s)`.
+`rng` is injected (`createRng(seed)` from `color/random.js`), so games are reproducible in tests.
+
+Color shapes: HSB `{h: 0–360, s: 0–100, b: 0–100}`, RGB `{r, g, b}` as unrounded 0–255 floats, Lab `{L, a, b}` (D65).
 
 ## Screen contract
 

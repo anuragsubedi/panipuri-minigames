@@ -52,8 +52,10 @@ Then open http://localhost:5173/ (hub) or http://localhost:5173/games/hue-recall
 Pure modules are tested with Node's built-in runner (no installs):
 
 ```bash
-node --test tests/
+npm test
 ```
+
+(`package.json` holds only `"type": "module"` and this script — never add dependencies.)
 
 Every pure module gets a test file. UI is verified by playing it in the browser.
 
