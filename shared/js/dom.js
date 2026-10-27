@@ -43,3 +43,16 @@ export function onKey(key, handler) {
 function toCssName(name) {
   return name.startsWith('--') ? name : name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 }
+
+/**
+ * Fill every `[data-value="key"]` inside `root` with `values[key]`. Pages keep
+ * a sensible default in the markup, so they read fine without JavaScript.
+ * @param {ParentNode} root
+ * @param {Record<string, string | number>} values
+ */
+export function fillValues(root, values) {
+  for (const node of root.querySelectorAll('[data-value]')) {
+    const value = values[node.dataset.value];
+    if (value != null) node.textContent = String(value);
+  }
+}

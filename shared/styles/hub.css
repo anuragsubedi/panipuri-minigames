@@ -116,3 +116,9 @@ a.game-tile:hover {
 .game-tile--soon {
   opacity: 0.7;
 }
+
+.hub__how {
+  margin-top: 48px;
+  color: var(--muted);
+  line-height: 1.5;
+}

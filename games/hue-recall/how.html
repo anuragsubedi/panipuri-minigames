@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>How Hue Recall works · panipuri</title>
+    <meta name="description" content="How Hue Recall picks colors and scores your memory of them, using the CIEDE2000 color difference." />
+    <link rel="stylesheet" href="../../shared/styles/tokens.css" />
+    <link rel="stylesheet" href="../../shared/styles/base.css" />
+    <link rel="stylesheet" href="../../shared/styles/doc.css" />
+    <style>
+      body { --doc-accent: #2f7de8; }
+      @media (prefers-color-scheme: dark) { body { --doc-accent: #7fb2ff; } }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../../"><span class="brand__mark" aria-hidden="true"></span>panipuri</a>
+      <span class="topbar__sep" aria-hidden="true">/</span>
+      <a class="topbar__title" href="./">Hue Recall</a>
+      <span class="topbar__how">How it works</span>
+    </header>
+
+    <main class="doc">
+      <h1>How Hue Recall works</h1>
+      <p class="doc__lede">You see a color for a moment, then rebuild it with three sliders. The score measures how different your color looks to a human eye, not just how far apart the numbers are.</p>
+      <a class="doc__play" href="./">Play Hue Recall</a>
+
+      <h2>A round</h2>
+      <ol>
+        <li>A color fills the card for <span data-value="easyS">5</span> seconds on Easy or <span data-value="hardS">2</span> on Hard.</li>
+        <li>It disappears, and you rebuild it with <strong>hue</strong>, <strong>saturation</strong> and <strong>brightness</strong> sliders.</li>
+        <li>You see both colors side by side and your points. A game is <span data-value="rounds">5</span> rounds.</li>
+      </ol>
+
+      <h2>Which colors come up</h2>
+      <p>Targets are random, but saturation and brightness never go below <span data-value="minSat">25</span>%. Very dark or very grey colors all look alike, which would make rounds unfair. The hue slider starts at a random spot each round so you can't anchor to the same place.</p>
+
+      <h2>How "close" is measured</h2>
+      <p>Two colors can be far apart in slider numbers and still look nearly identical (or the other way round). So both colors are converted to <strong>CIELAB</strong>, a color space built to match human vision, and compared with the <strong>CIEDE2000</strong> formula, the industry standard for "how different do these look?".</p>
+      <p>The result is called <strong>ΔE</strong> (delta E). Around 1 is the smallest difference most people can see; above 10 the colors look clearly different. The formula is checked against the published reference data in the tests.</p>
+
+      <h2>From ΔE to points</h2>
+      <p class="doc__formula">points = <span data-value="max">10</span> × e<sup>−(ΔE / <span data-value="scale">22</span>)<sup><span data-value="shape">1.6</span></sup></sup></p>
+      <figure>
+        <svg viewBox="0 0 320 170" role="img" aria-label="Points fall from 10 at no error toward 0 as the color difference grows.">
+          <g transform="translate(28 8)">
+            <line class="plot-grid" x1="0" y1="0" x2="284" y2="0" />
+            <line class="plot-grid" x1="0" y1="60" x2="284" y2="60" />
+            <line class="plot-axis" x1="0" y1="120" x2="284" y2="120" />
+            <line class="plot-axis" x1="0" y1="0" x2="0" y2="120" />
+            <text class="plot-label" x="-6" y="4" text-anchor="end">10</text>
+            <text class="plot-label" x="-6" y="64" text-anchor="end">5</text>
+            <text class="plot-label" x="-6" y="124" text-anchor="end">0</text>
+            <path id="score-curve" class="plot-line" d="" />
+            <g id="score-ticks"></g>
+            <text class="plot-label" x="142" y="156" text-anchor="middle">ΔE (how different it looks)</text>
+          </g>
+        </svg>
+        <figcaption>Tiny slips cost almost nothing; points fall off steeply once the difference is plain to see.</figcaption>
+      </figure>
+      <div class="doc__table-wrap">
+        <table>
+          <thead><tr><th>Verdict</th><th>Points</th></tr></thead>
+          <tbody id="verdicts"></tbody>
+        </table>
+      </div>
+
+      <h2>Play the same game as a friend</h2>
+      <p>Add <code>?seed=</code> and any number to the address, for example <code>?seed=42</code>. Everyone with the same number gets the same colors.</p>
+
+      <p class="doc__foot"><a href="./">Back to Hue Recall</a>, or see <a href="../../">all games</a>.</p>
+    </main>
+
+    <script type="module">
+      import { fillValues } from '../../shared/js/dom.js';
+      import { curvePath } from '../../shared/js/plot.js';
+      import { ROUNDS, DIFFICULTIES, TARGET_RANGES, SCORE_CURVE, VERDICTS } from './src/config.js';
+
+      // Score curve: x ticks at `ticks` (in the curve's own error units), labelled by `tickLabel`.
+      function drawCurve(curve, xMax, ticks, tickLabel) {
+        const score = (e) => curve.max * Math.exp(-((e / curve.scale) ** curve.shape));
+        document.getElementById('score-curve').setAttribute('d', curvePath(score, { x0: 0, x1: xMax, y0: 0, y1: curve.max, w: 284, h: 120 }));
+        const ns = 'http://www.w3.org/2000/svg';
+        document.getElementById('score-ticks').replaceChildren(
+          ...ticks.map((t) => {
+            const text = document.createElementNS(ns, 'text');
+            text.setAttribute('class', 'plot-label');
+            text.setAttribute('x', String((t / xMax) * 284));
+            text.setAttribute('y', '138');
+            text.setAttribute('text-anchor', 'middle');
+            text.textContent = tickLabel(t);
+            return text;
+          }),
+        );
+      }
+
+      function verdictRows(verdicts) {
+        return verdicts.map((v, i) => {
+          const tr = document.createElement('tr');
+          const range = i === 0 ? `${v.min}+` : `${v.min} to ${verdicts[i - 1].min}`;
+          for (const text of [v.label, range]) {
+            const td = document.createElement('td');
+            td.textContent = text;
+            tr.append(td);
+          }
+          return tr;
+        });
+      }
+
+      fillValues(document, {
+        rounds: ROUNDS,
+        easyS: DIFFICULTIES.easy.memorizeMs / 1000,
+        hardS: DIFFICULTIES.hard.memorizeMs / 1000,
+        minSat: TARGET_RANGES.s[0],
+        max: SCORE_CURVE.max,
+        scale: SCORE_CURVE.scale,
+        shape: SCORE_CURVE.shape,
+      });
+      drawCurve(SCORE_CURVE, 60, [0, 10, 20, 30, 40, 50, 60], String);
+      document.getElementById('verdicts').replaceChildren(...verdictRows(VERDICTS));
+    </script>
+  </body>
+</html>

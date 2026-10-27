@@ -44,15 +44,6 @@ body {
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 
-.topbar__tag {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
 .app {
   flex: 1;
   min-height: 0;
@@ -603,7 +594,6 @@ body {
 
 /* Narrow phones: drop decoration that would crowd the scope and top bar. */
 @media (max-width: 520px) {
-  .topbar__tag,
   .scope__axis {
     display: none;
   }

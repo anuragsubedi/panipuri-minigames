@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>How Glimpse works · panipuri</title>
+    <meta name="description" content="How Glimpse places its dots and scores your estimate with a ratio error." />
+    <link rel="stylesheet" href="../../shared/styles/tokens.css" />
+    <link rel="stylesheet" href="../../shared/styles/base.css" />
+    <link rel="stylesheet" href="../../shared/styles/doc.css" />
+    <style>
+      body { --doc-accent: #3fae6a; }
+      @media (prefers-color-scheme: dark) { body { --doc-accent: #7fd79f; } }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../../"><span class="brand__mark" aria-hidden="true"></span>panipuri</a>
+      <span class="topbar__sep" aria-hidden="true">/</span>
+      <a class="topbar__title" href="./">Glimpse</a>
+      <span class="topbar__how">How it works</span>
+    </header>
+
+    <main class="doc">
+      <h1>How Glimpse works</h1>
+      <p class="doc__lede">A cloud of dots flashes for a moment and you guess how many there were. It tests your sense of quantity, so the score cares about how many times off you are, not how many dots.</p>
+      <a class="doc__play" href="./">Play Glimpse</a>
+
+      <h2>A round</h2>
+      <ol>
+        <li>A short "get ready" pause (<span data-value="readyS">1.5</span> s) so you're looking.</li>
+        <li>The dots flash for <span data-value="easyS">1</span> s on Easy or <span data-value="hardS">0.4</span> s on Hard: too quick to count.</li>
+        <li>You type your guess (<span data-value="guessMin">1</span>–<span data-value="guessMax">999</span>) and see the real number.</li>
+      </ol>
+
+      <h2>How many dots</h2>
+      <p>Each game has <span data-value="rounds">5</span> rounds, one from each size band, shuffled, so every game mixes small and large clouds:</p>
+      <div class="doc__table-wrap">
+        <table>
+          <thead><tr><th>Round size</th><th>Dots</th></tr></thead>
+          <tbody id="bands"></tbody>
+        </table>
+      </div>
+
+      <h2>Where the dots go</h2>
+      <p>Dots are placed at random, but a new dot is only kept if it's far enough from every other one. Dots never touch or hide behind each other, so what you see is really all there is.</p>
+
+      <h2>Scoring: how many times off</h2>
+      <p>Guessing 11 when there were 10 is as good as guessing 110 for 100. And guessing double is as wrong as guessing half. A <strong>ratio error</strong> gives both:</p>
+      <p class="doc__formula">error = | ln(guess / actual) |</p>
+      <p class="doc__formula">points = <span data-value="max">10</span> × e<sup>−(error / <span data-value="scale">0.42</span>)<sup><span data-value="shape">2</span></sup></sup></p>
+      <figure>
+        <svg viewBox="0 0 320 170" role="img" aria-label="Points fall from 10 for an exact guess to near 0 at double or half.">
+          <g transform="translate(28 8)">
+            <line class="plot-grid" x1="0" y1="0" x2="284" y2="0" />
+            <line class="plot-grid" x1="0" y1="60" x2="284" y2="60" />
+            <line class="plot-axis" x1="0" y1="120" x2="284" y2="120" />
+            <line class="plot-axis" x1="0" y1="0" x2="0" y2="120" />
+            <text class="plot-label" x="-6" y="4" text-anchor="end">10</text>
+            <text class="plot-label" x="-6" y="64" text-anchor="end">5</text>
+            <text class="plot-label" x="-6" y="124" text-anchor="end">0</text>
+            <path id="score-curve" class="plot-line" d="" />
+            <g id="score-ticks"></g>
+            <text class="plot-label" x="142" y="156" text-anchor="middle">how far off (×)</text>
+          </g>
+        </svg>
+        <figcaption>About 9.5 points at 10% off, 7.5 at 25% off and under 1 at double or half the real count.</figcaption>
+      </figure>
+      <div class="doc__table-wrap">
+        <table>
+          <thead><tr><th>Verdict</th><th>Points</th></tr></thead>
+          <tbody id="verdicts"></tbody>
+        </table>
+      </div>
+
+      <h2>Play the same game as a friend</h2>
+      <p>Add <code>?seed=</code> and any number to the address, for example <code>?seed=42</code>. Everyone with the same number sees the same clouds.</p>
+
+      <p class="doc__foot"><a href="./">Back to Glimpse</a>, or see <a href="../../">all games</a>.</p>
+    </main>
+
+    <script type="module">
+      import { fillValues } from '../../shared/js/dom.js';
+      import { curvePath } from '../../shared/js/plot.js';
+      import { ROUNDS, DIFFICULTIES, READY_MS, COUNT_BANDS, GUESS_LIMITS, SCORE_CURVE, VERDICTS } from './src/config.js';
+
+      // Score curve: x ticks at `ticks` (in the curve's own error units), labelled by `tickLabel`.
+      function drawCurve(curve, xMax, ticks, tickLabel) {
+        const score = (e) => curve.max * Math.exp(-((e / curve.scale) ** curve.shape));
+        document.getElementById('score-curve').setAttribute('d', curvePath(score, { x0: 0, x1: xMax, y0: 0, y1: curve.max, w: 284, h: 120 }));
+        const ns = 'http://www.w3.org/2000/svg';
+        document.getElementById('score-ticks').replaceChildren(
+          ...ticks.map((t) => {
+            const text = document.createElementNS(ns, 'text');
+            text.setAttribute('class', 'plot-label');
+            text.setAttribute('x', String((t / xMax) * 284));
+            text.setAttribute('y', '138');
+            text.setAttribute('text-anchor', 'middle');
+            text.textContent = tickLabel(t);
+            return text;
+          }),
+        );
+      }
+
+      function verdictRows(verdicts) {
+        return verdicts.map((v, i) => {
+          const tr = document.createElement('tr');
+          const range = i === 0 ? `${v.min}+` : `${v.min} to ${verdicts[i - 1].min}`;
+          for (const text of [v.label, range]) {
+            const td = document.createElement('td');
+            td.textContent = text;
+            tr.append(td);
+          }
+          return tr;
+        });
+      }
+
+      fillValues(document, {
+        rounds: ROUNDS,
+        readyS: READY_MS / 1000,
+        easyS: DIFFICULTIES.easy.flashMs / 1000,
+        hardS: DIFFICULTIES.hard.flashMs / 1000,
+        guessMin: GUESS_LIMITS.min,
+        guessMax: GUESS_LIMITS.max,
+        max: SCORE_CURVE.max,
+        scale: SCORE_CURVE.scale,
+        shape: SCORE_CURVE.shape,
+      });
+      // x axis in ratio error; label ticks as "× off" (e^error).
+      drawCurve(SCORE_CURVE, Math.log(2.5), [0, Math.log(1.25), Math.log(1.5), Math.log(2), Math.log(2.5)], (t) => `${Number(Math.exp(t).toFixed(2))}×`);
+      document.getElementById('verdicts').replaceChildren(...verdictRows(VERDICTS));
+      const names = ['Small', 'Medium', 'Large', 'Huge', 'Swarm'];
+      document.getElementById('bands').replaceChildren(
+        ...COUNT_BANDS.map(([lo, hi], i) => {
+          const tr = document.createElement('tr');
+          for (const text of [names[i] ?? `Band ${i + 1}`, `${lo}–${hi}`]) {
+            const td = document.createElement('td');
+            td.textContent = text;
+            tr.append(td);
+          }
+          return tr;
+        }),
+      );
+    </script>
+  </body>
+</html>

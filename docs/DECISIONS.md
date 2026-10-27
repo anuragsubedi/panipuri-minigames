@@ -215,3 +215,11 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Zoom:** pinch, wheel/trackpad, −/+ buttons, +/− keys; 40–8000 units. Trails sample by distance moved (∝ view) and draw as midpoint curves. Physics runs in 8-step chunks with a trail sample after each (not once per frame), so 64× doesn't leave jagged chords that linger after slowing down (+~12% physics cost).
 - **Saves:** up to 12 named snapshots in `localStorage`, validated on restore; Reset restarts the loaded save. A single "System" button opens a `<dialog>` sheet holding presets + saves, so the deck didn't grow.
 - **Perf:** no `backdrop-filter` over the canvas (GPU cost every frame on phones); overlays use a solid tint. 64× with the Solar system ≈ 0.5 ms/frame.
+
+## D-031 · "How it works" pages
+
+- **Date:** 2026-10-27
+- One page per game at `games/<name>/how.html`, not a big spec hub, so the main hub stays clean: games link to it from the top bar (replacing Beatween/Orbit's tag line), the hub has a single sentence of links.
+- **Numbers come from each game's `config.js`** at load (markup holds the current value as a fallback), so docs follow tuning changes. Charts (score curves, beat waves) are computed from the same config.
+- **Lean by design** (user ask): a few short sections per game; more can be added later.
+- Shared pieces: `shared/styles/doc.css`, `shared/js/plot.js` (tested), `fillValues` in `shared/js/dom.js`.

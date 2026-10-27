@@ -85,13 +85,6 @@ body {
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 
-.topbar__tag {
-  margin-left: auto;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-}
-
 .app {
   flex: 1;
   min-height: 0;

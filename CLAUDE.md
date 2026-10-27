@@ -58,7 +58,7 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 
 ## Adding a new game
 
-Follow the checklist in `docs/ARCHITECTURE.md` → "Adding a new game". In short: spec in `PROJECT.md` → user OK → `games/<name>/` mirroring Hue Recall's layout → tests in `tests/<name>/` → hub tile in `index.html` → README table → docs.
+Follow the checklist in `docs/ARCHITECTURE.md` → "Adding a new game". In short: spec in `PROJECT.md` → user OK → `games/<name>/` mirroring Hue Recall's layout → tests in `tests/<name>/` → a lean `how.html` ("How it works") → hub tile in `index.html` → README table → docs.
 
 ## Running
 

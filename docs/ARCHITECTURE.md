@@ -23,7 +23,8 @@ panipuri-minigames/
 ├── index.html                    # hub: links to each game
 ├── shared/                       # code used by more than one game (see "Shared code")
 │   ├── js/
-│   │   ├── dom.js                # el() element builder, onKey() page-level key listener
+│   │   ├── dom.js                # el() element builder, onKey() page-level key listener, fillValues() for doc pages
+│   │   ├── plot.js               # curvePath(): SVG path for y = f(x) (doc page charts)
 │   │   ├── format.js             # formatPoints()
 │   │   ├── rng.js                # createRng(seed), randomInt(), seedFromQuery()
 │   │   ├── score.js              # roundScore(error, curve), totalScore()
@@ -234,6 +235,10 @@ games/orbit/src/
 - **Zoom** is a view radius in `main.js` (not in the world); presets carry a starting view. Launch speed and preview step scale with it.
 - **Styles:** `games/orbit/styles/app.css`. Sky is night in dark mode, a pale daylight chart in light mode; canvas has `touch-action: none`. Same responsive breakpoints as Beatween.
 
+## "How it works" pages
+
+Each game has `games/<name>/how.html`: a short, plain-language page on the mechanics, styled by `shared/styles/doc.css` and linked from the game's top bar (`.topbar__how`) and one line at the bottom of the hub. Numbers in the text sit in `<span data-value="key">default</span>` and an inline module fills them from the game's own `config.js` (via `fillValues`), so the page can't drift from the code; charts are drawn with `curvePath`. Keep them lean: what you see, how it's computed, the one or two choices worth explaining.
+
 ## Adding a new game
 
 Every game follows Hue Recall's shape so any agent can find their way around.
@@ -242,8 +247,9 @@ Every game follows Hue Recall's shape so any agent can find their way around.
 2. **Folder.** `games/<kebab-name>/` with `index.html` (links `shared/styles/tokens.css`, `base.css`, `game-kit.css`, then its own `styles/game.css`; mounts into `#game.card`), `src/main.js`, `src/config.js`, `src/state/`, `src/scoring/`, `src/ui/{components,screens}/`.
 3. **Pure core + tests.** State transitions in `state/game.js` with `PHASES`, `createGame`, `startGame(state, rng)`, and phase assertions that throw. Tests in `tests/<kebab-name>/`.
 4. **Screens** follow the screen contract above (`renderX(root, props, handlers) → cleanup`), primary action also on Enter via `onKey`.
-5. **Hub + README.** Add a tile to `index.html` (+ art class in `shared/styles/hub.css`) and a row to the README game table.
-6. **Docs.** Update this file's layout, `PROGRESS.md`, and log decisions.
+5. **How it works.** Add `how.html` (copy a sibling's shape) and the top-bar link.
+6. **Hub + README.** Add a tile to `index.html` (+ art class in `shared/styles/hub.css`) and a row to the README game table.
+7. **Docs.** Update this file's layout, `PROGRESS.md`, and log decisions.
 
 ### Shared code
 

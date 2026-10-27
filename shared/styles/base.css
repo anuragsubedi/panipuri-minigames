@@ -68,3 +68,21 @@ a {
 .topbar__title {
   color: var(--muted);
 }
+
+/* Quiet link to a game's "How it works" page, right-aligned in the top bar. */
+.topbar__how {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+a.topbar__how:hover,
+a.topbar__title:hover {
+  color: var(--fg);
+}
+
+a.topbar__title {
+  text-decoration: none;
+}
