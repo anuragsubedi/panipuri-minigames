@@ -36,3 +36,11 @@ test('bearing and compass words', () => {
   assert.equal(compassPoint(350), 'north');
   assert.equal(compassPoint(-90), 'west');
 });
+
+test('formatKm and directionHint', async () => {
+  const { formatKm, directionHint } = await import('../../games/pin-drop/src/geo/describe.js');
+  assert.equal(formatKm(0.4), '< 1 km');
+  assert.equal(formatKm(1239.6), '1,240 km');
+  assert.equal(directionHint(PARIS, PARIS, 0), 'Right on it');
+  assert.equal(directionHint(LONDON, PARIS, 343), "It's south-east of your pin");
+});

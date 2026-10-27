@@ -1,0 +1,363 @@
+/* Pin Drop-only styles. Requires shared tokens.css, base.css and game-kit.css. */
+
+:root {
+  --map-sea: #dce9f0;
+  --map-land: #f7f1e6;
+  --map-border: #b9ab97;
+  --map-grid: rgba(60, 90, 120, 0.16);
+  --map-pin: var(--accent);
+  --map-target: #2f9a5c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --map-sea: #14212b;
+    --map-land: #3a342d;
+    --map-border: #6f6559;
+    --map-grid: rgba(160, 200, 230, 0.12);
+    --map-target: #5fd08f;
+  }
+}
+
+/* The map needs room: a wider, taller card than the other games. */
+.card {
+  width: min(880px, 100%);
+  height: clamp(480px, calc(100dvh - 112px), 820px);
+}
+
+.loading {
+  margin: auto;
+  padding: 24px;
+  color: var(--muted);
+  font-weight: 650;
+}
+
+/* Intro */
+
+.screen--intro {
+  justify-content: space-between;
+  overflow-y: auto;
+}
+
+.intro__art {
+  position: relative;
+  width: 72px;
+  height: 56px;
+  border-radius: 14px;
+  background:
+    linear-gradient(var(--map-grid) 0 0) 0 50% / 100% 1px no-repeat,
+    linear-gradient(90deg, var(--map-grid) 0 0) 50% 0 / 1px 100% no-repeat,
+    radial-gradient(ellipse 30% 26% at 30% 40%, var(--map-land) 96%, transparent),
+    radial-gradient(ellipse 22% 30% at 70% 62%, var(--map-land) 96%, transparent),
+    var(--map-sea);
+}
+
+.intro__art .intro__pin {
+  left: 56%;
+  top: 62%;
+}
+
+.intro__title {
+  margin: 18px 0 12px;
+  font-size: clamp(44px, 13vw, 64px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+.intro__lede {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.intro__rules {
+  margin-top: 10px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.intro__options {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.intro__options .segmented {
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.intro__options .segmented__option {
+  padding: 8px 10px;
+}
+
+.intro__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Play + reveal share one layout: header, map (fills), footer. */
+
+.screen--play,
+.screen--summary {
+  gap: 12px;
+  padding: 16px;
+}
+
+.play__total {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.clue__text {
+  font-size: clamp(24px, 6.5vw, 34px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.clue__detail {
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.play__footer,
+.reveal__panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.play__hint {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.play__footer .btn {
+  flex-shrink: 0;
+}
+
+.screen--reveal .result__verdict {
+  margin-bottom: 2px;
+}
+
+.reveal__panel .result__score {
+  font-size: 44px;
+}
+
+.reveal__detail {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Map */
+
+.map {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+.map__surface {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.map--interactive .map__surface {
+  cursor: crosshair;
+}
+
+.map__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.map__sea {
+  fill: var(--map-sea);
+}
+
+.map__grid,
+.map__equator {
+  fill: none;
+  stroke: var(--map-grid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.map__equator {
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+
+.map__land {
+  fill: var(--map-land);
+  stroke: var(--map-border);
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.map__line {
+  stroke: var(--fg);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+  stroke-linecap: round;
+}
+
+.map__markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Pins sit on a 0×0 anchor; the transform moves the anchor to the spot. */
+.map__pin,
+.map__dot,
+.intro__pin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+.map__pin::before,
+.intro__pin::before {
+  content: '';
+  position: absolute;
+  left: -11px;
+  top: -30px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--map-pin);
+  border: 2.5px solid #fff;
+  transform: rotate(-45deg);
+  box-shadow: 0 4px 10px -3px rgba(0, 0, 0, 0.45);
+}
+
+.map__pin::after {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.map__dot-face {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.5);
+  background: var(--map-pin);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+}
+
+.map__dot--target {
+  z-index: 1;
+}
+
+.map__dot--target .map__dot-face {
+  width: 20px;
+  height: 20px;
+  background: var(--map-target);
+}
+
+.map__zoom {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.map__zoom-btn {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px -3px rgba(0, 0, 0, 0.4);
+}
+
+/* Summary */
+
+.summary__score {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.summary__score .result__verdict {
+  margin: 0;
+}
+
+.screen--summary .result__score {
+  font-size: 44px;
+}
+
+.screen--summary .map {
+  flex: 1.3;
+}
+
+.screen--summary .summary__list {
+  flex: 1;
+  gap: 8px;
+}
+
+.summary__index {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--map-target);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+@media (min-width: 640px) {
+  .screen--play,
+  .screen--summary {
+    padding: 20px 24px 24px;
+  }
+}
