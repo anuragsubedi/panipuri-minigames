@@ -4,7 +4,7 @@
 
 - **Hue Recall v0.1** — shipped. Polish parked (D-014).
 - **Glimpse v0.1** — shipped. Verified in browser (full game, keyboard, no console errors).
-- **Pin Drop v0.1** — shipped and live (map geo-guessing; D-032, D-033: OSM landmark coordinates, intro preview map). Verified in headless Chromium at 375×667 (light) and 1280×800 (dark): full games incl. Hard · Mix · 10 rounds, no console errors, no page scroll, no network requests during play; pinch / tap / pin-drag / pan tested with synthetic touch events only: **needs a real-phone try**.
+- **Pin Drop v0.2** — World + **India** maps (D-032…D-034): India-view borders with state lines, 34 capitals, 164 cities, 61 landmarks with blurbs, Wikidata fame tiers. Verified headless at 375×667 and 1280×800, light + dark, no overflow; **needs a real-phone try**. Verified in headless Chromium at 375×667 (light) and 1280×800 (dark): full games incl. Hard · Mix · 10 rounds, no console errors, no page scroll, no network requests during play; pinch / tap / pin-drag / pan tested with synthetic touch events only: **needs a real-phone try**.
 - **Beatween v0.1** — shipped (binaural beats tool, was "Drift"). Audio graph verified via an AudioContext probe (oscillators match L/R; noise loop; suspend on pause); layout verified at 375×667, ~426×826, 740×360 landscape and desktop, light + dark. **Not verified by ear**: needs a headphone listen.
 - **Orbit v0.2** — shipped and live (real units + clock, heaviest-bodies list, Solar system preset, zoom, saves; D-030). Gravity sandbox toy. Verified at 375×667, 740×360 landscape and 1280×800, light + dark; drag-launch, preview, select/delete, presets; 61 fps with 30 bodies (physics ≈ 0.3 ms/frame at 8×). Touch drag and pinch tested with synthetic pointer events only: **needs a real-phone try**.
 - **How it works** pages for all four games (`games/<name>/how.html`, D-031).
@@ -14,7 +14,7 @@
 
 ## Next step
 
-**Pin Drop v0.2: regional maps** (user-approved direction). Ask the user which region first (e.g. India, USA, NZ). Per region: a finer map (Natural Earth 1:50m/10m admin-1 states, cropped to the region's bounds) via `tools/geojson-to-map.py`, a pack with `"map": "<region>"` and a smaller `scoreScaleKm`, and a region choice on the intro (see ARCHITECTURE → Pin Drop).
+**Pin Drop: Nepal map** next (user's home country), then NZ, then USA. Follow ARCHITECTURE → Pin Drop → "Adding a country map". Nepal: point-of-view file `ne_10m_admin_0_countries_nep`; 7 provinces in Natural Earth admin-1; Nepal's official map includes Kalapani–Lipulekh–Limpiyadhura (differs from India's). Ask the user for landmark ideas; keep the list famous (they found obscure ones obscure).
 
 After that, the remaining specs in `docs/specs/README.md`: Keyfall → Breakbench → Lost Lens (reuses Pin Drop's map + clue types) → Blockyard.
 
@@ -39,6 +39,8 @@ Open repo-wide questions (user's call):
 - **Landmarks + fame:** Wikidata (CC0) has coordinates, country/state and sitelink counts (a good "fame tier" signal), but Wikimedia rate-limits this cloud IP; run that query from the user's machine or a fresh session. OpenStreetMap Nominatim (ODbL, attribution) works and is what the landmarks pack uses.
 
 ### Pin Drop ideas
+- **v0.3 (user):** a small authoring page to add landmarks by hand: search/click on a map, write the blurb, set the tier, copy out the JSON line.
+- Wikidata's query service was in an outage (1 request/min) on 2026-10-27; `fetch-fame.py` retries, but run it when it's healthy.
 - Great-circle reveal arcs (and wrap across the antimeridian).
 - Keyboard pin placement (arrow keys move a crosshair) for accessibility.
 - 3D globe mode.
@@ -86,3 +88,8 @@ Open repo-wide questions (user's call):
 - Data: Natural Earth → `data/maps/world.json` and capitals/cities packs via committed scripts; 76 hand-picked landmarks.
 - UI: intro with three choices, clue/reveal/summary screens, map component + gestures, `how.html`, hub tile, README row. D-032.
 - Pushed v0.1. Then, on user feedback: landmark coordinates regenerated from OpenStreetMap via a committed tool (all 76 reviewed); intro redesigned with a preview map of the current pool and labelled choices; v0.2 data sources surveyed (see Backlog). D-033.
+
+### 2026-10-27 — Pin Drop v0.2 (India)
+- User decisions: India first, then Nepal, NZ, USA; India's official-view borders with a provenance note; topics capitals, cities, landmarks; blurbs for landmarks; no paid data; Google Maps API rejected.
+- New tools: `build-region-map.py`, `region-packs.py`, `fetch-fame.py`, `apply-fame.py`; `geocode-landmarks.py` now takes a pack header, blurbs, and keeps Wikidata ids. Wikidata worked from the cloud session (no local run needed).
+- Game: Map choice (World | India), per-map grid/scale/detail word, regional map layers (muted neighbours, focus country, dashed state lines, note), ⓘ landmark hints, compact two-row intro. 132 tests. D-034.

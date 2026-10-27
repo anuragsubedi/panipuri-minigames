@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { validatePack, loadPack } from '../../games/pin-drop/src/data/load-pack.js';
-import { TOPICS, DIFFICULTIES, ROUND_OPTIONS } from '../../games/pin-drop/src/config.js';
+import { MAPS, DIFFICULTIES, ROUND_OPTIONS } from '../../games/pin-drop/src/config.js';
 import { poolFor } from '../../games/pin-drop/src/data/pick-places.js';
 
 const DIR = new URL('../../games/pin-drop/data/packs/', import.meta.url);
@@ -27,12 +27,27 @@ test('every bundled pack is valid and file name matches id', () => {
   }
 });
 
-test('every topic × difficulty has enough places for the longest game', () => {
+test('every map × topic × difficulty has enough places for the longest game', () => {
   const longest = Math.max(...ROUND_OPTIONS);
-  for (const [topic, { packs: ids }] of Object.entries(TOPICS)) {
-    for (const [difficulty, { tiers }] of Object.entries(DIFFICULTIES)) {
-      const pool = poolFor(ids.map((id) => packs[id]), tiers);
-      assert.ok(pool.length >= longest, `${topic}/${difficulty} has ${pool.length}`);
+  for (const [mapId, { topics }] of Object.entries(MAPS)) {
+    for (const [topic, { packs: ids }] of Object.entries(topics)) {
+      for (const [difficulty, { tiers }] of Object.entries(DIFFICULTIES)) {
+        const pool = poolFor(ids.map((id) => packs[id]), tiers);
+        assert.ok(pool.length >= longest, `${mapId}/${topic}/${difficulty} has ${pool.length}`);
+      }
+    }
+  }
+});
+
+test('every pack is drawn on the map its topics belong to, and places lie inside that map', () => {
+  for (const [mapId, { topics }] of Object.entries(MAPS)) {
+    const { bounds } = JSON.parse(readFileSync(new URL(`../../games/pin-drop/data/maps/${mapId}.json`, import.meta.url), 'utf8'));
+    for (const id of Object.values(topics).flatMap((t) => t.packs)) {
+      assert.equal(packs[id].map, mapId, id);
+      for (const p of packs[id].places) {
+        const inside = p.lat <= bounds.north && p.lat >= bounds.south && p.lon >= bounds.west && p.lon <= bounds.east;
+        assert.ok(inside, `${id}: ${p.name} is outside the ${mapId} map`);
+      }
     }
   }
 });
@@ -59,6 +74,7 @@ test('validatePack rejects bad data', () => {
   assert.throws(() => validatePack(bad((p) => (p.places[0].lon = -181))), /lon/);
   assert.throws(() => validatePack(bad((p) => (p.places[0].tier = 4))), /tier/);
   assert.throws(() => validatePack(bad((p) => (p.places[0].clue = { src: 'x.jpg' }))), /clue/);
+  assert.throws(() => validatePack(bad((p) => (p.places[0].blurb = 42))), /blurb/);
 });
 
 test('loadPack validates what it fetches', async () => {

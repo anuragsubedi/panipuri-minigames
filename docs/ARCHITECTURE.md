@@ -181,14 +181,22 @@ Round: `{ count, dots: [{x, y}], guess, error, score }`. Transitions: `startGame
 
 ```
 games/pin-drop/
-├── data/maps/world.json     # {bounds, countries: SVG path}; equirectangular, x = lon, y = −lat (degrees)
-├── data/packs/*.json        # {id, name, map, scoreScaleKm, source, places: [{name, detail, lat, lon, tier 1–3, region, clue?}]}
-├── tools/                   # run by hand, stdlib Python: geojson-to-map.py, places-to-packs.py (Natural Earth → data/),
-│                            #   geocode-landmarks.py (landmarks-source.json → OSM Nominatim → landmarks pack, keeps osm ids)
+├── data/maps/<id>.json      # {bounds, countries: SVG path}; equirectangular, x = lon, y = −lat (degrees).
+│                            #   Country maps add focus (the country), states (internal lines only) and note (provenance)
+├── data/packs/*.json        # {id, name, map, scoreScaleKm, source, places: [{name, detail, lat, lon, tier 1–3, region,
+│                            #   blurb?, wikidata?, osm?, clue?}]}
+├── tools/                   # run by hand, stdlib Python (see each file's header for its command):
+│   ├── geojson-to-map.py        # world map (Natural Earth 1:110m)
+│   ├── build-region-map.py      # country map: Natural Earth 1:10m point-of-view outline + admin-1 state lines
+│   ├── places-to-packs.py       # world capitals/cities (Natural Earth 1:50m)
+│   ├── region-packs.py          # a country's capitals/cities (Natural Earth 1:10m), tiers from fame.json
+│   ├── geocode-landmarks.py     # *-landmarks-source.json → OSM Nominatim → landmarks pack (osm + wikidata ids)
+│   ├── fetch-fame.py            # every pack's wikidata ids → Wikipedia language counts → fame.json
+│   └── apply-fame.py            # promote (never demote) landmark tiers from fame.json
 ├── how.html
 └── src/
     ├── main.js              # fetches packs + maps once, then the usual render loop
-    ├── config.js            # ROUND_OPTIONS, TOPICS (sets of packs), DIFFICULTIES (tiers, showDetail), SCORE_CURVE, VERDICTS, MAP_VIEW
+    ├── config.js            # ROUND_OPTIONS, MAPS (label, detailLabel, gridStep, topics → packs), DIFFICULTIES, SCORE_CURVE, VERDICTS, MAP_VIEW
     ├── geo/project.js       # lat/lon ↔ map units, bounds rect, clamp
     ├── geo/haversine.js     # distanceKm, bearingDeg, compassPoint
     ├── geo/viewport.js      # pure pan/zoom: view {cx, cy, zoom} → viewBox; zoomAt, panBy, fitPoints, screen ↔ map
@@ -204,7 +212,7 @@ games/pin-drop/
         └── screens/                    # intro (preview map of the current pool), clue, reveal, summary
 ```
 
-Round: `{ place (with packId, scaleKm), guess, distanceKm, score }`. Transitions: `createGame({topic, difficulty, roundCount})`, `setOptions`, `startGame(state, packsById, rng)`, `submitPin` (throws `RangeError` unless `isValidPin`), `nextRound`. The clue screen keeps the working pin locally and reports it once on "Lock it in". Score scale comes from the place's pack, so a regional pack can be stricter. **Adding a region (v0.2):** new `data/maps/<id>.json` (same tool, different source/bounds) + a pack with `"map": "<id>"` and its own `scoreScaleKm` + a `TOPICS` entry.
+Round: `{ place (with packId, scaleKm), guess, distanceKm, score }`. Transitions: `createGame({mapId, topic, difficulty, roundCount})`, `setOptions`, `startGame(state, packsById, rng)`, `submitPin` (throws `RangeError` unless `isValidPin`), `nextRound`. The clue screen keeps the working pin locally and reports it once on "Lock it in". Score scale comes from the place's pack, so a regional pack can be stricter. **Adding a country map:** add it to `REGIONS` in `build-region-map.py` (focus code, bounds, point-of-view file, admin-1 remaps for areas a neighbour administers) and in `region-packs.py` (capitals, renames, zones), write `tools/<id>-landmarks-source.json`, run the tools (order: map → region-packs → geocode-landmarks → fetch-fame → region-packs → apply-fame), then add a `MAPS` entry in `config.js`. Tests check every map × topic × difficulty has enough places and every place lies inside its map.
 
 ## Beatween (tool)
 

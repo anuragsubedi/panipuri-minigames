@@ -3,6 +3,7 @@
 :root {
   --map-sea: #dce9f0;
   --map-land: #f7f1e6;
+  --map-context: #e6dfd3;
   --map-border: #b9ab97;
   --map-grid: rgba(60, 90, 120, 0.16);
   --map-pin: var(--accent);
@@ -13,6 +14,7 @@
   :root {
     --map-sea: #14212b;
     --map-land: #3a342d;
+    --map-context: #2a2622;
     --map-border: #6f6559;
     --map-grid: rgba(160, 200, 230, 0.12);
     --map-target: #5fd08f;
@@ -98,7 +100,7 @@
   color: var(--muted);
 }
 
-.intro__footer {
+.intro__row {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -123,6 +125,7 @@
     padding: 28px;
   }
 
+  /* One row: map · rounds | topic | difficulty · start, pool line below. */
   .intro__options {
     flex-direction: row;
     flex-wrap: wrap;
@@ -130,15 +133,16 @@
     column-gap: 24px;
   }
 
-  /* The pool line sits under the choices, full width. */
-  .intro__pool {
-    order: 1;
-    flex-basis: 100%;
+  .intro__options > .intro__row:last-of-type {
+    flex: 1;
   }
 
-  .intro__footer {
-    flex: 1;
-    gap: 24px;
+  .intro__options .segmented {
+    flex-wrap: nowrap;
+  }
+
+  .intro__pool {
+    flex-basis: 100%;
   }
 
   .intro__lede {
@@ -400,4 +404,78 @@
   .screen--summary {
     padding: 20px 24px 24px;
   }
+}
+
+/* Regional maps: neighbours muted, state lines, provenance note */
+
+.map__land--context {
+  fill: var(--map-context);
+  stroke: var(--map-border);
+  stroke-width: 0.5;
+}
+
+.map__states {
+  fill: none;
+  stroke: var(--map-border);
+  stroke-width: 0.7;
+  stroke-dasharray: 3 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.map__note {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* Clue hint: ⓘ toggles a one-line description */
+
+.clue {
+  position: relative;
+}
+
+.clue__info {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 8px;
+  padding: 0;
+  border: 1.5px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--muted);
+  font: italic 700 13px/1 Georgia, serif;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.clue__info[aria-expanded='true'] {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.clue__tip {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.35;
+  box-shadow: 0 8px 20px -8px rgba(0, 0, 0, 0.5);
 }

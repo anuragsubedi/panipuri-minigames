@@ -7,7 +7,7 @@ import { createWorldMap } from '../components/world-map.js';
  * @param {HTMLElement} root
  * @param {{roundNumber: number, totalRounds: number, answer: string, guess: object, target: object,
  *          distance: string, direction: string, score: number, maxScore: number, verdict: string,
- *          isLast: boolean, map: object, mapView: object, gridStep: number}} props
+ *          isLast: boolean, blurb: string | null, map: object, mapView: object, gridStep: number}} props
  * @param {{onNext: () => void}} handlers
  * @returns {() => void} cleanup
  */
@@ -22,6 +22,7 @@ export function renderReveal(root, props, { onNext }) {
       el('div', { class: 'reveal__answer' }, [
         el('p', { class: 'result__verdict', text: `Round ${roundNumber} / ${totalRounds} · ${verdict}` }),
         el('p', { class: 'clue__text', text: answer }),
+        props.blurb && el('p', { class: 'clue__detail', text: props.blurb }),
       ]),
       worldMap.element,
       el('div', { class: 'reveal__panel' }, [

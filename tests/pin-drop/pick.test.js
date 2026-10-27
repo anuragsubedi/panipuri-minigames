@@ -46,9 +46,10 @@ test('shuffle keeps every item and does not mutate', () => {
 });
 
 test('clueFor: text clue hides the country on request; custom clues pass through', () => {
-  const p = { name: 'Timbuktu', detail: 'Mali' };
-  assert.deepEqual(clueFor(p, { showDetail: true }), { type: 'text', text: 'Timbuktu', detail: 'Mali' });
+  const p = { name: 'Timbuktu', detail: 'Mali', blurb: 'Desert city of manuscripts' };
+  assert.deepEqual(clueFor(p, { showDetail: true }), { type: 'text', text: 'Timbuktu', detail: 'Mali', hint: 'Desert city of manuscripts' });
   assert.equal(clueFor(p, { showDetail: false }).detail, null);
+  assert.equal(clueFor({ name: 'X' }, { showDetail: true }).hint, null);
   const photo = { type: 'photo', src: 'a.jpg', credit: 'CC BY' };
   assert.equal(clueFor({ ...p, clue: photo }, { showDetail: true }), photo);
   assert.equal(answerLabel(p), 'Timbuktu, Mali');

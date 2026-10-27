@@ -1,7 +1,7 @@
 // Game state and its transitions. Every function is pure: (state, ...) → new state.
 // Invalid transitions throw, so wiring bugs surface immediately.
 
-import { ROUND_OPTIONS, TOPICS, DEFAULT_TOPIC, DIFFICULTIES, DEFAULT_DIFFICULTY, SCORE_CURVE } from '../config.js';
+import { ROUND_OPTIONS, MAPS, DEFAULT_MAP, DEFAULT_TOPIC, DIFFICULTIES, DEFAULT_DIFFICULTY, SCORE_CURVE } from '../config.js';
 import { poolFor, pickPlaces } from '../data/pick-places.js';
 import { clueFor } from '../data/clue.js';
 import { distanceKm } from '../geo/haversine.js';
@@ -16,24 +16,24 @@ export const PHASES = Object.freeze({
 
 /**
  * Fresh game sitting on the intro screen.
- * @param {{topic?: string, difficulty?: string, roundCount?: number}} [options]
+ * @param {{mapId?: string, topic?: string, difficulty?: string, roundCount?: number}} [options]
  * @returns {object} game state
  */
-export function createGame({ topic = DEFAULT_TOPIC, difficulty = DEFAULT_DIFFICULTY, roundCount = ROUND_OPTIONS[0] } = {}) {
-  const options = assertOptions({ topic, difficulty, roundCount });
+export function createGame({ mapId = DEFAULT_MAP, topic = DEFAULT_TOPIC, difficulty = DEFAULT_DIFFICULTY, roundCount = ROUND_OPTIONS[0] } = {}) {
+  const options = assertOptions({ mapId, topic, difficulty, roundCount });
   return { phase: PHASES.INTRO, ...options, roundIndex: 0, rounds: [] };
 }
 
 /**
- * Change topic, difficulty and/or round count; only between games.
+ * Change map, topic, difficulty and/or round count; only between games.
  * @param {object} state
- * @param {{topic?: string, difficulty?: string, roundCount?: number}} changes
+ * @param {{mapId?: string, topic?: string, difficulty?: string, roundCount?: number}} changes
  * @returns {object}
  */
 export function setOptions(state, changes) {
   assertPhase(state, PHASES.INTRO, PHASES.SUMMARY);
-  const { topic, difficulty, roundCount } = { ...state, ...changes };
-  return { ...state, ...assertOptions({ topic, difficulty, roundCount }) };
+  const { mapId, topic, difficulty, roundCount } = { ...state, ...changes };
+  return { ...state, ...assertOptions({ mapId, topic, difficulty, roundCount }) };
 }
 
 /**
@@ -45,7 +45,7 @@ export function setOptions(state, changes) {
  */
 export function startGame(state, packsById, rng) {
   assertPhase(state, PHASES.INTRO, PHASES.SUMMARY);
-  const packs = TOPICS[state.topic].packs.map((id) => {
+  const packs = packIdsFor(state).map((id) => {
     if (!packsById[id]) throw new Error(`Pack "${id}" is not loaded`);
     return packsById[id];
   });
@@ -128,13 +128,12 @@ export function gameTotal(state) {
 }
 
 /**
- * Id of the map the state's topic is played on.
- * @param {object} state
- * @param {Record<string, {map: string}>} packsById
- * @returns {string}
+ * Pack ids for a map + topic choice.
+ * @param {{mapId: string, topic: string}} choice
+ * @returns {string[]}
  */
-export function mapIdFor(state, packsById) {
-  return packsById[TOPICS[state.topic].packs[0]].map;
+export function packIdsFor({ mapId, topic }) {
+  return MAPS[mapId].topics[topic].packs;
 }
 
 function assertPhase(state, ...allowed) {
@@ -143,9 +142,10 @@ function assertPhase(state, ...allowed) {
   }
 }
 
-function assertOptions({ topic, difficulty, roundCount }) {
-  if (!(topic in TOPICS)) throw new Error(`Unknown topic "${topic}"`);
+function assertOptions({ mapId, topic, difficulty, roundCount }) {
+  if (!(mapId in MAPS)) throw new Error(`Unknown map "${mapId}"`);
+  if (!(topic in MAPS[mapId].topics)) throw new Error(`Unknown topic "${topic}" for map "${mapId}"`);
   if (!(difficulty in DIFFICULTIES)) throw new Error(`Unknown difficulty "${difficulty}"`);
   if (!ROUND_OPTIONS.includes(roundCount)) throw new Error(`Unsupported round count ${roundCount}`);
-  return { topic, difficulty, roundCount };
+  return { mapId, topic, difficulty, roundCount };
 }

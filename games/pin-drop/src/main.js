@@ -1,7 +1,7 @@
 // Entry point: loads the map and packs, owns the current state and maps each
 // phase to its screen. The only module that touches both the pure core and the UI.
 
-import { ROUND_OPTIONS, TOPICS, DIFFICULTIES, SCORE_CURVE, VERDICTS, MAP_VIEW, GRATICULE_STEP } from './config.js';
+import { ROUND_OPTIONS, MAPS, DIFFICULTIES, SCORE_CURVE, VERDICTS, MAP_VIEW } from './config.js';
 import { createRng, seedFromQuery } from '../../../shared/js/rng.js';
 import { el } from '../../../shared/js/dom.js';
 import { verdictFor } from '../../../shared/js/verdict.js';
@@ -19,7 +19,7 @@ import {
   currentRound,
   currentClue,
   gameTotal,
-  mapIdFor,
+  packIdsFor,
 } from './state/game.js';
 import { renderIntro } from './ui/screens/intro.js';
 import { renderClue } from './ui/screens/clue.js';
@@ -39,18 +39,20 @@ const screens = {
     renderIntro(
       root,
       {
+        mapId: state.mapId,
         topic: state.topic,
         difficulty: state.difficulty,
         roundCount: state.roundCount,
-        topics: TOPICS,
+        maps: MAPS,
         difficulties: DIFFICULTIES,
         roundOptions: ROUND_OPTIONS,
-        placesFor: ({ topic, difficulty }) => poolFor(TOPICS[topic].packs.map((id) => packs[id]), DIFFICULTIES[difficulty].tiers),
+        placesFor: (choice) => poolFor(packIdsFor({ mapId: state.mapId, ...choice }).map((id) => packs[id]), DIFFICULTIES[choice.difficulty].tiers),
         ...mapProps(),
       },
       {
-        // The intro toggles its own buttons, so no re-render (keeps focus).
-        onOptions: (changes) => commit(setOptions(state, changes), { rerender: false }),
+        // The intro toggles its own buttons, so no re-render (keeps focus);
+        // a new map changes the topics and the preview, so that one re-renders.
+        onOptions: (changes) => commit(setOptions(state, changes), { rerender: 'mapId' in changes }),
         onStart: () => commit(startGame(state, packs, rng)),
       },
     ),
@@ -70,6 +72,7 @@ const screens = {
         ...roundProps(),
         ...mapProps(),
         answer: answerLabel(round.place),
+        blurb: round.place.blurb ?? null,
         guess: round.guess,
         target: round.place,
         distance: formatKm(round.distanceKm),
@@ -100,11 +103,11 @@ const screens = {
         total,
         maxTotal: SCORE_CURVE.max * state.rounds.length,
         verdict: verdictFor(total / state.rounds.length, VERDICTS),
-        optionsLabel: `${TOPICS[state.topic].label} · ${DIFFICULTIES[state.difficulty].label}`,
+        optionsLabel: `${MAPS[state.mapId].label} · ${MAPS[state.mapId].topics[state.topic].label} · ${DIFFICULTIES[state.difficulty].label}`,
       },
       {
         onPlayAgain: () => commit(startGame(state, packs, rng)),
-        onMenu: () => commit(createGame({ topic: state.topic, difficulty: state.difficulty, roundCount: state.roundCount })),
+        onMenu: () => commit(createGame({ mapId: state.mapId, topic: state.topic, difficulty: state.difficulty, roundCount: state.roundCount })),
       },
     );
   },
@@ -126,7 +129,7 @@ function roundProps() {
 }
 
 function mapProps() {
-  return { map: maps[mapIdFor(state, packs)], mapView: MAP_VIEW, gridStep: GRATICULE_STEP };
+  return { map: maps[state.mapId], mapView: MAP_VIEW, gridStep: MAPS[state.mapId].gridStep };
 }
 
 async function loadJson(path) {
@@ -139,11 +142,10 @@ async function loadJson(path) {
 async function boot() {
   root.append(el('p', { class: 'loading', text: 'Unfolding the map…' }));
   try {
-    const ids = [...new Set(Object.values(TOPICS).flatMap((t) => t.packs))];
+    const ids = [...new Set(Object.values(MAPS).flatMap((m) => Object.values(m.topics).flatMap((t) => t.packs)))];
     const loaded = await Promise.all(ids.map((id) => loadPack(new URL(`../data/packs/${id}.json`, import.meta.url))));
     packs = Object.fromEntries(loaded.map((p) => [p.id, p]));
-    const mapIds = [...new Set(loaded.map((p) => p.map))];
-    maps = Object.fromEntries(await Promise.all(mapIds.map(async (id) => [id, await loadJson(`../data/maps/${id}.json`)])));
+    maps = Object.fromEntries(await Promise.all(Object.keys(MAPS).map(async (id) => [id, await loadJson(`../data/maps/${id}.json`)])));
     render();
   } catch (error) {
     root.replaceChildren(el('p', { class: 'loading', text: `Couldn't load the map. ${error.message}` }));

@@ -27,6 +27,7 @@ export function validatePack(pack) {
     if (!(Math.abs(place.lon) <= 180)) fail(`${where}: lon out of range`);
     if (!TIERS.includes(place.tier)) fail(`${where}: tier must be 1, 2 or 3`);
     if (typeof place.region !== 'string' || !place.region) fail(`${where}: missing region`);
+    if (place.blurb != null && typeof place.blurb !== 'string') fail(`${where}: blurb must be text`);
     if (place.clue != null && typeof place.clue?.type !== 'string') fail(`${where}: clue needs a type`);
   });
   return pack;

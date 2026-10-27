@@ -35,7 +35,9 @@ export function createWorldMap({ map, view: limits, gridStep, interactive = fals
     svgEl('rect', { class: 'map__sea', x: rect.x, y: rect.y, width: rect.w, height: rect.h }),
     svgEl('path', { class: 'map__grid', d: graticule(map.bounds, gridStep) }),
     svgEl('path', { class: 'map__equator', d: `M${rect.x} 0H${rect.x + rect.w}` }),
-    svgEl('path', { class: 'map__land', d: map.countries, 'clip-path': `url(#${clipId})` }),
+    // Regional maps draw neighbours muted, the focus country as land, and its state lines.
+    svgEl('path', { class: `map__land${map.focus ? ' map__land--context' : ''}`, d: map.countries, 'clip-path': `url(#${clipId})` }),
+    ...(map.focus ? [svgEl('path', { class: 'map__land', d: map.focus }), svgEl('path', { class: 'map__states', d: map.states ?? '' })] : []),
   ]);
   const lines = svgEl('g', { class: 'map__lines' });
   // Zero-length round-capped segments with a non-scaling stroke: one path, constant-size dots.
@@ -55,7 +57,8 @@ export function createWorldMap({ map, view: limits, gridStep, interactive = fals
   ]);
 
   const surface = el('div', { class: 'map__surface', attrs: still ? { role: 'img', 'aria-label': label } : { role: 'application', 'aria-label': label } }, [svg, markers]);
-  const element = el('div', { class: `map${interactive ? ' map--interactive' : ''}${still ? ' map--still' : ''}` }, still ? [surface] : [surface, controls]);
+  const note = map.note ? el('p', { class: 'map__note', text: map.note }) : null;
+  const element = el('div', { class: `map${interactive ? ' map--interactive' : ''}${still ? ' map--still' : ''}` }, [surface, !still && controls, note]);
 
   const toLatLon = (px) => clampToBounds(unproject(screenToMap(px, view, rect, size)), map.bounds);
 

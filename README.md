@@ -8,7 +8,7 @@ Small, quick games you play in your web browser. Each one takes about a minute.
 |----------------|----------------------------------------------------|
 | **Hue Recall** | See a color for a few seconds, then rebuild it from memory. |
 | **Glimpse**    | A cloud of dots flashes for a moment. Guess how many there were. |
-| **Pin Drop**   | You get a place name, like a capital, a city or a famous landmark. Drop a pin where you think it is on a blank world map and see how far off you were. |
+| **Pin Drop**   | You get a place name, like a capital, a city or a famous landmark. Drop a pin where you think it is on a blank map (the world, or India) and see how far off you were. |
 | **Beatween**   | Not a game: a calm tone generator. Each ear gets its own tone, and you hear a slow "beat" between them. Use headphones. |
 | **Orbit**      | Not a game: a toy solar system. Start from our real Solar system or a made-up one, fling planets, speed up time and watch orbits wobble, crash or fly away. Pinch to zoom. You can save a system and come back to it. |
 
@@ -58,7 +58,7 @@ Use this if the double-click doesn't work, or you're on Windows or Linux.
 
 **Why not just double-click `index.html`?** Browsers block games like these from loading their pieces straight off your disk, for security. The command above starts a small private web server that only your own computer can see, and that fixes it. Nothing is installed and nothing goes on the internet.
 
-**Map data:** Pin Drop uses country shapes, capitals and cities from [Natural Earth](https://www.naturalearthdata.com/) (public domain), and landmark locations © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.
+**Map data:** Pin Drop uses country shapes, capitals and cities from [Natural Earth](https://www.naturalearthdata.com/) (public domain), landmark locations © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, and fame counts from [Wikidata](https://www.wikidata.org/) (public domain). Country maps draw disputed borders the way that country's official map does.
 
 **Want the same game as a friend?** Add `?seed=` and any number to a game's address, for example `http://localhost:5173/games/hue-recall/?seed=42`. Everyone using that number gets the same game, which is handy for challenging a friend.
 

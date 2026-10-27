@@ -12,14 +12,14 @@ import {
   currentRound,
   currentClue,
   gameTotal,
-  mapIdFor,
+  packIdsFor,
 } from '../../games/pin-drop/src/state/game.js';
 
 const regions = ['Asia', 'Europe', 'Africa', 'Oceania'];
-const makePack = (id) => ({
+const makePack = (id, map = 'world') => ({
   id,
   name: id,
-  map: 'world',
+  map,
   scoreScaleKm: 1500,
   places: Array.from({ length: 36 }, (_, i) => ({
     name: `${id}-${i}`,
@@ -30,14 +30,17 @@ const makePack = (id) => ({
     region: regions[i % 4],
   })),
 });
-const PACKS = { capitals: makePack('capitals'), cities: makePack('cities'), landmarks: makePack('landmarks') };
+const PACKS = Object.fromEntries(
+  [...['capitals', 'cities', 'landmarks'].map((id) => makePack(id)), ...['india-capitals', 'india-cities', 'india-landmarks'].map((id) => makePack(id, 'india'))].map((p) => [p.id, p]),
+);
 const started = (opts) => startGame(createGame(opts), PACKS, createRng(42));
 
 test('createGame: defaults and validation', () => {
   const s = createGame();
   assert.equal(s.phase, PHASES.INTRO);
-  assert.deepEqual([s.topic, s.difficulty, s.roundCount], ['capitals', 'easy', 5]);
+  assert.deepEqual([s.mapId, s.topic, s.difficulty, s.roundCount], ['world', 'capitals', 'easy', 5]);
   assert.throws(() => createGame({ topic: 'moons' }));
+  assert.throws(() => createGame({ mapId: 'mars' }));
   assert.throws(() => createGame({ roundCount: 7 }));
 });
 
@@ -91,9 +94,16 @@ test('full game: clue → reveal → … → summary; total adds up', () => {
   assert.equal(startGame(s, PACKS, createRng(9)).phase, PHASES.CLUE);
 });
 
-test('isValidPin and mapIdFor', () => {
+test('isValidPin', () => {
   assert.ok(isValidPin({ lat: 0, lon: 180 }));
   assert.ok(!isValidPin({ lat: NaN, lon: 0 }));
   assert.ok(!isValidPin(null));
-  assert.equal(mapIdFor(createGame({ topic: 'mix' }), PACKS), 'world');
+});
+
+test('maps: switching map keeps the topic and draws from that map\'s packs', () => {
+  assert.deepEqual(packIdsFor({ mapId: 'india', topic: 'mix' }), ['india-capitals', 'india-cities', 'india-landmarks']);
+  const s = setOptions(createGame({ topic: 'landmarks' }), { mapId: 'india' });
+  assert.equal(s.topic, 'landmarks');
+  const game = startGame(s, PACKS, createRng(3));
+  assert.ok(game.rounds.every((r) => r.place.packId === 'india-landmarks'));
 });

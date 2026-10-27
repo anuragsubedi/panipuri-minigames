@@ -47,7 +47,7 @@ Each idea is scored 1–5 on three axes (feasibility means feasible as vanilla J
 **Ties are broken by feasibility.** Each game spec ends with a **Sanity check**: a one-pass review of what's verified, what's risky, and what changed from the first draft. Read it before building.
 
 **Suggested build order** (this differs from the rank, because it front-loads cheap wins):
-1. ~~Drift~~ (shipped as Beatween) → ~~Orbit~~ (shipped) → ~~Pin Drop~~ (shipped; v0.2 regional maps next).
+1. ~~Drift~~ (shipped as Beatween) → ~~Orbit~~ (shipped) → ~~Pin Drop~~ (shipped; v0.2 adds India; Nepal next).
 2. Keyfall → Breakbench.
 3. Lost Lens (after Pin Drop; reuses its map) → Blockyard.
 

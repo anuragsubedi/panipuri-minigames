@@ -5,14 +5,16 @@ import { createWorldMap } from '../components/world-map.js';
  * Title screen: the three choices, and a map dotted with every place they can
  * draw from, so the empty space shows what you're signing up for.
  * @param {HTMLElement} root
- * @param {{topic: string, difficulty: string, roundCount: number, topics: object, difficulties: object,
+ * @param {{mapId: string, topic: string, difficulty: string, roundCount: number, maps: object, difficulties: object,
  *          roundOptions: number[], placesFor: (choice: {topic: string, difficulty: string}) => object[],
  *          map: object, mapView: object, gridStep: number}} props
+ *   map: the loaded map data for `mapId`.
  * @param {{onOptions: (changes: object) => void, onStart: () => void}} handlers
  * @returns {() => void} cleanup
  */
 export function renderIntro(root, props, { onOptions, onStart }) {
-  const { topics, difficulties, roundOptions, placesFor } = props;
+  const { maps, difficulties, roundOptions, placesFor } = props;
+  const topics = maps[props.mapId].topics;
   const choice = { topic: props.topic, difficulty: props.difficulty };
 
   const preview = createWorldMap({ map: props.map, view: props.mapView, gridStep: props.gridStep, still: true, label: 'Where this game can send you' });
@@ -23,7 +25,8 @@ export function renderIntro(root, props, { onOptions, onStart }) {
     Object.assign(choice, changes);
     const places = placesFor(choice);
     preview.setDots(places);
-    pool.textContent = `${difficulties[choice.difficulty].blurb} · ${places.length} places`;
+    const detail = maps[props.mapId].detailLabel;
+    pool.textContent = `${difficulties[choice.difficulty].blurb.replace('{detail}', detail)} · ${places.length} places`;
     onOptions(changes);
   }
 
@@ -35,13 +38,16 @@ export function renderIntro(root, props, { onOptions, onStart }) {
       ]),
       el('div', { class: 'intro__preview' }, [preview.element]),
       el('div', { class: 'intro__options' }, [
-        field('Topic', segmented('Topic', entries(topics), choice.topic, (key) => update({ topic: key }))),
-        field('Difficulty', segmented('Difficulty', entries(difficulties), choice.difficulty, (key) => update({ difficulty: key }))),
-        pool,
-        el('div', { class: 'intro__footer' }, [
+        el('div', { class: 'intro__row' }, [
+          field('Map', segmented('Map', entries(maps), props.mapId, (key) => onOptions({ mapId: key }))),
           field('Rounds', segmented('Rounds', roundOptions.map((n) => [n, String(n)]), props.roundCount, (n) => onOptions({ roundCount: n }))),
+        ]),
+        field('Topic', segmented('Topic', entries(topics), choice.topic, (key) => update({ topic: key }))),
+        el('div', { class: 'intro__row' }, [
+          field('Difficulty', segmented('Difficulty', entries(difficulties), choice.difficulty, (key) => update({ difficulty: key }))),
           el('button', { class: 'btn btn--primary', text: 'Start', attrs: { type: 'button' }, on: { click: onStart } }),
         ]),
+        pool,
       ]),
     ]),
   );

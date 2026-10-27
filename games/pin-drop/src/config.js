@@ -4,16 +4,37 @@
 export const ROUND_OPTIONS = [5, 10];
 
 /**
- * Topics are sets of packs (`data/packs/<id>.json`). Mix pools them all.
- * Every pack in one topic must share a map.
+ * Each map (`data/maps/<id>.json`) has its own topics; a topic is a set of
+ * packs (`data/packs/<id>.json`) drawn on that map, and Mix pools them all.
+ * Topic keys are shared across maps so switching map keeps the topic.
+ * gridStep: graticule spacing in degrees.
  */
-export const TOPICS = {
-  capitals: { label: 'Capitals', packs: ['capitals'] },
-  cities: { label: 'Cities', packs: ['cities'] },
-  landmarks: { label: 'Landmarks', packs: ['landmarks'] },
-  mix: { label: 'Mix', packs: ['capitals', 'cities', 'landmarks'] },
+export const MAPS = {
+  world: {
+    label: 'World',
+    detailLabel: 'country',
+    gridStep: 30,
+    topics: {
+      capitals: { label: 'Capitals', packs: ['capitals'] },
+      cities: { label: 'Cities', packs: ['cities'] },
+      landmarks: { label: 'Landmarks', packs: ['landmarks'] },
+      mix: { label: 'Mix', packs: ['capitals', 'cities', 'landmarks'] },
+    },
+  },
+  india: {
+    label: 'India',
+    detailLabel: 'state',
+    gridStep: 5,
+    topics: {
+      capitals: { label: 'Capitals', packs: ['india-capitals'] },
+      cities: { label: 'Cities', packs: ['india-cities'] },
+      landmarks: { label: 'Landmarks', packs: ['india-landmarks'] },
+      mix: { label: 'Mix', packs: ['india-capitals', 'india-cities', 'india-landmarks'] },
+    },
+  },
 };
 
+export const DEFAULT_MAP = 'world';
 export const DEFAULT_TOPIC = 'capitals';
 
 /**
@@ -21,9 +42,9 @@ export const DEFAULT_TOPIC = 'capitals';
  * whether the clue names the country.
  */
 export const DIFFICULTIES = {
-  easy: { label: 'Easy', tiers: [1], showDetail: true, blurb: 'Famous places, country shown' },
-  medium: { label: 'Medium', tiers: [1, 2], showDetail: true, blurb: 'Famous and well-known places, country shown' },
-  hard: { label: 'Hard', tiers: [2, 3], showDetail: false, blurb: 'Lesser-known places, country hidden' },
+  easy: { label: 'Easy', tiers: [1], showDetail: true, blurb: 'Famous places, {detail} shown' },
+  medium: { label: 'Medium', tiers: [1, 2], showDetail: true, blurb: 'Famous and well-known places, {detail} shown' },
+  hard: { label: 'Hard', tiers: [2, 3], showDetail: false, blurb: 'Lesser-known places, {detail} hidden' },
 };
 
 export const DEFAULT_DIFFICULTY = 'easy';
@@ -31,8 +52,8 @@ export const DEFAULT_DIFFICULTY = 'easy';
 /**
  * Score curve over distance: points = MAX * exp(-(km / scale) ^ SHAPE).
  * `scale` comes from each pack (`scoreScaleKm`), because 500 km off is great
- * for the world and poor inside one country. With 1500 km: ≈ 9.4 at 100 km,
- * ≈ 7.2 at 500 km, ≈ 5.1 at 1000 km, ≈ 1.4 at 3000 km.
+ * for the world and poor inside one country. World packs use 1500 km (≈ 9.4 at
+ * 100 km, ≈ 5.1 at 1000 km); India packs 250 km (≈ 8.2 at 50 km, ≈ 4.5 at 200 km).
  */
 export const SCORE_CURVE = { max: 10, shape: 1 };
 
@@ -40,8 +61,8 @@ export const SCORE_CURVE = { max: 10, shape: 1 };
 export const VERDICTS = [
   { min: 9.5, label: 'Bullseye' },
   { min: 8, label: 'So close' },
-  { min: 5, label: 'Right region' },
-  { min: 2, label: 'Right continent-ish' },
+  { min: 5, label: 'Getting warm' },
+  { min: 2, label: 'Ballpark' },
   { min: 0, label: 'Way off' },
 ];
 
@@ -55,10 +76,8 @@ export const MAP_VIEW = {
   // Grab radius around the pin, in pixels, for dragging it.
   pinGrabPx: 28,
   // Padding around the pins when the reveal frames them, in pixels.
-  fitPaddingPx: 48,
+  fitPaddingPx: 80,
   // Never zoom in further than this when framing a reveal.
-  fitMaxZoom: 8,
+  fitMaxZoom: 6,
 };
 
-/** Grid lines every N degrees. */
-export const GRATICULE_STEP = 30;
