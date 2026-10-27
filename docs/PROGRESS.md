@@ -14,6 +14,7 @@ Nothing scheduled. Next games are specced and ranked in `docs/GAME-SPECS.md` (Or
 Open repo-wide questions (user's call):
 - **No LICENSE file** in the public repo.
 - **Pipeline:** `docs/PIPELINE-SPEC.md`. Host **decided: GitHub Pages** (D-022); Cloudflare Workers for future server features. Implementation awaiting approval.
+- **Phone-first goal (user):** start agent sessions from iOS/Android and ship via PR. That moves PR previews (Cloudflare Pages, previews only) and Playwright smoke tests up to Phase 1.5, and adds an issue-driven `@claude` flow in Phase 2. See PIPELINE-SPEC → "Phone-first workflow".
 - **Architect agent:** `docs/ARCHITECT-AGENT-SPEC.md` (automated PR review; auto-merge of low-risk tier-A PRs; CODEOWNERS guard). Depends on the pipeline. Open: which review agent/provider.
 
 ## Backlog (not scheduled — ask the user before picking any up)
@@ -48,3 +49,4 @@ Open repo-wide questions (user's call):
 - Wrote `docs/GAME-SPECS.md`: 7 ideas ranked (novelty / wow / feasibility) with self-contained specs and a per-spec sanity check; added `AGENTS.md` for other agent tools. D-019.
 - Wrote `docs/PIPELINE-SPEC.md` (agent-first CI/CD proposal). D-020.
 - Host decided: GitHub Pages (+ Workers later). Wrote `docs/ARCHITECT-AGENT-SPEC.md`; harness updated with the no-self-merge rule. D-022, D-023.
+- Recorded the phone-first goal; pipeline spec gained a "Phone-first workflow" section; agent guides note cloud sessions. D-024.

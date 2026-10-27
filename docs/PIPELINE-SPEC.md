@@ -173,6 +173,33 @@ An agent may run these via `gh api` **only** with the user's explicit OK in chat
 
 ---
 
+## Phone-first workflow (cloud agent sessions)
+
+**Goal (user):** start an agent session from a phone (iOS/Android), e.g. Claude Code on the web or mobile app, Codex cloud, or Cursor background agents, and ship ad-hoc features or new games without a laptop.
+
+What this changes:
+- **Everything must work in an ephemeral cloud container from a fresh clone.** Only `git`, Node 22 and Python 3 can be assumed. `npm run verify` / `npm run build` must need nothing else. `start.command` is irrelevant there.
+- **Agents may have no browser**, and the user can't open the agent's `localhost`. So:
+  - **PR preview URLs move from Phase 2 to Phase 1.5.** Use a Cloudflare Pages project connected to the repo **for previews only** (production stays on GitHub Pages per D-022; the same Cloudflare account will host Workers later). Each PR gets a link the user can tap.
+  - **Browser smoke tests (Playwright in CI) move up too.** They're the only "it actually runs" check when no human or agent opened the page.
+- **Two ways to kick off work from the phone:**
+  1. **Interactive:** open a cloud session on the repo, describe the change, and the agent branches → builds → opens a PR (playbook below).
+  2. **Issue-driven (async):** open a GitHub issue from the GitHub mobile app (template: "New game" / "Feature" / "Fix"), then comment e.g. `@claude implement this per docs/GAME-SPECS.md#pin-drop`.
+     - A workflow running an agent action (e.g. `anthropics/claude-code-action`, triggered by mentions) branches, builds and opens a PR linked to the issue.
+     - Only collaborators' mentions trigger it (check `author_association`).
+     - It uses the same rules as any builder (no self-merge, no tier-C edits).
+- **Review from the phone:** PR body has the preview link and screenshots (Playwright can attach them as artifacts). The Architect review uses a fixed, mobile-readable format. Tier B/C approvals happen in the GitHub mobile app.
+- **Status at a glance:** pinned issue "Panipuri status", updated by the Architect's weekly digest, listing what's live, open PRs and needs-human items.
+
+**Phone loop when everything is in place:**
+```
+phone: issue + "@claude …"  →  agent PR + preview link  →  Architect review
+  → (tier A) auto-merge → Pages deploy → play on phone
+  → (tier B/C) user taps "Approve & merge" in GitHub mobile
+```
+
+---
+
 ## Agent playbook (what a fresh agent does)
 
 ```
@@ -228,6 +255,7 @@ Optionally add issue templates (`.github/ISSUE_TEMPLATE/game.md`) so planned wor
 1. `scripts/verify.mjs` + `scripts/build.mjs` + tests; `npm run verify` / `npm run build`; `.gitignore` `_site/`; fix anything verify flags.
 2. `.github/workflows/ci.yml`, `deploy.yml`, PR template; update `AGENTS.md` / `CLAUDE.md` with the branch → PR → merge rule.
 3. 👤 Enable Pages + branch protection → first deploy → confirm the public URL works (hub + both games).
-4. Phase 2 (separate approval): previews (Cloudflare) and Playwright smoke tests.
+4. Phase 1.5 (separate approval; prioritised for phone-first use): Cloudflare Pages previews + Playwright smoke tests in CI.
+5. Phase 2: issue-driven agent workflow (`@claude` mentions) + issue templates + Architect agent (`docs/ARCHITECT-AGENT-SPEC.md`).
 
 Estimated effort: steps 1–2 take about one session; step 3 takes about 5 minutes of the user's time.

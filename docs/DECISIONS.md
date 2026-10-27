@@ -155,3 +155,10 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Status:** proposed; depends on the pipeline (D-020).
 - **Decision:** Authors never merge their own PRs. A separate Architect agent (its own GitHub App identity) reviews every CI-green PR. It auto-merges only **tier A** PRs (changes confined to one game + append-only hotspot edits + docs); tier B (`shared/`, multi-game) and tier C (`.github/`, `scripts/`, `package.json`, agent guides) need the user, enforced by CODEOWNERS. The tier comes from a deterministic path-classification script, not the model.
 - **Why:** Lets builder agents ship routine work end-to-end while the user keeps control of shared code, pipeline and policy. Guards against PRs rewriting their own reviewer, the `GITHUB_TOKEN` no-trigger gotcha, and prompt injection via PR content.
+
+## D-024 · Phone-first agent workflow is a design goal
+
+- **Date:** 2026-10-26
+- **Context (user):** The user wants to start agent sessions from a phone (cloud sessions) to add features and games ad hoc.
+- **Decision:** Treat cloud/phone sessions as first-class. The build/verify must need only git, Node 22 and Python 3; results reach the user as PRs with preview links. PR previews (Cloudflare Pages, previews only, production still on GitHub Pages) and CI browser smoke tests move up to Phase 1.5; an issue-driven `@claude` mention flow comes in Phase 2.
+- **Why:** On a phone, the user can't open an agent's localhost, and cloud agents may lack a browser, so previews and automated browser checks are the only practical way to see and trust changes.

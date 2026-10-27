@@ -71,6 +71,7 @@ python3 -m http.server 5173
 Then open http://localhost:5173/ (hub) or http://localhost:5173/games/hue-recall/.
 Add `?seed=42` to a game URL for a reproducible game.
 Humans can double-click `start.command` (macOS), which does the same and opens the browser.
+The user also drives **cloud sessions from a phone**: work must succeed from a fresh clone with only git/Node/Python, and results should reach the user as a PR (with a preview link once previews exist), not a localhost URL.
 In the Claude desktop app, `.claude/launch.json` defines the same server as `static`.
 
 ## Testing
