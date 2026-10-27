@@ -1,9 +1,9 @@
-import { el, onKey } from '../dom.js';
+import { el, onKey } from '../../../../../shared/js/dom.js';
 import { hsbToHex } from '../../color/convert.js';
 import { inkFor } from '../../color/contrast.js';
 import { channelStops } from '../../color/gradient.js';
 import { createSlider } from '../components/slider.js';
-import { createRoundBadge } from '../components/round-badge.js';
+import { createRoundBadge } from '../../../../../shared/js/components/round-badge.js';
 
 // Hue needs many stops to show the full wheel; S and B are near-linear.
 const CHANNELS = [

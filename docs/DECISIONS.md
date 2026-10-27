@@ -108,3 +108,10 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Decision:** Proposed a dot-count estimation game ("Glimpse") as game 2; spec in `PROJECT.md`. Awaiting user approval.
 - **Why:** Quick (≈1 min), tests a different perceptual skill (number sense) than Hue Recall, reuses the card / screen / render-loop architecture, and is a generic genre rather than a copy of a specific product.
 - **Scoring:** ratio-based error `|ln(guess/actual)|` so being 10% off feels the same at 10 dots and 100 dots.
+
+## D-017 · Shared JS/CSS extracted ahead of Glimpse
+
+- **Date:** 2026-10-26
+- **Decision:** Moved `dom.js`, `format.js`, the countdown and round badge components, and the RNG (`createRng`, `randomInt`, new `seedFromQuery`) into `shared/js/`; moved card/screen/button/segmented/countdown CSS into `shared/styles/game-kit.css`. Countdown caption is now a parameter. Hue Recall imports from `shared/`; behaviour unchanged (same seed → same game).
+- **Why:** Glimpse needs the same building blocks; one copy avoids drift. Moves used `git mv` to keep history.
+- **Not moved:** Hue Recall's result/summary styles (`result__*`, `summary__*`) — revisit in Glimpse step 3 if Glimpse reuses them.

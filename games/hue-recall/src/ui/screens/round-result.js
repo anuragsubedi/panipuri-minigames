@@ -1,5 +1,5 @@
-import { el, onKey } from '../dom.js';
-import { formatPoints } from '../format.js';
+import { el, onKey } from '../../../../../shared/js/dom.js';
+import { formatPoints } from '../../../../../shared/js/format.js';
 import { createSwatch } from '../components/swatch.js';
 
 /**

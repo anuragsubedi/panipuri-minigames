@@ -1,6 +1,6 @@
-import { el, onKey } from '../dom.js';
+import { el, onKey } from '../../../../../shared/js/dom.js';
 import { hsbToHex } from '../../color/convert.js';
-import { formatPoints } from '../format.js';
+import { formatPoints } from '../../../../../shared/js/format.js';
 
 /**
  * End-of-game recap: total, every round's pair and score.

@@ -1,4 +1,4 @@
-import { el, onKey } from '../dom.js';
+import { el, onKey } from '../../../../../shared/js/dom.js';
 import { hsbToHex } from '../../color/convert.js';
 
 // Decorative dots on the title screen.

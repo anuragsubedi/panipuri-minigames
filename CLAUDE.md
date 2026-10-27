@@ -5,7 +5,7 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 | Game | Folder | Status |
 |------|--------|--------|
 | Hue Recall — memorize a color, rebuild it | `games/hue-recall/` | v0.1 shipped; polish **parked** by the user |
-| Glimpse — flash of dots, guess how many | `games/glimpse/` | **proposed**; spec in `docs/PROJECT.md`, not built |
+| Glimpse — flash of dots, guess how many | `games/glimpse/` | **in progress** (approved): step 1/3 done (shared extraction); see `docs/PROGRESS.md` |
 
 ## Who reads what
 
@@ -48,6 +48,7 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 - Short JSDoc on every exported function (params, return). Comments explain *why*, not *what*.
 - Prefer small pure functions and plain objects over classes.
 - CSS: shared design tokens in `shared/styles/tokens.css`; support light and dark via `prefers-color-scheme`.
+- **Shared code** lives in `shared/js/` and `shared/styles/`. Reuse it instead of copying; only move code there once a second game needs it; after changing it, re-check every game (ARCHITECTURE → "Shared code").
 
 ## Adding a new game
 
@@ -85,9 +86,10 @@ README.md            setup + play instructions (non-technical humans)
 start.command        macOS double-click launcher
 docs/                long-term project memory
 index.html           hub listing all games
-shared/styles/       design tokens, reset, top bar, hub styles (used by hub + every game)
+shared/js/           helpers used by 2+ games (dom, rng, format, countdown, round badge)
+shared/styles/       tokens, reset, top bar, game-kit (card/buttons/etc.), hub styles
 games/<game>/        one folder per game (index.html, styles/, src/)
-tests/<game>/        node --test suites for that game's pure modules
+tests/<game>/        node --test suites for that game's pure modules (tests/shared/ for shared/js)
 ```
 
 Full module map: `docs/ARCHITECTURE.md`.

@@ -1,8 +1,8 @@
-import { el } from '../dom.js';
+import { el } from '../../../../../shared/js/dom.js';
 import { hsbToHex } from '../../color/convert.js';
 import { inkFor } from '../../color/contrast.js';
-import { createCountdown } from '../components/countdown.js';
-import { createRoundBadge } from '../components/round-badge.js';
+import { createCountdown } from '../../../../../shared/js/components/countdown.js';
+import { createRoundBadge } from '../../../../../shared/js/components/round-badge.js';
 
 /**
  * Shows the target color while a countdown runs.
@@ -12,7 +12,7 @@ import { createRoundBadge } from '../components/round-badge.js';
  * @returns {() => void} cleanup
  */
 export function renderMemorize(root, { roundNumber, totalRounds, target, durationMs }, { onDone }) {
-  const countdown = createCountdown({ durationMs, onDone });
+  const countdown = createCountdown({ durationMs, caption: 'seconds to memorize', onDone });
 
   const screen = el(
     'section',

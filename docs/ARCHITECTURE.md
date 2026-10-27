@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: **v0.1 playable.** Pure core implemented and tested; UI implemented and verified in the browser (desktop + mobile, light + dark).
+> Status: Hue Recall **v0.1 playable**. Generic JS/CSS extracted to `shared/` (Glimpse step 1). Glimpse core and UI not built yet.
 
 ## Principles
 
@@ -19,16 +19,24 @@ panipuri-minigames/
 ├── docs/
 ├── package.json                  # only "type": "module" + `npm test`; no dependencies
 ├── index.html                    # hub: links to each game
-├── shared/
+├── shared/                       # code used by more than one game (see "Shared code")
+│   ├── js/
+│   │   ├── dom.js                # el() element builder, onKey() page-level key listener
+│   │   ├── format.js             # formatPoints()
+│   │   ├── rng.js                # createRng(seed), randomInt(), seedFromQuery()
+│   │   └── components/
+│   │       ├── countdown.js      # rAF countdown with caption + bar; onDone; stop()
+│   │       └── round-badge.js    # "Round n / N" pill
 │   └── styles/
 │       ├── tokens.css            # colors, radii, fonts, shadows (light + dark)
 │       ├── base.css              # reset, body, shared top bar
+│       ├── game-kit.css          # stage, card, screens, buttons, segmented, round badge, countdown
 │       └── hub.css               # hub page only
 ├── games/
 │   └── hue-recall/
 │       ├── index.html            # single mount point (#game) + module entry
 │       ├── styles/
-│       │   └── game.css          # card, screens, buttons, slider, summary
+│       │   └── game.css          # Hue Recall only: intro, recreate, slider, result, summary
 │       └── src/
 │           ├── main.js
 │           ├── config.js
@@ -37,20 +45,16 @@ panipuri-minigames/
 │           ├── color/
 │           │   ├── convert.js
 │           │   ├── distance.js
-│           │   ├── random.js
+│           │   ├── random.js     # randomHsb (uses shared rng)
 │           │   ├── contrast.js
 │           │   └── gradient.js
 │           ├── scoring/
 │           │   ├── score.js
 │           │   └── verdict.js
 │           └── ui/
-│               ├── dom.js
-│               ├── format.js
 │               ├── components/
 │               │   ├── slider.js
-│               │   ├── countdown.js
-│               │   ├── swatch.js
-│               │   └── round-badge.js
+│               │   └── swatch.js
 │               └── screens/
 │                   ├── intro.js
 │                   ├── memorize.js
@@ -58,6 +62,8 @@ panipuri-minigames/
 │                   ├── round-result.js
 │                   └── summary.js
 └── tests/
+    ├── shared/
+    │   └── rng.test.js
     └── hue-recall/
         ├── convert.test.js
         ├── distance.test.js
@@ -74,22 +80,18 @@ panipuri-minigames/
 | `config.js`               | All tunables: rounds, difficulties, target/slider ranges, slider start, verdicts, score curve | yes   |
 | `color/convert.js`        | HSB → RGB → hex, RGB → XYZ → CIELAB                                    | yes   |
 | `color/distance.js`       | CIEDE2000 ΔE between two Lab colors                                    | yes   |
-| `color/random.js`         | Seedable RNG, random ints, constrained random HSB                      | yes   |
+| `color/random.js`         | Constrained random HSB (uses `shared/js/rng.js`)                       | yes   |
 | `color/contrast.js`       | Light vs. dark text ink for a background color                         | yes   |
 | `color/gradient.js`       | Hex stops for a slider track (one channel swept)                       | yes   |
 | `scoring/score.js`        | ΔE → round points; total                                               | yes   |
 | `scoring/verdict.js`      | Points → verdict word                                                  | yes   |
 | `state/game.js`           | Game state shape + transitions, selectors                              | yes   |
-| `ui/dom.js`               | `el()` element builder, `onKey()` page-level key listener              | no    |
-| `ui/format.js`            | Number display formatting                                              | no*   |
 | `ui/components/slider.js` | One vertical slider: pointer drag + keyboard, ARIA, gradient track     | no    |
-| `ui/components/countdown.js` | rAF countdown with bar; calls `onDone`; `stop()` to cancel          | no    |
 | `ui/components/swatch.js` | Color block with label + hex                                           | no    |
-| `ui/components/round-badge.js` | "Round n / N" pill                                                | no    |
 | `ui/screens/*.js`         | Render one phase; report intent via callbacks; return cleanup          | no    |
 | `main.js`                 | Holds state, maps phase → screen, commits transitions, owns the RNG    | no    |
 
-\* pure, but presentation-only, so it lives in `ui/`.
+Shared modules (`shared/js/…`) are listed in the layout above.
 
 Timers live in UI components (the countdown), never in state; the screen's cleanup cancels them.
 
@@ -118,7 +120,7 @@ Transitions (all pure, `(state, ...args) → newState`):
 | `nextRound(s)`         | `roundResult`     | `memorize` or `summary`        |
 
 Invalid transitions **throw**. Selectors: `currentRound(s)`, `gameTotal(s)`, `memorizeMs(s)`.
-`rng` is injected (`createRng(seed)` from `color/random.js`), so games are reproducible in tests.
+`rng` is injected (`createRng(seed)` from `shared/js/rng.js`), so games are reproducible in tests.
 
 Color shapes: HSB `{h: 0–360, s: 0–100, b: 0–100}`, RGB `{r, g, b}` as unrounded 0–255 floats, Lab `{L, a, b}` (D65).
 
@@ -154,7 +156,7 @@ commit(nextState) → state = nextState → cleanup() → root.replaceChildren()
 Every game follows Hue Recall's shape so any agent can find their way around.
 
 1. **Spec first.** Add a section to `docs/PROJECT.md` (pitch, flow table, difficulty, scoring, out of scope) and get the user's OK.
-2. **Folder.** `games/<kebab-name>/` with `index.html` (links `shared/styles/tokens.css`, `shared/styles/base.css`, its own `styles/game.css`; mounts into `#game.card`), `src/main.js`, `src/config.js`, `src/state/`, `src/scoring/`, `src/ui/{components,screens}/`.
+2. **Folder.** `games/<kebab-name>/` with `index.html` (links `shared/styles/tokens.css`, `base.css`, `game-kit.css`, then its own `styles/game.css`; mounts into `#game.card`), `src/main.js`, `src/config.js`, `src/state/`, `src/scoring/`, `src/ui/{components,screens}/`.
 3. **Pure core + tests.** State transitions in `state/game.js` with `PHASES`, `createGame`, `startGame(state, rng)`, and phase assertions that throw. Tests in `tests/<kebab-name>/`.
 4. **Screens** follow the screen contract above (`renderX(root, props, handlers) → cleanup`), primary action also on Enter via `onKey`.
 5. **Hub + README.** Add a tile to `index.html` (+ art class in `shared/styles/hub.css`) and a row to the README game table.
@@ -162,7 +164,12 @@ Every game follows Hue Recall's shape so any agent can find their way around.
 
 ### Shared code
 
-Today only styles are shared (`shared/styles/`). Generic JS currently lives inside `games/hue-recall/src/`:
-`ui/dom.js`, `ui/format.js`, `ui/components/round-badge.js`, `ui/components/countdown.js`, and `createRng`/`randomInt` in `color/random.js`.
+`shared/` holds code that **two or more games** use. Games import it with relative paths, e.g. from `games/<g>/src/ui/screens/x.js`: `'../../../../../shared/js/dom.js'`; from `games/<g>/src/main.js`: `'../../../shared/js/rng.js'`.
 
-**When the second game is built**, move these into `shared/js/` (e.g. `shared/js/dom.js`, `shared/js/rng.js`, `shared/js/format.js`, `shared/js/components/…`) and update Hue Recall's imports — don't copy them. Keep anything game-specific (color math, sliders) inside its game. Rule of thumb: code moves to `shared/` only once a second game actually needs it.
+- `shared/js/` — `dom.js`, `format.js`, `rng.js`, `components/countdown.js` (caption is a parameter), `components/round-badge.js`. Pure ones are tested in `tests/shared/`.
+- `shared/styles/game-kit.css` — the common card look; each game's own `styles/game.css` adds only its screens.
+
+Rules:
+- Game-specific code (Hue Recall's color math, slider, swatch) stays inside its game.
+- Code moves to `shared/` only once a second game actually needs it — don't pre-share speculatively, and never copy-paste between games.
+- Changing a shared module means re-checking **every** game that uses it (tests + a quick browser play).

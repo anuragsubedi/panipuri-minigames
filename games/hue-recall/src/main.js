@@ -2,7 +2,7 @@
 // The only module that touches both the pure core and the UI.
 
 import { ROUNDS, DIFFICULTIES, CHANNEL_RANGES, START_GUESS, SCORE_CURVE, VERDICTS } from './config.js';
-import { createRng, randomInt } from './color/random.js';
+import { createRng, randomInt, seedFromQuery } from '../../../shared/js/rng.js';
 import { verdictFor } from './scoring/verdict.js';
 import {
   PHASES,
@@ -23,7 +23,7 @@ import { renderRoundResult } from './ui/screens/round-result.js';
 import { renderSummary } from './ui/screens/summary.js';
 
 const root = document.getElementById('game');
-const rng = createRng(readSeed());
+const rng = createRng(seedFromQuery(location.search));
 
 let state = createGame();
 let cleanup = () => {};
@@ -103,12 +103,6 @@ function render() {
 
 function roundProps() {
   return { roundNumber: state.roundIndex + 1, totalRounds: state.rounds.length };
-}
-
-// `?seed=123` makes a game reproducible (handy for testing and sharing).
-function readSeed() {
-  const seed = Number(new URLSearchParams(location.search).get('seed'));
-  return Number.isFinite(seed) && seed !== 0 ? seed : Date.now();
 }
 
 render();

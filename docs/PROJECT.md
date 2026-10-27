@@ -17,7 +17,7 @@ A small arcade of quick, satisfying browser minigames that test perception and m
 | # | Game        | Folder              | Status                                   |
 |---|-------------|---------------------|------------------------------------------|
 | 1 | Hue Recall  | `games/hue-recall/` | **v0.1 shipped.** Polish parked by user (D-014). |
-| 2 | Glimpse     | `games/glimpse/`    | **Proposed** — spec below, awaiting user approval before building. |
+| 2 | Glimpse     | `games/glimpse/`    | **Approved, in progress** — step 1/3 done. |
 
 ---
 
@@ -74,9 +74,9 @@ Multiplayer, daily challenge, sound, sharing, accounts, leaderboards, persistenc
 
 ---
 
-## Game 2: Glimpse (proposed)
+## Game 2: Glimpse
 
-> Status: **proposed, not built.** Get the user's go-ahead before implementing (see `CLAUDE.md` working agreement).
+> Status: **approved by the user, being built in 3 reviewed steps** (see `docs/PROGRESS.md`).
 
 ### Pitch
 

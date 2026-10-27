@@ -2,15 +2,15 @@ import { el } from '../dom.js';
 
 /**
  * Big seconds counter with a shrinking bar. Starts immediately.
- * @param {{durationMs: number, onDone: () => void}} options
+ * @param {{durationMs: number, caption: string, onDone: () => void}} options
  * @returns {{el: HTMLElement, stop: () => void}}
  */
-export function createCountdown({ durationMs, onDone }) {
+export function createCountdown({ durationMs, caption, onDone }) {
   const value = el('span', { class: 'countdown__value' });
   const bar = el('div', { class: 'countdown__bar' });
   const node = el('div', { class: 'countdown', attrs: { role: 'timer' } }, [
     value,
-    el('span', { class: 'countdown__caption', text: 'seconds to memorize' }),
+    el('span', { class: 'countdown__caption', text: caption }),
     el('div', { class: 'countdown__track' }, [bar]),
   ]);
 

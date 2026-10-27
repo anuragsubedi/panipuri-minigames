@@ -1,4 +1,4 @@
-import { el } from '../dom.js';
+import { el } from '../../../../../shared/js/dom.js';
 
 /**
  * Vertical slider, max at the top. Drag anywhere on the track, or use the

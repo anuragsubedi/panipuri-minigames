@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ROUNDS } from '../../games/hue-recall/src/config.js';
-import { createRng } from '../../games/hue-recall/src/color/random.js';
+import { createRng } from '../../shared/js/rng.js';
 import {
   PHASES,
   createGame,
