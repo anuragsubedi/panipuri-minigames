@@ -115,3 +115,10 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Decision:** Moved `dom.js`, `format.js`, the countdown and round badge components, and the RNG (`createRng`, `randomInt`, new `seedFromQuery`) into `shared/js/`; moved card/screen/button/segmented/countdown CSS into `shared/styles/game-kit.css`. Countdown caption is now a parameter. Hue Recall imports from `shared/`; behaviour unchanged (same seed → same game).
 - **Why:** Glimpse needs the same building blocks; one copy avoids drift. Moves used `git mv` to keep history.
 - **Not moved:** Hue Recall's result/summary styles (`result__*`, `summary__*`) — revisit in Glimpse step 3 if Glimpse reuses them.
+
+## D-018 · Glimpse v0.1 shipped; more shared code
+
+- **Date:** 2026-10-26
+- **Decision:** `score.js` and `verdict.js` moved to `shared/js/` (both games use the same decaying curve and verdict lookup). Result panel and summary list CSS moved into `game-kit.css`. Glimpse renders dots as SVG in a unit-square viewBox; guesses are typed (numeric keypad on phones) with −/+ steppers.
+- **Why:** Avoid duplicate code; SVG scales crisply to any card size.
+- **Note:** The user asked for faster, terser work, so steps 2–3 were finished back to back.

@@ -1,6 +1,7 @@
 # Architecture
 
-> Status: Hue Recall **v0.1 playable**. Generic JS/CSS extracted to `shared/` (Glimpse step 1). Glimpse core and UI not built yet.
+> Status: **Hue Recall v0.1** and **Glimpse v0.1** playable. Both games share `shared/js` + `shared/styles/game-kit.css`.
+> The module table and state section below describe Hue Recall in detail; Glimpse mirrors the same shape (see "Glimpse" section).
 
 ## Principles
 
@@ -24,13 +25,15 @@ panipuri-minigames/
 │   │   ├── dom.js                # el() element builder, onKey() page-level key listener
 │   │   ├── format.js             # formatPoints()
 │   │   ├── rng.js                # createRng(seed), randomInt(), seedFromQuery()
+│   │   ├── score.js              # roundScore(error, curve), totalScore()
+│   │   ├── verdict.js            # verdictFor(score, verdicts)
 │   │   └── components/
 │   │       ├── countdown.js      # rAF countdown with caption + bar; onDone; stop()
 │   │       └── round-badge.js    # "Round n / N" pill
 │   └── styles/
 │       ├── tokens.css            # colors, radii, fonts, shadows (light + dark)
 │       ├── base.css              # reset, body, shared top bar
-│       ├── game-kit.css          # stage, card, screens, buttons, segmented, round badge, countdown
+│       ├── game-kit.css          # stage, card, screens, buttons, segmented, round badge, countdown, result panel, summary list
 │       └── hub.css               # hub page only
 ├── games/
 │   └── hue-recall/
@@ -48,9 +51,6 @@ panipuri-minigames/
 │           │   ├── random.js     # randomHsb (uses shared rng)
 │           │   ├── contrast.js
 │           │   └── gradient.js
-│           ├── scoring/
-│           │   ├── score.js
-│           │   └── verdict.js
 │           └── ui/
 │               ├── components/
 │               │   ├── slider.js
@@ -61,9 +61,12 @@ panipuri-minigames/
 │                   ├── recreate.js
 │                   ├── round-result.js
 │                   └── summary.js
+│   └── glimpse/                  # same shape; see "Glimpse" below
 └── tests/
     ├── shared/
-    │   └── rng.test.js
+    │   ├── rng.test.js
+    │   └── score.test.js
+    ├── glimpse/                  # dots, error, game
     └── hue-recall/
         ├── convert.test.js
         ├── distance.test.js
@@ -83,8 +86,6 @@ panipuri-minigames/
 | `color/random.js`         | Constrained random HSB (uses `shared/js/rng.js`)                       | yes   |
 | `color/contrast.js`       | Light vs. dark text ink for a background color                         | yes   |
 | `color/gradient.js`       | Hex stops for a slider track (one channel swept)                       | yes   |
-| `scoring/score.js`        | ΔE → round points; total                                               | yes   |
-| `scoring/verdict.js`      | Points → verdict word                                                  | yes   |
 | `state/game.js`           | Game state shape + transitions, selectors                              | yes   |
 | `ui/components/slider.js` | One vertical slider: pointer drag + keyboard, ARIA, gradient track     | no    |
 | `ui/components/swatch.js` | Color block with label + hex                                           | no    |
@@ -151,6 +152,23 @@ commit(nextState) → state = nextState → cleanup() → root.replaceChildren()
 - Primary actions are also bound to **Enter** via `onKey`, which ignores auto-repeat so one press can't skip two phases.
 - `?seed=<n>` in the URL makes target colors and starting hues reproducible.
 
+## Glimpse
+
+```
+games/glimpse/src/
+├── main.js                 # same render loop as Hue Recall
+├── config.js               # ROUNDS, DIFFICULTIES(flashMs), READY_MS, COUNT_BANDS, DOT_LAYOUT, GUESS_LIMITS, SCORE_CURVE, VERDICTS
+├── dots/counts.js          # one count per band, shuffled
+├── dots/layout.js          # rejection-sampled non-overlapping dots in a unit square
+├── scoring/error.js        # ratioError |ln(g/a)|, percentOff
+├── state/game.js           # phases intro → ready → flash → guess → roundResult → summary
+└── ui/
+    ├── components/field.js # SVG dot field (viewBox 0 0 1 1)
+    └── screens/            # intro, ready, flash, guess, round-result, summary
+```
+
+Round: `{ count, dots: [{x, y}], guess, error, score }`. Transitions: `startGame`, `endReady`, `endFlash`, `submitGuess` (throws `RangeError` unless `isValidGuess`), `nextRound`. The flash screen owns a `setTimeout`; its cleanup clears it.
+
 ## Adding a new game
 
 Every game follows Hue Recall's shape so any agent can find their way around.
@@ -166,8 +184,8 @@ Every game follows Hue Recall's shape so any agent can find their way around.
 
 `shared/` holds code that **two or more games** use. Games import it with relative paths, e.g. from `games/<g>/src/ui/screens/x.js`: `'../../../../../shared/js/dom.js'`; from `games/<g>/src/main.js`: `'../../../shared/js/rng.js'`.
 
-- `shared/js/` — `dom.js`, `format.js`, `rng.js`, `components/countdown.js` (caption is a parameter), `components/round-badge.js`. Pure ones are tested in `tests/shared/`.
-- `shared/styles/game-kit.css` — the common card look; each game's own `styles/game.css` adds only its screens.
+- `shared/js/` — `dom.js`, `format.js`, `rng.js`, `score.js`, `verdict.js`, `components/countdown.js` (caption is a parameter), `components/round-badge.js`. Pure ones are tested in `tests/shared/`.
+- `shared/styles/game-kit.css` — the common card look incl. result panel and summary list; each game's own `styles/game.css` adds only its screens.
 
 Rules:
 - Game-specific code (Hue Recall's color math, slider, swatch) stays inside its game.

@@ -5,6 +5,7 @@ Small, quick games you play in your web browser. Each one takes about a minute.
 | Game           | What you do                                        |
 |----------------|----------------------------------------------------|
 | **Hue Recall** | See a color for a few seconds, then rebuild it from memory. |
+| **Glimpse**    | A cloud of dots flashes for a moment. Guess how many there were. |
 
 ---
 
@@ -52,7 +53,7 @@ Use this if the double-click doesn't work, or you're on Windows or Linux.
 
 **Why not just double-click `index.html`?** Browsers block games like these from loading their pieces straight off your disk, for security. The command above starts a small private web server that only your own computer can see, and that fixes it. Nothing is installed and nothing goes on the internet.
 
-**Same colors every time?** Add `?seed=` and any number to a game's address, for example `http://localhost:5173/games/hue-recall/?seed=42`. Everyone using that number gets the same game, which is handy for challenging a friend.
+**Want the same game as a friend?** Add `?seed=` and any number to a game's address, for example `http://localhost:5173/games/hue-recall/?seed=42`. Everyone using that number gets the same game, which is handy for challenging a friend.
 
 ---
 

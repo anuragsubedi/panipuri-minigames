@@ -5,7 +5,7 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 | Game | Folder | Status |
 |------|--------|--------|
 | Hue Recall — memorize a color, rebuild it | `games/hue-recall/` | v0.1 shipped; polish **parked** by the user |
-| Glimpse — flash of dots, guess how many | `games/glimpse/` | **in progress** (approved): step 1/3 done (shared extraction); see `docs/PROGRESS.md` |
+| Glimpse — flash of dots, guess how many | `games/glimpse/` | v0.1 shipped |
 
 ## Who reads what
 
@@ -34,6 +34,7 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 - Keep it simple: the smallest change that solves the problem. No frameworks, bundlers or npm packages.
 - Games are **original**: a game may share a genre with existing games, but never copy a specific product's name, branding, layout or copy (D-006).
 - One commit per completed step, with a clear message.
+- Keep replies **short**; it's a simple prototype. Once a feature is approved, finish it without extra review stops unless asked.
 
 ## Code conventions
 
@@ -86,7 +87,7 @@ README.md            setup + play instructions (non-technical humans)
 start.command        macOS double-click launcher
 docs/                long-term project memory
 index.html           hub listing all games
-shared/js/           helpers used by 2+ games (dom, rng, format, countdown, round badge)
+shared/js/           helpers used by 2+ games (dom, rng, format, score, verdict, countdown, round badge)
 shared/styles/       tokens, reset, top bar, game-kit (card/buttons/etc.), hub styles
 games/<game>/        one folder per game (index.html, styles/, src/)
 tests/<game>/        node --test suites for that game's pure modules (tests/shared/ for shared/js)

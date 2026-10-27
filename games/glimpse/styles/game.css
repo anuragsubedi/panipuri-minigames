@@ -1,0 +1,148 @@
+/* Glimpse-only styles. Requires shared tokens.css, base.css and game-kit.css. */
+
+/* Dot field */
+
+.field {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  color: var(--fg);
+}
+
+.field circle {
+  fill: currentColor;
+}
+
+/* Intro */
+
+.screen--intro {
+  justify-content: space-between;
+}
+
+.intro__art {
+  width: 96px;
+}
+
+.intro__title {
+  margin: 20px 0 16px;
+  font-size: clamp(48px, 14vw, 68px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+.intro__lede {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.intro__rules {
+  margin-top: 12px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.intro__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Flash */
+
+.screen--flash {
+  justify-content: center;
+}
+
+/* Guess */
+
+.screen--guess {
+  justify-content: space-between;
+}
+
+.guess__prompt {
+  margin-top: 20px;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.guess__controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guess__input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 3px solid var(--line);
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 72px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.guess__input:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.guess__step {
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  font-size: 24px;
+  background: var(--surface-2);
+  color: var(--fg);
+}
+
+.guess__actions .btn {
+  width: 100%;
+}
+
+/* Round result */
+
+.result__field {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px 24px 8px;
+}
+
+.result__field .field {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+}
+
+.result__detail {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Summary */
+
+.summary__count {
+  min-width: 48px;
+  padding: 10px 0;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-weight: 800;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}

@@ -2,17 +2,14 @@
 
 ## Current status
 
-- **Hue Recall v0.1 — shipped and playable.** 30 tests passing (all games + shared) (`npm test`). Verified in browser (desktop + 375px mobile, light + dark, Easy + Hard, keyboard-only play). Polish **parked** by user choice (D-014).
-- **Glimpse — approved, in progress.** Spec in `docs/PROJECT.md` → "Game 2: Glimpse". Step 1/3 done (shared extraction). User wants a review stop after each step.
-- **Docs for humans:** `README.md` + `start.command` (double-click launcher, tested: starts server, serves hub and game, second launch just reopens browser).
+- **Hue Recall v0.1** — shipped. Polish parked (D-014).
+- **Glimpse v0.1** — shipped. Verified in browser (full game, keyboard, no console errors).
+- 53 tests passing (`npm test`).
+- `README.md` + `start.command` for non-technical players.
 
 ## Next step
 
-Glimpse build, one step per review (stop after each):
-
-1. [x] **Extract shared JS/CSS** — done (D-017). 30 tests pass; Hue Recall re-played with `?seed=42`: identical colors and scores, Menu → intro → new game works, no console errors.
-2. [ ] **Glimpse core + tests** ← next — `config.js`, dot layout generator (seeded, min spacing), ratio scoring, state machine.
-3. [ ] **Glimpse UI** — screens per spec, hub tile, README row; verify in browser; update docs.
+Nothing scheduled. Ask the user: another game, or something from the backlog.
 
 ## Backlog (not scheduled — ask the user before picking any up)
 
@@ -31,8 +28,7 @@ Glimpse build, one step per review (stop after each):
 
 ## Open questions
 
-- Hue Recall's result/summary CSS could become shared if Glimpse's result/summary look the same — decide in Glimpse step 3.
-- Glimpse: final dot-count range and flash timings — starting values in its spec; adjust during build.
+- Glimpse score curve / flash timings untested with real players.
 
 ## Session log
 
@@ -43,3 +39,4 @@ Glimpse build, one step per review (stop after each):
 - Step 3: UI — helpers (contrast, gradient, verdict, +4 tests), shared styles, components, five screens, `main.js` render loop, game + hub pages. D-010…D-013.
 - User played v0.1, chose to skip polish (D-014). Added `README.md` + `start.command` for non-technical users (D-015). Proposed game 2 "Glimpse" with spec (D-016). Rewrote `CLAUDE.md` (status table, who-reads-what, new-game pointer); added "Adding a new game" + shared-code plan to ARCHITECTURE.
 - Glimpse approved. Step 1: extracted `shared/js/` (dom, format, rng + `seedFromQuery`, countdown with caption param, round badge) and `shared/styles/game-kit.css`; Hue Recall now imports them. Tests moved/added (`tests/shared/rng.test.js`, 30 total). D-017.
+- Glimpse step 2: core + 23 tests; `score.js`/`verdict.js` moved to `shared/js`. User asked for speed and short replies → finished step 3 in the same turn: UI, hub tile, README row; result/summary CSS moved to `game-kit.css`. D-018.

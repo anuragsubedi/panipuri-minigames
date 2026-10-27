@@ -165,3 +165,96 @@
   background: currentColor;
   transform-origin: left;
 }
+
+/* Round result + summary (shared layout; games add their own visuals) */
+
+.screen--result {
+  padding: 0;
+}
+
+.result__panel {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px 24px;
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.result__verdict {
+  margin-bottom: 6px;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.result__score {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.result__max {
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+.screen--summary {
+  gap: 20px;
+}
+
+.summary__head .result__verdict {
+  margin: 16px 0 4px;
+}
+
+.summary__list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.summary__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.summary__label {
+  font-weight: 650;
+}
+
+.summary__sub {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.summary__points {
+  font-size: 18px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.summary__actions .btn--primary {
+  flex: 1;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}

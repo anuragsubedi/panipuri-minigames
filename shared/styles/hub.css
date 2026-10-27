@@ -54,6 +54,13 @@ a.game-tile:hover {
   background: linear-gradient(90deg, #e8552f 0 20%, #f2b134 20% 40%, #3fae6a 40% 60%, #2f7de8 60% 80%, #9b4fe0 80%);
 }
 
+.game-tile__art--glimpse {
+  background-color: var(--fg);
+  background-image: radial-gradient(circle, var(--bg) 0 4px, transparent 5px);
+  background-size: 26px 22px;
+  background-position: 3px 5px;
+}
+
 .game-tile__art--soon {
   background: repeating-linear-gradient(45deg, var(--surface-2) 0 10px, transparent 10px 20px);
 }
