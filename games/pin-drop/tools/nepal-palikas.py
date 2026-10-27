@@ -55,8 +55,11 @@ def inside(lon, lat, geometry):
     return hit
 
 
-def search(text):
-    query = urllib.parse.urlencode({"q": text, "countrycodes": "np", "format": "jsonv2", "featureType": "settlement", "limit": 5, "extratags": 1})
+def search(text, settlement=True):
+    params = {"q": text, "countrycodes": "np", "format": "jsonv2", "limit": 5, "extratags": 1}
+    if settlement:
+        params["featureType"] = "settlement"
+    query = urllib.parse.urlencode(params)
     request = urllib.request.Request(f"{ENDPOINT}?{query}", headers={"User-Agent": USER_AGENT})
     for attempt in range(4):
         try:
@@ -70,14 +73,27 @@ def search(text):
 
 
 def town_in(palika, geometry):
-    """First OSM settlement node inside the palika, trying the bare name, then with the district."""
-    for text in (palika["name"], f"{palika['name']}, {palika['district']}"):
-        hits = search(text)
+    """First OSM settlement inside the palika, trying the bare name, then with the district."""
+    return first_inside([palika["name"], f"{palika['name']}, {palika['district']}"], geometry)
+
+
+def first_inside(texts, geometry):
+    """A place node inside the polygon; failing that, any hit inside it. OSM merges a
+    city's node into its boundary (Kathmandu), and the boundary's point is then
+    that node, so an administrative hit is a good second choice."""
+    attempts = [(text, True) for text in texts] + [(texts[0], False)]
+    fallback = None
+    for text, settlement in attempts:
+        hits = search(text, settlement)
         time.sleep(PAUSE_S)
         for hit in hits:
-            if hit["category"] == "place" and inside(float(hit["lon"]), float(hit["lat"]), geometry):
+            if not inside(float(hit["lon"]), float(hit["lat"]), geometry):
+                continue
+            if hit["category"] == "place":
                 return hit
-    return None
+            if hit["category"] == "boundary" and fallback is None:
+                fallback = hit
+    return fallback
 
 
 def save(rows):
@@ -98,17 +114,9 @@ def add_towns(rows, features, source_path):
         row = by_name.get((palika, district))
         if row is None:
             raise SystemExit(f"No palika {palika!r} in {district!r}; check the survey spelling")
-        if row.get("town", {}).get("name") == town:
+        if row.get("town", {}).get("name") == town and row["town"]["osm"]:
             continue
-        found = None
-        for text in (town, f"{town}, {district}"):
-            for hit in search(text):
-                if hit["category"] == "place" and inside(float(hit["lon"]), float(hit["lat"]), shapes[row["pcode"]]):
-                    found = hit
-                    break
-            time.sleep(PAUSE_S)
-            if found:
-                break
+        found = first_inside([town, f"{town}, {district}"], shapes[row["pcode"]])
         if not found:
             print(f"  town {town!r} not found inside {palika}; keeping the palika point", file=sys.stderr)
             row["town"] = {"name": town, "lat": row["lat"], "lon": row["lon"], "osm": None}
@@ -126,7 +134,9 @@ def main(admin3_path, points_path, source_path=None):
     if os.path.exists(OUT):
         with open(OUT, encoding="utf-8") as handle:
             rows = {r["pcode"]: r for r in json.load(handle)}
-    todo = [f for f in features if f["properties"]["adm3_pcode"][6] in TYPES and f["properties"]["adm3_pcode"] not in rows]
+    # New palikas, plus urban ones still on the survey point (worth a second, wider search).
+    retry = {pcode for pcode, r in rows.items() if r["osm"] is None and r["type"] != "rural" and not r.get("retried")}
+    todo = [f for f in features if f["properties"]["adm3_pcode"][6] in TYPES and (f["properties"]["adm3_pcode"] not in rows or f["properties"]["adm3_pcode"] in retry)]
     print(f"{len(rows)} kept, {len(todo)} to look up", file=sys.stderr)
     for n, feature in enumerate(todo, 1):
         p = feature["properties"]
@@ -137,6 +147,8 @@ def main(admin3_path, points_path, source_path=None):
             "district": p["adm2_name"],
             "province": p["adm1_name"],
         }
+        if palika["pcode"] in rows and rows[palika["pcode"]].get("town"):
+            palika["town"] = rows[palika["pcode"]]["town"]
         hit = town_in(palika, feature["geometry"])
         if hit:
             palika.update(lat=round(float(hit["lat"]), 4), lon=round(float(hit["lon"]), 4), osm=f"{hit['osm_type']}/{hit['osm_id']}")
@@ -145,7 +157,7 @@ def main(admin3_path, points_path, source_path=None):
                 palika["wikidata"] = wikidata
         else:
             lon, lat = labels[palika["pcode"]]
-            palika.update(lat=round(lat, 4), lon=round(lon, 4), osm=None)
+            palika.update(lat=round(lat, 4), lon=round(lon, 4), osm=None, retried=True)
         rows[palika["pcode"]] = palika
         print(f"{n}/{len(todo)} {palika['name']} ({palika['district']}): {palika['osm'] or 'survey label point'}", file=sys.stderr)
         if n % 25 == 0:
