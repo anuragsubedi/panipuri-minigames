@@ -136,3 +136,9 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Status:** proposed, not implemented.
 - **Proposal:** `npm run verify` (zero-dep checks: tests, import graph, relative links, game registry, no deps, size) and `npm run build` (assemble `_site/`); CI on every PR; deploy `main` to GitHub Pages; agents work on branches and never merge their own PRs; Phase 2 adds Cloudflare Pages previews and CI-only Playwright smoke tests.
 - **Why:** The site is static, so free hosting and sub-minute CI are enough. Previews let the user play a branch before merging.
+
+## D-021 · Long-term hosting view (proposal)
+
+- **Date:** 2026-10-26
+- **Status:** proposed.
+- **View:** GitHub Pages is fine for Phase 1. Longer term, Cloudflare (Pages or Workers static assets) is preferred: unmetered static traffic, previews, custom headers (COOP/COEP), commercial use on free tier, and Workers/Durable Objects for future server features. Vercel is preferred only if moving to Next.js (Hobby tier is non-commercial). Host-agnostic `_site/` keeps switching cheap. Details in `docs/PIPELINE-SPEC.md` → Hosting choice.

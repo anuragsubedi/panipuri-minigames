@@ -1,6 +1,6 @@
 # Build & Release Pipeline — Spec (agent-first)
 
-> **Status: proposal, not implemented.** Nothing here exists yet: no workflows, no Pages site, no branch protection. Implementing it needs the user's OK, and some steps are **user-only** (marked 👤).
+> **Status: proposal, not implemented.** Hosting long-run view: see "Hosting choice → Recommendation". Nothing here exists yet: no workflows, no Pages site, no branch protection. Implementing it needs the user's OK, and some steps are **user-only** (marked 👤).
 
 ## Goal
 
@@ -26,17 +26,30 @@ CI:    deploy main → https://anuragsubedi.github.io/panipuri-minigames/
 
 ## Hosting choice
 
-| Option | Cost | PR previews | Setup | Fit |
+> Limits and pricing below are as understood in late 2026 and **change often**. Verify against each provider's current docs before committing.
+
+| | GitHub Pages | Cloudflare (Pages / Workers static assets) | Vercel | Netlify |
 |---|---|---|---|---|
-| **GitHub Pages + Actions** | free (public repo) | not native | 👤 one toggle in repo settings; no secrets | **Recommended for Phase 1** |
-| Cloudflare Pages | free tier | ✅ native, per branch/PR | 👤 Cloudflare account + connect repo | **Recommended for Phase 2 previews** (or as the sole host) |
-| Netlify / Vercel | free tier | ✅ native | 👤 account + connect repo | Equivalent alternatives |
+| Static hosting cost | free (public repo) | free; static requests/bandwidth not metered | free Hobby tier | free tier (usage-capped) |
+| Commercial use on free tier | discouraged (not for SaaS/commerce) | ✅ allowed | ❌ Hobby is **non-commercial only** | ✅ within limits |
+| Bandwidth (free) | ~100 GB/mo soft | effectively unlimited for static | capped (~100 GB/mo) | capped |
+| PR / branch previews | ❌ not native | ✅ automatic | ✅ automatic (best-in-class) | ✅ automatic |
+| Custom headers / redirects | ❌ | ✅ `_headers`, `_redirects` | ✅ `vercel.json` | ✅ `_headers`, `_redirects` |
+| Server code later | ❌ | ✅ Workers, KV/D1, Durable Objects (realtime) | ✅ Functions (Node/Edge) | ✅ Functions |
+| Setup | 👤 one settings toggle, no account | 👤 Cloudflare account + connect repo | 👤 Vercel account + import repo | 👤 account + connect repo |
+| Lock-in | none | low (static + optional Workers) | low for static; higher with Next.js features | low |
 
-**Decision for the user:**
-- **(a)** GitHub Pages now, with previews added later via Cloudflare Pages connected to the same repo, or
-- **(b)** Cloudflare Pages for everything from day one.
+**Why headers matter here:** `Cross-Origin-Opener-Policy` / `Cross-Origin-Embedder-Policy` unlock `SharedArrayBuffer` (threaded WebAssembly, low-latency audio worklets), which games like Breakbench, Keyfall or Blockyard might want. Long-lived cache headers for assets also need control. GitHub Pages can't set either.
 
-(a) keeps everything inside GitHub. (b) gives previews immediately.
+### Recommendation
+
+- **Phase 1 (now): GitHub Pages.** Zero accounts, zero secrets, fine for a public prototype.
+- **Long run: Cloudflare** (Pages, or Workers with static assets, which Cloudflare is steering new projects toward). It has unmetered static traffic, previews, headers, commercial use on the free tier, and a natural path to leaderboards or multiplayer (Workers + Durable Objects) without changing hosts.
+- **Vercel** if the project moves to **Next.js/React** or wants the smoothest preview/review UX. Mind the Hobby tier's non-commercial clause and bandwidth caps.
+- **Switching cost is low by design.** Every host consumes the same `_site/` folder from `npm run build`. Moving hosts = swapping the deploy job (or connecting the repo in the host's dashboard) plus DNS. Keep the site host-agnostic: relative paths only, no host-specific features until a decision says so.
+- **Custom domain** (👤 buy + DNS) is the thing that makes a move invisible to players; worth doing before any public sharing at scale.
+
+**Decision for the user:** start on GitHub Pages and move to Cloudflare when previews, headers or server code are needed, *or* go straight to Cloudflare.
 
 **Base path:** GitHub Pages serves at `/panipuri-minigames/`. That works because **all internal links and imports are relative** (`./`, `../`). CI enforces this (see checks). A custom domain is optional later (👤 DNS).
 
