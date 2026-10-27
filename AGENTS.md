@@ -9,4 +9,5 @@ Quick essentials:
 - Run: `python3 -m http.server 5173` → http://localhost:5173/. Test: `npm test` (Node's built-in runner).
 - Plan → get the user's OK → build. Keep replies short.
 - Building a new game? Pick a spec from [`docs/GAME-SPECS.md`](docs/GAME-SPECS.md), read its **Sanity check**, then follow `docs/ARCHITECTURE.md` → "Adding a new game".
+- Shipping / CI/CD: see [`docs/PIPELINE-SPEC.md`](docs/PIPELINE-SPEC.md) (**proposal, not implemented yet**). Until it is, ask the user before pushing.
 - Before finishing: update `docs/PROGRESS.md`, log decisions in `docs/DECISIONS.md`, and keep `docs/ARCHITECTURE.md` in sync.

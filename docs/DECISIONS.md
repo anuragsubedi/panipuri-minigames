@@ -129,3 +129,10 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Decision:** `docs/GAME-SPECS.md` holds ranked, self-contained proposals (not approved builds) for Orbit, Pin Drop, Keyfall, Breakbench, Drift, Lost Lens and Blockyard. Each has a sanity check. `AGENTS.md` points any agent tool at `CLAUDE.md`.
 - **Why:** The user wants to build games independently in fresh sessions and in other tools (Cursor, Codex, Antigravity).
 - **Notable calls:** a full street-imagery geo game is split into Pin Drop (map-only, first) and Lost Lens (a photo pack inside Pin Drop). Breakbench recommends its own engine over wrapping AGPL Strudel. Blockyard likely needs a dependency exception.
+
+## D-020 · Proposed pipeline: GitHub Pages + Actions, PR-only flow (proposal)
+
+- **Date:** 2026-10-26
+- **Status:** proposed, not implemented.
+- **Proposal:** `npm run verify` (zero-dep checks: tests, import graph, relative links, game registry, no deps, size) and `npm run build` (assemble `_site/`); CI on every PR; deploy `main` to GitHub Pages; agents work on branches and never merge their own PRs; Phase 2 adds Cloudflare Pages previews and CI-only Playwright smoke tests.
+- **Why:** The site is static, so free hosting and sub-minute CI are enough. Previews let the user play a branch before merging.

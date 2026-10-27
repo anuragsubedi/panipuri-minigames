@@ -11,7 +11,9 @@
 
 Nothing scheduled. Next games are specced and ranked in `docs/GAME-SPECS.md` (Orbit, Pin Drop, Keyfall, Breakbench, Drift, Lost Lens, Blockyard), meant to be built independently in fresh sessions or other agent tools. Suggested order: Drift → Pin Drop → Orbit → Keyfall → Breakbench → Lost Lens → Blockyard. Ask the user which one.
 
-Open repo-wide question: **no LICENSE file** in the public repo (user's call).
+Open repo-wide questions (user's call):
+- **No LICENSE file** in the public repo.
+- **Pipeline:** `docs/PIPELINE-SPEC.md` proposes GitHub Pages + Actions (verify/build scripts, CI, deploy on merge, PR-only flow), with Cloudflare previews in Phase 2. Awaiting approval and a hosting choice.
 
 ## Backlog (not scheduled — ask the user before picking any up)
 
@@ -43,3 +45,4 @@ Open repo-wide question: **no LICENSE file** in the public repo (user's call).
 - Glimpse approved. Step 1: extracted `shared/js/` (dom, format, rng + `seedFromQuery`, countdown with caption param, round badge) and `shared/styles/game-kit.css`; Hue Recall now imports them. Tests moved/added (`tests/shared/rng.test.js`, 30 total). D-017.
 - Glimpse step 2: core + 23 tests; `score.js`/`verdict.js` moved to `shared/js`. User asked for speed and short replies → finished step 3 in the same turn: UI, hub tile, README row; result/summary CSS moved to `game-kit.css`. D-018.
 - Wrote `docs/GAME-SPECS.md`: 7 ideas ranked (novelty / wow / feasibility) with self-contained specs and a per-spec sanity check; added `AGENTS.md` for other agent tools. D-019.
+- Wrote `docs/PIPELINE-SPEC.md` (agent-first CI/CD proposal). D-020.

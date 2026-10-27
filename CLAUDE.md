@@ -10,6 +10,7 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 ## Who reads what
 
 - `AGENTS.md` — short pointer here for non-Claude agents (Codex, Cursor, Antigravity). Keep it in sync with this file's essentials.
+- `docs/PIPELINE-SPEC.md` — proposed build/release pipeline (GitHub Pages + Actions, PR flow). **Not implemented**; needs user approval.
 - `docs/GAME-SPECS.md` — ranked, self-contained specs for future games (each with a sanity check).
 - `README.md` — for **non-technical humans**: how to start and play. Keep it jargon-free; update its game table when a game ships.
 - `CLAUDE.md` (this file) — for **agents**: rules, conventions, where things live.
