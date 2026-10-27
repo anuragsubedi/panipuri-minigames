@@ -5,16 +5,19 @@
 - **Hue Recall v0.1** — shipped. Polish parked (D-014).
 - **Glimpse v0.1** — shipped. Verified in browser (full game, keyboard, no console errors).
 - **Pin Drop v0.2** — World + **India** maps (D-032…D-034): India-view borders with state lines, 34 capitals, 164 cities, 61 landmarks with blurbs, Wikidata fame tiers. Verified headless at 375×667 and 1280×800, light + dark, no overflow; **needs a real-phone try**. Verified in headless Chromium at 375×667 (light) and 1280×800 (dark): full games incl. Hard · Mix · 10 rounds, no console errors, no page scroll, no network requests during play; pinch / tap / pin-drag / pan tested with synthetic touch events only: **needs a real-phone try**.
+- **Pin Drop: Nepal map** (D-035) — Survey Department boundaries (official outline incl. Kalapani–Lipulekh–Limpiyadhura): 7 provinces, 77 districts, 753 palika lines fading in on zoom, 23 rivers. Topics Cities (all 753 palikas; rural on Hard), Landmarks (78), Nature (74: parks, lakes, rivers, peaks), Mix. Rivers, parks and lakes score as shapes. Verified headless at 375×667 and 1280×800, light + dark: full 10-round games in every topic, no console errors, no network during play, no page scroll or intro overflow. **Needs a real-phone try.** 9 places held back (`"todo"` in the source lists) until they have trustworthy coordinates: Kanchenjunga, Cho Oyu, Makalu, Ganesh Himal, Himalchuli, Marsyangdi and Arun III hydropower, Kakrebihar, Malikarjun Temple. Fame tiers for Nepal are hand-set so far (Wikidata counts not yet fetched).
 - **Beatween v0.1** — shipped (binaural beats tool, was "Drift"). Audio graph verified via an AudioContext probe (oscillators match L/R; noise loop; suspend on pause); layout verified at 375×667, ~426×826, 740×360 landscape and desktop, light + dark. **Not verified by ear**: needs a headphone listen.
 - **Orbit v0.2** — shipped and live (real units + clock, heaviest-bodies list, Solar system preset, zoom, saves; D-030). Gravity sandbox toy. Verified at 375×667, 740×360 landscape and 1280×800, light + dark; drag-launch, preview, select/delete, presets; 61 fps with 30 bodies (physics ≈ 0.3 ms/frame at 8×). Touch drag and pinch tested with synthetic pointer events only: **needs a real-phone try**.
 - **How it works** pages for all four games (`games/<name>/how.html`, D-031).
-- 130 tests passing (`npm test`).
+- 141 tests passing (`npm test`).
 - `README.md` + `start.command` for non-technical players.
 - **Live site:** https://anuragsubedi.github.io/panipuri-minigames/. GitHub Pages serves the **`live`** branch (release branch, D-025); every push publishes.
 
 ## Next step
 
-**Pin Drop: Nepal map** next (user's home country), then NZ, then USA. Follow ARCHITECTURE → Pin Drop → "Adding a country map". Nepal: point-of-view file `ne_10m_admin_0_countries_nep`; 7 provinces in Natural Earth admin-1; Nepal's official map includes Kalapani–Lipulekh–Limpiyadhura (differs from India's). Ask the user for landmark ideas; keep the list famous (they found obscure ones obscure).
+1. **Finish Nepal:** coordinates for the 9 held-back places (Wikidata or Wikipedia pages; the cloud IP is rate-limited, see `handover` idea in the session log), then `fetch-fame.py` → `nepal-cities.py` → `apply-fame.py` on the landmarks and nature packs.
+2. **Nepal Atlas** (user's next goal): spec in `docs/specs/games/nepal-atlas.md`; confirm v0.1 scope and the offline-tool dependency question first.
+3. Pin Drop NZ, then USA maps (user's order).
 
 After that, the remaining specs in `docs/specs/README.md`: Keyfall → Breakbench → Lost Lens (reuses Pin Drop's map + clue types) → Blockyard.
 
@@ -93,3 +96,11 @@ Open repo-wide questions (user's call):
 - User decisions: India first, then Nepal, NZ, USA; India's official-view borders with a provenance note; topics capitals, cities, landmarks; blurbs for landmarks; no paid data; Google Maps API rejected.
 - New tools: `build-region-map.py`, `region-packs.py`, `fetch-fame.py`, `apply-fame.py`; `geocode-landmarks.py` now takes a pack header, blurbs, and keeps Wikidata ids. Wikidata worked from the cloud session (no local run needed).
 - Game: Map choice (World | India), per-map grid/scale/detail word, regional map layers (muted neighbours, focus country, dashed state lines, note), ⓘ landmark hints, compact two-row intro. 132 tests. D-034.
+
+### 2026-10-27 — Pin Drop: Nepal map
+- User wanted Nepal "as detailed as possible" (home country). Natural Earth turned out to have Nepal's old 14 zones and 17 places, so the map uses the Survey Department's 2024 boundaries from OCHA HDX: provinces, 77 districts and 753 palika lines from one admin-3 file (`build-region-map.py` "cod" mode); the outline already matches Nepal's official map.
+- Topics (user OK): Cities · Landmarks · Nature · Mix; every palika is a target (rural ones on Hard). `nepal-palikas.py` places each palika at its OSM town node, only if inside the palika's polygon; `nepal-cities.py` builds the pack (77 HQs, spellings, tier list in `nepal-cities-source.json`).
+- Landmarks (82) and Nature (79) lists drafted, user-approved; blurbs say what, not where. `geocode-nepal.py` checks every hit against the stated district polygon, skips businesses named after a place (a café "…Boudhanath", a dental clinic "Kakrebihar"), builds rivers and lakes from the HOT OSM waterways export (whole courses) and takes a few points from Wikidata. Every match reviewed by hand; 9 held back as `"todo"`.
+- Engine: places may be shapes (`geo/shape.js`): score to the nearest point of a river, or 0 km inside a park; reveal highlights it. Faint rivers on the base map. "Right on it" now scales with the pack (7.5 km in Nepal).
+- Wikimedia rate-limited this cloud IP to 1 request/min; Overpass, Geofabrik and Wikipedia were unreachable. A handover prompt for a local session was written (not used yet). The auto-mode safety check also failed for a while, blocking commands.
+- Wrote the **Nepal Atlas** spec (user's next goal; ranked 2 / 8) with a feature ranking and verified data sources. D-035. 141 tests.

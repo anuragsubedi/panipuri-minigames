@@ -1,6 +1,6 @@
 # Pin Drop — map geo-guessing (game)
 
-> **Status:** v0.2 shipped (World + India; D-032…D-034); next: Nepal, then NZ, USA · **Rank:** 3 / 8 · **Effort:** 1–1.5 sessions · **Type:** game
+> **Status:** v0.2 shipped (World, India, Nepal; D-032…D-035); 9 Nepal places pending coordinates; next: NZ, then USA · **Rank:** 3 / 8 · **Effort:** 1–1.5 sessions · **Type:** game
 > Shared rules for every spec: [`../README.md`](../README.md). Update this header when status changes (proposed → approved → in progress → shipped).
 
 **Pitch:** "Where is Timbuktu?" Drop a pin on a blank world map and see how far off you were.

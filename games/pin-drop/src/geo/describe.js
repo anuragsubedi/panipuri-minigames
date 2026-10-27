@@ -20,9 +20,10 @@ export function formatKm(km) {
  * @param {{lat: number, lon: number}} guess
  * @param {{lat: number, lon: number}} target
  * @param {number} km distance between them
+ * @param {number} [onTargetKm] closer than this is "Right on it" (country maps pass less)
  * @returns {string}
  */
-export function directionHint(guess, target, km) {
-  if (km < ON_TARGET_KM) return 'Right on it';
+export function directionHint(guess, target, km, onTargetKm = ON_TARGET_KM) {
+  if (km < onTargetKm) return 'Right on it';
   return `It's ${compassPoint(bearingDeg(guess, target))} of your pin`;
 }

@@ -61,7 +61,7 @@ REGIONS = {
         # Douglas–Peucker tolerance per layer, in degrees (0.001 ≈ 100 m).
         "tolerance": 0.0012,
         "layer_tolerance": {"states": 0.0012, "districts": 0.0015, "locals": 0.0025},
-        "note": "Borders: Survey Department of Nepal (official map) · OCHA HDX",
+        "note": "Borders: Nepal Survey Dept. (official) · HDX · rivers © OSM",
     },
 }
 

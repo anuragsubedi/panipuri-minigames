@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: **Hue Recall v0.1**, **Glimpse v0.1**, **Pin Drop v0.1**, **Beatween v0.1** and **Orbit v0.2** playable. Both games share `shared/js` + `shared/styles/game-kit.css`.
+> Status: **Hue Recall v0.1**, **Glimpse v0.1**, **Pin Drop v0.2 (World, India, Nepal)**, **Beatween v0.1** and **Orbit v0.2** playable. Both games share `shared/js` + `shared/styles/game-kit.css`.
 > The module table and state section below describe Hue Recall in detail; Glimpse mirrors the same shape (see "Glimpse" section).
 
 ## Principles
@@ -182,12 +182,17 @@ Round: `{ count, dots: [{x, y}], guess, error, score }`. Transitions: `startGame
 ```
 games/pin-drop/
 ├── data/maps/<id>.json      # {bounds, countries: SVG path}; equirectangular, x = lon, y = −lat (degrees).
-│                            #   Country maps add focus (the country), states (internal lines only) and note (provenance)
+│                            #   Country maps add focus (the country), states (internal lines only) and note (provenance);
+│                            #   Nepal also has districts, locals (palikas, fade in on zoom) and rivers
 ├── data/packs/*.json        # {id, name, map, scoreScaleKm, source, places: [{name, detail, lat, lon, tier 1–3, region,
-│                            #   blurb?, wikidata?, osm?, clue?}]}
+│                            #   blurb?, wikidata?, osm?, clue?, shape?: {kind: line|area, paths: [[lon, lat]…]}}]}
 ├── tools/                   # run by hand, stdlib Python (see each file's header for its command):
 │   ├── geojson-to-map.py        # world map (Natural Earth 1:110m)
-│   ├── build-region-map.py      # country map: Natural Earth 1:10m point-of-view outline + admin-1 state lines
+│   ├── build-region-map.py      # country map: Natural Earth 1:10m point-of-view outline + admin-1 state lines;
+│   │                            #   "cod" mode (Nepal): Survey Dept. admin-0/admin-3 via HDX → provinces, districts, palikas, rivers
+│   ├── nepal-palikas.py         # 753 palikas (HDX) → OSM town point inside each → nepal-palikas.json (resumable)
+│   ├── nepal-cities.py          # nepal-palikas.json + nepal-cities-source.json (HQs, spellings, tiers) → nepal-cities pack
+│   ├── geocode-nepal.py         # nepal-*-source.json → OSM (district-checked), HOT waterways, Wikidata points → pack
 │   ├── places-to-packs.py       # world capitals/cities (Natural Earth 1:50m)
 │   ├── region-packs.py          # a country's capitals/cities (Natural Earth 1:10m), tiers from fame.json
 │   ├── geocode-landmarks.py     # *-landmarks-source.json → OSM Nominatim → landmarks pack (osm + wikidata ids)
@@ -200,7 +205,8 @@ games/pin-drop/
     ├── geo/project.js       # lat/lon ↔ map units, bounds rect, clamp
     ├── geo/haversine.js     # distanceKm, bearingDeg, compassPoint
     ├── geo/viewport.js      # pure pan/zoom: view {cx, cy, zoom} → viewBox; zoomAt, panBy, fitPoints, screen ↔ map
-    ├── geo/describe.js      # formatKm, directionHint
+    ├── geo/describe.js      # formatKm, directionHint (on-target radius scales with the pack)
+    ├── geo/shape.js         # nearestOnShape (rivers, areas: 0 km inside), insideArea
     ├── data/load-pack.js    # validatePack (pure), loadPack(url, fetch)
     ├── data/pick-places.js  # poolFor(packs, tiers), pickPlaces (seeded; spreads regions and packs)
     ├── data/clue.js         # clueFor(place, {showDetail}) → {type: 'text', …} or the place's own clue; answerLabel
@@ -212,7 +218,7 @@ games/pin-drop/
         └── screens/                    # intro (preview map of the current pool), clue, reveal, summary
 ```
 
-Round: `{ place (with packId, scaleKm), guess, distanceKm, score }`. Transitions: `createGame({mapId, topic, difficulty, roundCount})`, `setOptions`, `startGame(state, packsById, rng)`, `submitPin` (throws `RangeError` unless `isValidPin`), `nextRound`. The clue screen keeps the working pin locally and reports it once on "Lock it in". Score scale comes from the place's pack, so a regional pack can be stricter. **Adding a country map:** add it to `REGIONS` in `build-region-map.py` (focus code, bounds, point-of-view file, admin-1 remaps for areas a neighbour administers) and in `region-packs.py` (capitals, renames, zones), write `tools/<id>-landmarks-source.json`, run the tools (order: map → region-packs → geocode-landmarks → fetch-fame → region-packs → apply-fame), then add a `MAPS` entry in `config.js`. Tests check every map × topic × difficulty has enough places and every place lies inside its map.
+Round: `{ place (with packId, scaleKm), guess, target, distanceKm, score }`; `target` is the place's point, or for a shape the nearest point of it. Transitions: `createGame({mapId, topic, difficulty, roundCount})`, `setOptions`, `startGame(state, packsById, rng)`, `submitPin` (throws `RangeError` unless `isValidPin`), `nextRound`. The clue screen keeps the working pin locally and reports it once on "Lock it in". Score scale comes from the place's pack, so a regional pack can be stricter. **Adding a country map:** add it to `REGIONS` in `build-region-map.py` (focus code, bounds, point-of-view file, admin-1 remaps for areas a neighbour administers) and in `region-packs.py` (capitals, renames, zones), write `tools/<id>-landmarks-source.json`, run the tools (order: map → region-packs → geocode-landmarks → fetch-fame → region-packs → apply-fame), then add a `MAPS` entry in `config.js`. Nepal took a different route because Natural Earth's Nepal data is outdated: map from the Survey Department (HDX) → `nepal-palikas.py` → `nepal-cities.py`, and `geocode-nepal.py` for landmarks and nature, then the map again with the nature pack (rivers layer); D-035. Tests check every map × topic × difficulty has enough places, every place and shape lies inside its map, and Nepal's cities cover all 77 districts.
 
 ## Beatween (tool)
 

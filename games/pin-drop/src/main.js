@@ -77,7 +77,8 @@ const screens = {
         target: round.target,
         shape: round.place.shape ?? null,
         distance: formatKm(round.distanceKm),
-        direction: directionHint(round.guess, round.target, round.distanceKm),
+        // A tenth of the pack's score scale, so 20 km off isn't "right on it" in Nepal (7.5 km there).
+        direction: directionHint(round.guess, round.target, round.distanceKm, Math.min(25, round.place.scaleKm / 10)),
         score: round.score,
         maxScore: SCORE_CURVE.max,
         verdict: verdictFor(round.score, VERDICTS),

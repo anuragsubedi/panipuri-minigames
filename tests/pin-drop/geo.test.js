@@ -43,4 +43,6 @@ test('formatKm and directionHint', async () => {
   assert.equal(formatKm(1239.6), '1,240 km');
   assert.equal(directionHint(PARIS, PARIS, 0), 'Right on it');
   assert.equal(directionHint(LONDON, PARIS, 343), "It's south-east of your pin");
+  assert.equal(directionHint(LONDON, PARIS, 20), 'Right on it');
+  assert.equal(directionHint(LONDON, PARIS, 20, 7.5), "It's south-east of your pin");
 });
