@@ -62,12 +62,14 @@ panipuri-minigames/
 │                   ├── recreate.js
 │                   ├── round-result.js
 │                   └── summary.js
-│   └── glimpse/                  # same shape; see "Glimpse" below
+│   ├── glimpse/                  # same shape; see "Glimpse" below
+│   └── beatween/                 # tool; see "Beatween" below
 └── tests/
     ├── shared/
     │   ├── rng.test.js
     │   └── score.test.js
     ├── glimpse/                  # dots, error, game
+    ├── beatween/                 # core (settings, scale, bands, lissajous), noise
     └── hue-recall/
         ├── convert.test.js
         ├── distance.test.js
@@ -169,6 +171,25 @@ games/glimpse/src/
 ```
 
 Round: `{ count, dots: [{x, y}], guess, error, score }`. Transitions: `startGame`, `endReady`, `endFlash`, `submitGuess` (throws `RangeError` unless `isValidGuess`), `nextRound`. The flash screen owns a `setTimeout`; its cleanup clears it.
+
+## Beatween (tool)
+
+A toy/tool rather than a round-based game, so it **doesn't use the phase state machine or the card**. It's a one-screen instrument whose controls are updated in place (no re-render, so sliders keep working mid-drag).
+
+```
+games/beatween/src/
+├── main.js                 # holds settings, drives engine, calls each control's update()
+├── config.js               # FREQ_RANGE, presets, bands, noise, timer, AUDIO levels, VISUAL tempo
+├── state/settings.js       # pure: setChannel (link keeps the beat), stepChannel (½ −1 +1 ×2), setBeat, presets…
+├── tone/{scale,bands}.js   # log slider mapping; band names
+├── audio/noise.js          # pure pink/brown generators + loop crossfade
+├── audio/engine.js         # Web Audio: 2 sines → ChannelMerger (L/R) → master; noise → master
+├── visual/lissajous.js     # pure XY figure + slowed tempo (no flicker)
+├── storage.js              # guarded localStorage
+└── ui/                     # scope (canvas), beat-control, channel-panel, link-toggle, presets, transport, icons
+```
+
+Styles: `games/beatween/styles/app.css` (doesn't use `game-kit.css`). Layout: scope over deck on phones; side by side when ≥ 860 px wide or landscape ≤ 540 px tall; `body` is one screen tall and `.app` scrolls only as a fallback.
 
 ## Adding a new game
 

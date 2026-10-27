@@ -4,13 +4,14 @@
 
 - **Hue Recall v0.1** — shipped. Polish parked (D-014).
 - **Glimpse v0.1** — shipped. Verified in browser (full game, keyboard, no console errors).
-- 53 tests passing (`npm test`).
+- **Beatween v0.1** — shipped (binaural beats tool, was "Drift"). Audio graph verified via an AudioContext probe (oscillators match L/R; noise loop; suspend on pause); layout verified at 375×667, ~426×826, 740×360 landscape and desktop, light + dark. **Not verified by ear**: needs a headphone listen.
+- 68 tests passing (`npm test`).
 - `README.md` + `start.command` for non-technical players.
 - **Live site:** https://anuragsubedi.github.io/panipuri-minigames/. GitHub Pages serves the **`live`** branch (release branch, D-025); every push publishes.
 
 ## Next step
 
-Nothing scheduled. Next games are specced and ranked in `docs/specs/README.md` (Orbit, Pin Drop, Keyfall, Breakbench, Drift, Lost Lens, Blockyard), meant to be built independently in fresh sessions or other agent tools. Suggested order: Drift → Pin Drop → Orbit → Keyfall → Breakbench → Lost Lens → Blockyard. Ask the user which one.
+Nothing scheduled. Next games are specced and ranked in `docs/specs/README.md` (Orbit, Pin Drop, Keyfall, Breakbench, Drift, Lost Lens, Blockyard), meant to be built independently in fresh sessions or other agent tools. Suggested order: ~~Drift~~ (shipped as Beatween) → Pin Drop → Orbit → Keyfall → Breakbench → Lost Lens → Blockyard. Ask the user which one.
 
 Open repo-wide questions (user's call):
 - **No LICENSE file** in the public repo.
@@ -53,3 +54,4 @@ Open repo-wide questions (user's call):
 - Host decided: GitHub Pages (+ Workers later). Wrote `docs/specs/architect-agent.md`; harness updated with the no-self-merge rule. D-022, D-023.
 - Recorded the phone-first goal; pipeline spec gained a "Phone-first workflow" section; agent guides note cloud sessions. D-024.
 - Harness overhaul on new release branch `live`: specs split into `docs/specs/` (README + one file per game; pipeline + architect specs moved there); GitHub Pages enabled from `live` → https://anuragsubedi.github.io/panipuri-minigames/. Architect agent marked long-term. D-025, D-026.
+- Built **Beatween** (spec "Drift"): pure core (settings/link logic, log scale, bands, noise, Lissajous) + 15 tests, Web Audio engine, scope/channel/transport UI, responsive one-screen layout. Hub tile + README row. D-028.

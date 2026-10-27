@@ -181,3 +181,13 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 
 - **Date:** 2026-10-26
 - **Decision (user):** GitHub default branch set to `live`, so fresh clones and cloud/phone agent sessions start on the release branch.
+
+## D-028 · Beatween (binaural tool) design choices
+
+- **Date:** 2026-10-27
+- **Name:** spec "Drift" shipped as **Beatween** (the beat lives between the two tones). User asked for a fitting name.
+- **Layout:** a one-screen instrument (not the game card): XY scope + control deck, stacked on phones, side by side on wide/landscape. Controls update in place instead of re-rendering.
+- **Visual:** XY Lissajous of left vs right tone, phosphor afterglow; morph speed is the beat **slowed and capped (≤ 0.9 Hz)** to avoid 2–40 Hz flicker (photosensitivity). Scope is always dark; the rest follows the theme.
+- **Controls:** per-ear typed value + log slider + ½ / −1 / +1 / ×2; link toggle keeps the beat when either ear moves; beat ± on the scope moves the right ear.
+- **Audio:** ChannelMerger for exact L/R separation; `navigator.audioSession.type = 'playback'` (iOS silent switch) when available; screen wake lock while playing (phones stop audio on lock); context suspended after fade-out.
+- **Copy:** no health claims ("Not medical advice", "keep the volume low").

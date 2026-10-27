@@ -1,7 +1,11 @@
-# Drift — binaural beats generator (tool)
+# Beatween — binaural beats generator (tool)
 
-> **Status:** proposed · **Rank:** 5 / 7 · **Effort:** < 1 session · **Type:** tool
+*Proposed as "Drift"; renamed Beatween when built (D-028).*
+
+> **Status:** shipped v0.1 (`games/beatween/`) · **Rank:** 5 / 7 · **Effort:** < 1 session · **Type:** tool
 > Shared rules for every spec: [`../README.md`](../README.md). Update this header when status changes (proposed → approved → in progress → shipped).
+
+**As built (v0.1):** XY-scope Lissajous visual (morph speed slowed and capped to avoid flicker), per-ear frequency with typed entry, log slider and ½ / −1 / +1 / ×2 steps, link toggle (both ears move together, beat kept), beat nudges on the scope, 5 presets, volume, session timer, pink/brown noise, wake lock while playing, settings remembered in localStorage. One-screen layout on phones (portrait and landscape) and desktop.
 
 **Pitch:** A calm, beautiful tone generator. Pick a mood, put on headphones, and let two slightly different tones create a gentle "beat" in your head.
 
