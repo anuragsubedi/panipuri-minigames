@@ -46,6 +46,7 @@ python3 -m http.server 5173
 ```
 
 Then open http://localhost:5173/ (hub) or http://localhost:5173/games/hue-recall/.
+Add `?seed=42` to the game URL for a reproducible set of colors.
 
 ## Testing
 
@@ -65,6 +66,7 @@ Every pure module gets a test file. UI is verified by playing it in the browser.
 CLAUDE.md            this file
 docs/                long-term project memory
 index.html           hub listing all games
+shared/styles/       design tokens, reset, top bar, hub styles (used by hub + every game)
 games/<game>/        one folder per game (index.html, styles/, src/)
 tests/<game>/        node --test suites for that game's pure modules
 ```

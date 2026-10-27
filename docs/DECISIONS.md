@@ -63,3 +63,27 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Date:** 2026-10-26
 - **Decision:** `state/game.js` transitions assert the current phase and throw otherwise.
 - **Why:** Wiring bugs in `main.js` (e.g. double submit) fail loudly instead of corrupting state.
+
+## D-010 · Slider start position: random hue, S 50, B 75
+
+- **Date:** 2026-10-26
+- **Decision:** Each round the hue slider starts at a random value; saturation and brightness start at 50 / 75 (`START_GUESS` in `config.js`).
+- **Why:** A random hue stops the player anchoring to the same spot; mid-high S/B keeps every track's gradient readable (at S = 0 the hue track goes grey).
+
+## D-011 · Shared styles across games
+
+- **Date:** 2026-10-26
+- **Decision:** `shared/styles/{tokens,base}.css` hold the design tokens, reset and top bar for the hub and every game; each game adds only its own stylesheet.
+- **Why:** One visual identity for the collection without games importing from each other.
+
+## D-012 · Whole-card re-render per phase; no virtual DOM
+
+- **Date:** 2026-10-26
+- **Decision:** On every state change `main.js` cleans up the current screen and renders the next from scratch. High-frequency input (slider drags) stays local to the screen.
+- **Why:** Five small screens make full re-renders cheap and keep each screen a single function with no diffing logic.
+
+## D-013 · Pointer capture + ARIA slider instead of `<input type="range">`
+
+- **Date:** 2026-10-26
+- **Decision:** Custom vertical slider (`role="slider"`, arrow / Shift / PageUp / Home / End keys, pointer capture for drag).
+- **Why:** Native vertical range inputs are inconsistent across browsers and hard to style with live gradients and a color-filled thumb.

@@ -1,0 +1,79 @@
+/* Hub page: list of games. Requires tokens.css and base.css. */
+
+.hub {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.hub__title {
+  font-size: clamp(36px, 8vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.hub__lede {
+  margin-top: 12px;
+  max-width: 36ch;
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.hub__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 36px;
+  padding: 0;
+  list-style: none;
+}
+
+.game-tile {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 1px 0 var(--line), 0 12px 30px -18px rgba(60, 40, 20, 0.4);
+  text-decoration: none;
+  transition: transform 0.15s ease;
+}
+
+a.game-tile:hover {
+  transform: translateY(-3px);
+}
+
+.game-tile__art {
+  height: 140px;
+}
+
+.game-tile__art--hue {
+  background: linear-gradient(90deg, #e8552f 0 20%, #f2b134 20% 40%, #3fae6a 40% 60%, #2f7de8 60% 80%, #9b4fe0 80%);
+}
+
+.game-tile__art--soon {
+  background: repeating-linear-gradient(45deg, var(--surface-2) 0 10px, transparent 10px 20px);
+}
+
+.game-tile__body {
+  padding: 16px 18px 20px;
+}
+
+.game-tile__name {
+  font-size: 20px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.game-tile__desc {
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.game-tile--soon {
+  opacity: 0.7;
+}

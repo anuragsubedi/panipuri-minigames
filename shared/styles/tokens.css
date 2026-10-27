@@ -1,0 +1,34 @@
+/* Design tokens shared by the hub and every game. Warm "street-food" neutrals. */
+
+:root {
+  --font: ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --bg: #f4f0ea;
+  --fg: #1d1a17;
+  --muted: #6f685f;
+  --surface: #fffdf9;
+  --surface-2: #ebe5dc;
+  --line: rgba(29, 26, 23, 0.1);
+  --accent: #e8552f;
+
+  --ink-light: #ffffff;
+  --ink-dark: #16130f;
+
+  --shadow-card: 0 40px 80px -30px rgba(60, 40, 20, 0.35), 0 10px 24px -12px rgba(60, 40, 20, 0.25);
+
+  --radius-card: 28px;
+  --radius-pill: 999px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131110;
+    --fg: #f3eee7;
+    --muted: #a49c91;
+    --surface: #1f1c19;
+    --surface-2: #2c2824;
+    --line: rgba(243, 238, 231, 0.1);
+    --shadow-card: 0 40px 80px -30px rgba(0, 0, 0, 0.8), 0 10px 24px -12px rgba(0, 0, 0, 0.6);
+  }
+}
