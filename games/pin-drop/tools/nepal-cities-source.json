@@ -1,0 +1,69 @@
+{
+  "pack": {"id": "nepal-cities", "name": "Cities & palikas", "map": "nepal", "scoreScaleKm": 75},
+  "_about": "Hand-made part of the Nepal cities pack; nepal-cities.py joins it with nepal-palikas.json. Names follow the survey file (HDX) unless fixed here.",
+  "provinces": {"Sudur Paschim": "Sudurpashchim"},
+  "districts": {
+    "Dhanusa": "Dhanusha", "Chitawan": "Chitwan", "Tanahu": "Tanahun", "Kapilbastu": "Kapilvastu",
+    "Nawalparasi East": "Nawalpur", "Nawalparasi West": "Parasi"
+  },
+  "spelling": {
+    "Illam": "Ilam", "Bensishahar": "Besisahar", "Byas": "Vyas", "Khandabari": "Khandbari",
+    "Budhanilkhantha": "Budhanilkantha", "Nilkhantha": "Nilkantha", "Kushma": "Kusma",
+    "Jayaprithbi": "Jayaprithvi", "Solu Dhudhakunda": "Solududhkunda",
+    "Choutara Sangachowkgadhi": "Chautara Sangachokgadhi", "Malangawa": "Malangwa",
+    "Kamal bazar": "Kamalbazar", "Jaleshwor": "Jaleshwar", "Simkot": "Simikot"
+  },
+  "_hq": "District → [palika (survey spelling), town people call it or null]. The town is looked up inside that palika.",
+  "hq": {
+    "Taplejung": ["Phungling", null], "Panchthar": ["Phidim", null], "Ilam": ["Illam", null],
+    "Jhapa": ["Bhadrapur", "Chandragadhi"], "Morang": ["Biratnagar", null], "Sunsari": ["Inaruwa", null],
+    "Dhankuta": ["Dhankuta", null], "Terhathum": ["Myanglung", null], "Sankhuwasabha": ["Khandabari", null],
+    "Bhojpur": ["Bhojpur", null], "Solukhumbu": ["Solu Dhudhakunda", "Salleri"],
+    "Khotang": ["Diktel Rupakot Majhuwagadhi", "Diktel"], "Okhaldhunga": ["Siddhicharan", "Okhaldhunga"],
+    "Udayapur": ["Triyuga", "Gaighat"], "Saptari": ["Rajbiraj", null], "Siraha": ["Siraha", null],
+    "Dhanusa": ["Janakpurdham", null], "Mahottari": ["Jaleshwor", null], "Sarlahi": ["Malangawa", null],
+    "Rautahat": ["Gaur", null], "Bara": ["Kalaiya", null], "Parsa": ["Birgunj", null],
+    "Sindhuli": ["Kamalamai", "Sindhulimadhi"], "Ramechhap": ["Manthali", null], "Dolakha": ["Bhimeshwor", "Charikot"],
+    "Sindhupalchok": ["Choutara Sangachowkgadhi", "Chautara"], "Kavrepalanchok": ["Dhulikhel", null],
+    "Lalitpur": ["Lalitpur", null], "Bhaktapur": ["Bhaktapur", null], "Kathmandu": ["Kathmandu", null],
+    "Nuwakot": ["Bidur", null], "Rasuwa": ["Gosaikunda", "Dhunche"], "Dhading": ["Nilkhantha", "Dhading Besi"],
+    "Makwanpur": ["Hetauda", null], "Chitawan": ["Bharatpur", null],
+    "Gorkha": ["Gorkha", null], "Lamjung": ["Bensishahar", null], "Manang": ["Chame", null], "Kaski": ["Pokhara", null],
+    "Tanahu": ["Byas", "Damauli"], "Syangja": ["Putalibazar", null], "Parbat": ["Kushma", null],
+    "Baglung": ["Baglung", null], "Myagdi": ["Beni", null], "Mustang": ["Gharpajhong", "Jomsom"],
+    "Nawalparasi East": ["Kawasoti", null],
+    "Palpa": ["Tansen", null], "Nawalparasi West": ["Ramgram", "Parasi"], "Rupandehi": ["Siddharthanagar", "Bhairahawa"],
+    "Kapilbastu": ["Kapilbastu", "Taulihawa"], "Arghakhanchi": ["Sandhikharka", null], "Gulmi": ["Resunga", "Tamghas"],
+    "Rukum East": ["Sisne", "Rukumkot"], "Rolpa": ["Rolpa", "Liwang"], "Pyuthan": ["Pyuthan", "Khalanga"],
+    "Dang": ["Ghorahi", null], "Banke": ["Nepalganj", null], "Bardiya": ["Gulariya", null],
+    "Rukum West": ["Musikot", null], "Salyan": ["Sharada", "Khalanga"], "Surkhet": ["Birendranagar", null],
+    "Jajarkot": ["Bheri Malika", "Khalanga"], "Dailekh": ["Narayan", "Dailekh"], "Dolpa": ["Thulibheri", "Dunai"],
+    "Jumla": ["Chandannath", "Jumla"], "Kalikot": ["Khandachakra", "Manma"], "Mugu": ["Chhayanath Rara", "Gamgadhi"],
+    "Humla": ["Simkot", null],
+    "Bajhang": ["Jayaprithbi", "Chainpur"], "Bajura": ["Badimalika", "Martadi"], "Achham": ["Mangalsen", null],
+    "Doti": ["Dipayal Silgadhi", "Dipayal"], "Kailali": ["Dhangadhi", null], "Kanchanpur": ["Bhimdatta", "Mahendranagar"],
+    "Dadeldhura": ["Amargadhi", null], "Baitadi": ["Dasharathchand", null], "Darchula": ["Mahakali", "Khalanga"]
+  },
+  "_aliases": "Other towns better known by an older or bazaar name, shown in brackets: [palika, district] → town.",
+  "aliases": [
+    ["Mechinagar", "Jhapa", "Kakarbhitta"],
+    ["Lumbini Sanskritik", "Rupandehi", "Lumbini Bazaar"],
+    ["Khumbu Pasanglhamu", "Solukhumbu", "Namche Bazaar"],
+    ["Rapti", "Dang", "Bhalubang"]
+  ],
+  "_tier1": "Famous: every metropolitan and sub-metropolitan city is tier 1 automatically; these are added.",
+  "tier1": [
+    ["Birendranagar", "Surkhet"], ["Kirtipur", "Kathmandu"], ["Dhulikhel", "Kavrepalanchok"], ["Banepa", "Kavrepalanchok"],
+    ["Madhyapur Thimi", "Bhaktapur"], ["Bhaktapur", "Bhaktapur"], ["Damak", "Jhapa"], ["Birtamod", "Jhapa"], ["Mechinagar", "Jhapa"],
+    ["Bhadrapur", "Jhapa"], ["Illam", "Ilam"], ["Dhankuta", "Dhankuta"], ["Inaruwa", "Sunsari"],
+    ["Rajbiraj", "Saptari"], ["Lahan", "Siraha"], ["Tansen", "Palpa"], ["Gorkha", "Gorkha"],
+    ["Siddharthanagar", "Rupandehi"], ["Tikapur", "Kailali"],
+    ["Baglung", "Baglung"], ["Beni", "Myagdi"], ["Bensishahar", "Lamjung"], ["Kushma", "Parbat"],
+    ["Bidur", "Nuwakot"], ["Gaur", "Rautahat"], ["Malangawa", "Sarlahi"], ["Jaleshwor", "Mahottari"],
+    ["Bardibas", "Mahottari"], ["Triyuga", "Udayapur"], ["Kawasoti", "Nawalparasi East"],
+    ["Gaidakot", "Nawalparasi East"], ["Lamahi", "Dang"], ["Kohalpur", "Banke"], ["Gulariya", "Bardiya"],
+    ["Bhimdatta", "Kanchanpur"]
+  ],
+  "_tier2": "Well-known: every district HQ is at least tier 2; so are these province capitals.",
+  "tier2": [["Godawari", "Kailali"], ["Rapti", "Dang"]]
+}

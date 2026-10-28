@@ -129,3 +129,142 @@ Append-only. Each entry: context, decision, why, consequences. Supersede rather 
 - **Decision:** `docs/GAME-SPECS.md` holds ranked, self-contained proposals (not approved builds) for Orbit, Pin Drop, Keyfall, Breakbench, Drift, Lost Lens and Blockyard. Each has a sanity check. `AGENTS.md` points any agent tool at `CLAUDE.md`.
 - **Why:** The user wants to build games independently in fresh sessions and in other tools (Cursor, Codex, Antigravity).
 - **Notable calls:** a full street-imagery geo game is split into Pin Drop (map-only, first) and Lost Lens (a photo pack inside Pin Drop). Breakbench recommends its own engine over wrapping AGPL Strudel. Blockyard likely needs a dependency exception.
+
+## D-020 · Proposed pipeline: GitHub Pages + Actions, PR-only flow (proposal)
+
+- **Date:** 2026-10-26
+- **Status:** proposed, not implemented.
+- **Proposal:** `npm run verify` (zero-dep checks: tests, import graph, relative links, game registry, no deps, size) and `npm run build` (assemble `_site/`); CI on every PR; deploy `main` to GitHub Pages; agents work on branches and never merge their own PRs; Phase 2 adds Cloudflare Pages previews and CI-only Playwright smoke tests.
+- **Why:** The site is static, so free hosting and sub-minute CI are enough. Previews let the user play a branch before merging.
+
+## D-021 · Long-term hosting view (proposal)
+
+- **Date:** 2026-10-26
+- **Status:** proposed.
+- **View:** GitHub Pages is fine for Phase 1. Longer term, Cloudflare (Pages or Workers static assets) is preferred: unmetered static traffic, previews, custom headers (COOP/COEP), commercial use on free tier, and Workers/Durable Objects for future server features. Vercel is preferred only if moving to Next.js (Hobby tier is non-commercial). Host-agnostic `_site/` keeps switching cheap. Details in `docs/PIPELINE-SPEC.md` → Hosting choice.
+
+## D-022 · Host: GitHub Pages; server features on Cloudflare Workers
+
+- **Date:** 2026-10-26
+- **Decision (user):** Deploy the static site to GitHub Pages. When games need server compute (leaderboards, multiplayer, keeping API keys secret), add Cloudflare Workers as a separate backend; the site stays on Pages.
+- **Supersedes:** the open hosting question in D-020/D-021.
+
+## D-023 · Architect agent for PR review and merge (proposal)
+
+- **Date:** 2026-10-26
+- **Status:** proposed; depends on the pipeline (D-020).
+- **Decision:** Authors never merge their own PRs. A separate Architect agent (its own GitHub App identity) reviews every CI-green PR. It auto-merges only **tier A** PRs (changes confined to one game + append-only hotspot edits + docs); tier B (`shared/`, multi-game) and tier C (`.github/`, `scripts/`, `package.json`, agent guides) need the user, enforced by CODEOWNERS. The tier comes from a deterministic path-classification script, not the model.
+- **Why:** Lets builder agents ship routine work end-to-end while the user keeps control of shared code, pipeline and policy. Guards against PRs rewriting their own reviewer, the `GITHUB_TOKEN` no-trigger gotcha, and prompt injection via PR content.
+
+## D-024 · Phone-first agent workflow is a design goal
+
+- **Date:** 2026-10-26
+- **Context (user):** The user wants to start agent sessions from a phone (cloud sessions) to add features and games ad hoc.
+- **Decision:** Treat cloud/phone sessions as first-class. The build/verify must need only git, Node 22 and Python 3; results reach the user as PRs with preview links. PR previews (Cloudflare Pages, previews only, production still on GitHub Pages) and CI browser smoke tests move up to Phase 1.5; an issue-driven `@claude` mention flow comes in Phase 2.
+- **Why:** On a phone, the user can't open an agent's localhost, and cloud agents may lack a browser, so previews and automated browser checks are the only practical way to see and trust changes.
+
+## D-025 · Release branch `live`, served directly by GitHub Pages
+
+- **Date:** 2026-10-26
+- **Decision (user):** A new branch **`live`** is the release branch. GitHub Pages deploys it via "Deploy from a branch" (root, `.nojekyll`, no Actions) at https://anuragsubedi.github.io/panipuri-minigames/. Agents commit and push to `live` directly (after the user OKs a change in-session), with no PR or merge step. `main` stays as an older snapshot; a PR `live → main` records the harness overhaul.
+- **Why:** The user wants agents (including phone-driven cloud sessions) to ship quickly without PR merge overhead. A static site with no build step can be served straight from the branch.
+- **Trade-off:** No CI gate, so a bad push goes live (mitigated by `npm test` before pushing; fix by pushing a revert). The CI/PR flow in `docs/specs/pipeline.md` remains the long-term plan.
+
+## D-026 · Specs folder; Architect agent is long-term
+
+- **Date:** 2026-10-26
+- **Decision:** `docs/GAME-SPECS.md` was split into `docs/specs/README.md` (rules, ranking, build order) plus one file per game in `docs/specs/games/`, each with a status header. `PIPELINE-SPEC.md` and `ARCHITECT-AGENT-SPEC.md` moved to `docs/specs/pipeline.md` and `docs/specs/architect-agent.md`. Earlier decision entries keep their old paths (append-only log).
+- **Why:** Agents read and edit only the spec they need, which keeps context small and avoids conflicts between parallel edits.
+- **Also (user):** The Architect PR-review/merge loop is a long-term goal for when panipuri scales massively, not near-term work.
+
+## D-027 · `live` is the default branch
+
+- **Date:** 2026-10-26
+- **Decision (user):** GitHub default branch set to `live`, so fresh clones and cloud/phone agent sessions start on the release branch.
+
+## D-028 · Beatween (binaural tool) design choices
+
+- **Date:** 2026-10-27
+- **Name:** spec "Drift" shipped as **Beatween** (the beat lives between the two tones). User asked for a fitting name.
+- **Layout:** a one-screen instrument (not the game card): XY scope + control deck, stacked on phones, side by side on wide/landscape. Controls update in place instead of re-rendering.
+- **Visual:** XY Lissajous of left vs right tone, phosphor afterglow; morph speed is the beat **slowed and capped (≤ 0.9 Hz)** to avoid 2–40 Hz flicker (photosensitivity). Scope is always dark; the rest follows the theme.
+- **Controls:** per-ear typed value + log slider + ½ / −1 / +1 / ×2; link toggle keeps the beat when either ear moves; beat ± on the scope moves the right ear.
+- **Audio:** ChannelMerger for exact L/R separation; `navigator.audioSession.type = 'playback'` (iOS silent switch) when available; screen wake lock while playing (phones stop audio on lock); context suspended after fade-out.
+- **Copy:** no health claims ("Not medical advice", "keep the volume low").
+
+## D-029 · Orbit (gravity sandbox) design choices
+
+- **Date:** 2026-10-27
+- **Scope:** v0.1 is the spec minus the "mission" stretch mode (candidate for v0.2). 2D only; a 3D take could be a separate spec later.
+- **Physics:** leapfrog (kick-drift-kick) with fixed `DT = 0.05`, accumulator, real time clamped to 0.25 s, ≤ 400 steps/frame; Plummer softening 1.5; O(n²); cap 50 bodies; bodies > 2400 units from the center of mass are dropped. Energy drift < 1% over 20 000 steps (tested).
+- **Units:** G = 1, Sun mass 1000, view radius 250, 20 sim time units per real second at 1×. Gravity and Sun mass are **multipliers** on a log₂ slider (0.25×–4×, 1× in the middle; tap the value to snap back to 1×).
+- **Stars are flagged** (`star: true`), not inferred from mass, so the Sun-mass slider can scale them down and back. Merges keep the heavier body's id and colour.
+- **Camera** eases toward the center of mass, so launched momentum doesn't carry the system off screen.
+- **Launch:** drag from empty sky; arrow + predicted path (others frozen, 300 coarse steps, dots at equal time so spacing shows speed, ✕ on a hit). Tap selects. Launch size cycles Moon / Planet / Giant.
+- **Look:** sky is night (canvas starfield) in dark mode and a pale daylight chart in light mode; planets lit from the brightest star; tapered fading trails; merge ring flash (off with reduced motion, which also starts at ½×). Deck uses the house tokens.
+- **Hub:** new "Toys" section (Beatween + Orbit).
+
+## D-030 · Orbit v0.2: real units, clock, masses, Solar system, saves
+
+- **Date:** 2026-10-27
+- **Real units, same numbers:** 1 unit = 0.01 AU, 1 mass unit = 0.001 M☉, G = 1 ⇒ 1 time unit ≈ 1.838 days (Gauss's constant). Existing presets didn't change; their readouts became honest.
+- **Clock:** elapsed time ("3 yr 4 mo"), or a calendar date when the system has an epoch (Solar system starts 1 Jan 2000); a rate line ("1 s ≈ 5.3 weeks"). Speeds changed to ¼×, 1×, 4×, 16×, 64× (≈ 9 days to 6.4 years per second).
+- **Kinds by real thresholds:** rocky < 10 M⊕, gas giant < 13 M♃, brown dwarf < 80 M♃, else star. Launch sizes Earth / Jupiter / Brown dwarf. The old "Inner planets" preset is renamed **Heavy planets** (its bodies are Jupiter-class, kept that heavy on purpose so they tug visibly).
+- **Masses:** the body count opens a list of the 10 heaviest (Suns / Jupiters / Earths); the inspector adds km/s and AU from the heaviest star.
+- **Solar system preset:** J2000 approximate elements (a, e, L, ϖ) for 8 planets, flattened to 2D, Moon left out (inside softening). Tested: periods within 0.5% of real, vis-viva reproduces a and e, Earth closes its orbit after a year.
+- **Zoom:** pinch, wheel/trackpad, −/+ buttons, +/− keys; 40–8000 units. Trails sample by distance moved (∝ view) and draw as midpoint curves. Physics runs in 8-step chunks with a trail sample after each (not once per frame), so 64× doesn't leave jagged chords that linger after slowing down (+~12% physics cost).
+- **Saves:** up to 12 named snapshots in `localStorage`, validated on restore; Reset restarts the loaded save. A single "System" button opens a `<dialog>` sheet holding presets + saves, so the deck didn't grow.
+- **Perf:** no `backdrop-filter` over the canvas (GPU cost every frame on phones); overlays use a solid tint. 64× with the Solar system ≈ 0.5 ms/frame.
+
+## D-031 · "How it works" pages
+
+- **Date:** 2026-10-27
+- One page per game at `games/<name>/how.html`, not a big spec hub, so the main hub stays clean: games link to it from the top bar (replacing Beatween/Orbit's tag line), the hub has a single sentence of links.
+- **Numbers come from each game's `config.js`** at load (markup holds the current value as a fallback), so docs follow tuning changes. Charts (score curves, beat waves) are computed from the same config.
+- **Lean by design** (user ask): a few short sections per game; more can be added later.
+- Shared pieces: `shared/styles/doc.css`, `shared/js/plot.js` (tested), `fillValues` in `shared/js/dom.js`.
+
+## D-032 · Pin Drop v0.1 design choices
+
+- **Date:** 2026-10-27
+- **2D equirectangular map**, not Mercator or a 3D globe: a tap → lat/lon is linear, the whole answer is visible at once, and the poles aren't blown up. A globe could come later as a mode. The map crops at 84° N / 60° S (no Antarctica targets), which gives phones more height.
+- **Map data:** Natural Earth 1:110m countries → one SVG path (≈ 110 KB JSON, ≈ 35 KB gzipped), generated by a committed stdlib script. Faint country borders and a 30° grid; **no labels** (they'd give answers away).
+- **Topic and difficulty are separate** (user point: a famous landmark is easy, an obscure capital is hard). Every place has a fame tier 1–3; Easy draws tier 1, Medium 1–2, Hard 2–3 and hides the country. Topics: Capitals, Cities, Landmarks, **Mix** (all packs). Rounds: 5 or 10.
+- **Tiers:** capitals/cities from Natural Earth places with population, the `worldcity` flag and hand lists (in `tools/places-to-packs.py`); landmarks hand-picked with hand tiers. One capital per country (constitutional/official seat where there are several, e.g. Sucre, Pretoria, Porto-Novo); disputed capitals/states left out to stay neutral (Israel, Kosovo, Taiwan, Somaliland, Western Sahara; Taipei and Tel Aviv appear as cities).
+- **Picking:** seeded shuffle, then each pick prefers a place whose region **and pack** are both fresh, so rounds spread across continents and Mix rotates topics instead of being mostly cities.
+- **Score:** shared `roundScore` with shape 1 (exponential) and `scale = pack.scoreScaleKm` (1500 km for world packs), so regional packs can set their own.
+- **Clue is pluggable:** a place may carry `clue: {type, …}`; otherwise a text clue is built. One renderer per type in `ui/components/clue.js`, ready for Lost Lens photos.
+- **Gestures are Pin Drop's own**, not shared with Orbit: Orbit's launcher is about aiming; here a short tap drops the pin, a drag that starts on the pin moves it, any other drag pans. Pins are HTML over the SVG, so they keep their size at any zoom.
+- **Straight reveal line** on the flat map (not a great-circle arc); the distance is always the true great-circle one. Noted on the how page.
+- **Card is wider/taller** for this game (up to 880 × 820 px) since the map needs room.
+
+## D-033 · Pin Drop: OSM landmark coordinates, intro preview map
+
+- **Date:** 2026-10-27
+- **Landmark coordinates come from OpenStreetMap** (user ask: real data, not typed from memory). `tools/landmarks-source.json` holds the hand-made part (name, tier, region, ISO country codes, optional search text); `tools/geocode-landmarks.py` asks Nominatim (1 req/s, country-restricted so e.g. "Lalibela" can't hit a restaurant abroad) and writes each place with its `osm` id. Matches were reviewed by hand; areas (Baikal, Kakadu…) use OSM's own centroid. Attribution: © OpenStreetMap contributors (ODbL) in the pack, how page and README. Wikimedia APIs rate-limit the cloud IP, so Wikipedia wasn't usable as a source.
+- **Intro preview map:** the empty middle of the start screen now shows the real map with a dot for every place the current topic + difficulty can draw from, plus labelled choices and a one-line pool summary ("Lesser-known places, country hidden · 445 places"). Dots are one SVG path of zero-length round-capped segments with a non-scaling stroke (constant size, cheap). Same stacked layout on phone and desktop; the map takes the leftover height.
+
+## D-034 · Pin Drop v0.2: country maps (India first)
+
+- **Date:** 2026-10-27
+- **Order (user):** India → Nepal → NZ → USA.
+- **Borders (user decision):** a country map uses Natural Earth's *point-of-view* file for that country (`ne_10m_admin_0_countries_ind`), with a small on-map note "Borders: India's official view · Natural Earth"; the how page explains it. Natural Earth admin-1 follows de facto control, so state lines are derived as **edges shared by two different states** of the focus country only, after relabelling pieces administered by a neighbour to the state the official map puts them in (Azad Kashmir → J&K, Gilgit-Baltistan/Northern Areas and the KAS sliver → Ladakh). Result: no LoC/LAC lines, and the J&K–Ladakh line continues across. Nepal's official map disagrees with India's over Kalapani–Lipulekh; each country map shows its own official view.
+- **Map data:** 1:10m, Douglas–Peucker ≈ 1.3 km; neighbours clipped just past the view and simplified harder → India map ≈ 104 KB (≈ 30 KB gzipped).
+- **No paid or credit-only sources:** Natural Earth (PD) + Wikidata (CC0) + OSM (ODbL, attribution only). GeoNames/geoBoundaries not needed; Google Maps/Places rejected (billing account, exposed key, terms forbid storing place data, network during play).
+- **Fame tiers from Wikidata** (Wikipedia language editions per item, `fetch-fame.py`). Cities and capitals: thresholds (cities ≥ 90 / ≥ 45 / keep ≥ 35). Landmarks: the data can only **promote** a hand tier, never demote, because the count is a global signal that undersells places famous mainly at home (Gateway of India ≈ 44). OSM's `wikidata` tag gives ids for most landmarks; the rest were found by Wikidata search within 30 km.
+- **Landmark blurbs:** one line that says *what* a place is, never *where*; shown via an ⓘ on the clue and under the answer on the reveal. World landmarks got blurbs too.
+- **UI:** a Map choice (World | India) on the intro; topic keys are shared so switching map keeps the topic; India's capitals topic is labelled "Capitals" (state capitals) to fit a phone row. Verdict words made scale-neutral ("Getting warm", "Ballpark"). Reveal framing uses more padding and a lower max zoom, so you keep your bearings.
+- **India capitals:** one per state/UT; J&K → Srinagar (summer), Ladakh → Leh, Andhra Pradesh → Amaravati, Chandigarh once for Punjab & Haryana, Daman for the merged UT. Natural Earth's outdated names fixed (Prayagraj, Gurugram, Chhatrapati Sambhajinagar…); "Delhi" left out of cities (sits on New Delhi).
+
+## D-035 · Pin Drop: Nepal map (official survey data, palikas, rivers as shapes)
+
+- **Date:** 2026-10-27
+- **Boundaries from the Survey Department of Nepal** (COD-AB v02, 2024, via OCHA HDX, CC BY 3.0 IGO), not Natural Earth: NE's admin-1 still has the 14 pre-2015 zones and only 17 Nepal places. The survey outline already includes Kalapani–Lipulekh–Limpiyadhura (Nepal's 2020 official map), so no point-of-view patching was needed; Natural Earth's `_nep` file supplies only the neighbours, with a neighbour-coloured seam under the outline to hide gaps between the two surveys. Note: "Borders: Survey Department of Nepal (official map) · OCHA HDX". This extends D-034's rule (each country map shows that country's official view) with a better source.
+- **As detailed as possible (user):** province lines solid, all 77 district lines dashed, all 753 palika lines as hairlines that fade in past ~2× zoom (`--zoom` CSS variable), all derived from the one admin-3 file so they share vertices (`build-region-map.py` "cod" mode). 427 KB, 113 KB gzipped; loaded up front like the other maps.
+- **Topics: Cities · Landmarks · Nature · Mix** (no Capitals: Nepal has 8). Cities = every palika (6 metropolitan, 11 sub-metropolitan, 276 municipalities, 460 rural municipalities); type from the survey pcode's 7th digit. Rural municipalities are tier 3 (Hard only) unless they hold a district HQ. Every district HQ is tier ≤ 2, so Medium covers all 77 districts (tested).
+- **Points:** each palika sits at its OpenStreetMap town node, accepted only if inside that palika's polygon; else the survey's label point. District HQs and old names are placed at the town ("Salleri (Solududhkunda)", "Bhairahawa (Siddharthanagar)"). Landmarks and nature places are checked the same way against their stated district (`geocode-nepal.py`).
+- **Rivers, parks and lakes are shapes** (`place.shape`, OSM geometry, rivers clipped to Nepal, ≈ 300 m simplification): the score uses the nearest point of the shape, or the pin itself inside an area (`geo/shape.js`); the reveal highlights the shape. The river shapes also draw the base map's faint river layer (user: all rivers, not just the biggest).
+- **Score scale 75 km** (Nepal ≈ 885 km long; India 250 km for ≈ 3,000 km). Zones are the 7 provinces.
+- **Switching map** keeps the topic when the new map has it, else uses that map's first topic.
+- **Data quality rules for Nepal places:** a hit must lie in the stated district (border places list extra districts; border summits and the Koshi Barrage skip the check) and must not be a business named after the place (OSM had a café "…Boudhanath", a dental clinic "Kakrebihar", a shop "Malikarjun"). Rivers and lakes come from the HOT OSM waterways export on HDX by exact OSM names, because Nominatim returns only part of a long river; each river's district list was checked by hand. A few points come from Wikidata items (CC0) where OSM lacks the place. Places without trustworthy coordinates stay out of the packs, marked `"todo"` in the source list, rather than being typed from memory.
+- **"Right on it"** now means within a tenth of the pack's score scale (capped at 25 km): 7.5 km in Nepal.

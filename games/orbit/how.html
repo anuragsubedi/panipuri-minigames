@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>How Orbit works · panipuri</title>
+    <meta name="description" content="The physics behind Orbit: units, gravity, time steps, collisions, the predicted path and the real Solar system." />
+    <link rel="stylesheet" href="../../shared/styles/tokens.css" />
+    <link rel="stylesheet" href="../../shared/styles/base.css" />
+    <link rel="stylesheet" href="../../shared/styles/doc.css" />
+    <style>
+      body { --doc-accent: #e0861a; --doc-accent-2: #2a7fd0; }
+      @media (prefers-color-scheme: dark) { body { --doc-accent: #ffb547; --doc-accent-2: #82c8ff; } }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../../"><span class="brand__mark" aria-hidden="true"></span>panipuri</a>
+      <span class="topbar__sep" aria-hidden="true">/</span>
+      <a class="topbar__title" href="./">Orbit</a>
+      <span class="topbar__how">How it works</span>
+    </header>
+
+    <main class="doc">
+      <h1>How Orbit works</h1>
+      <p class="doc__lede">Orbit is a small gravity simulator. Every body pulls on every other body, time moves forward in tiny fixed steps, and the numbers on screen are real units.</p>
+      <a class="doc__play" href="./">Open Orbit</a>
+
+      <h2>Real units, in disguise</h2>
+      <p>Inside, the simulation uses plain numbers. They are chosen so they line up with reality:</p>
+      <ul>
+        <li><strong>Distance:</strong> 1 unit is 0.01 AU (an AU is the Earth–Sun distance, about 150 million km). Earth sits 100 units from the Sun.</li>
+        <li><strong>Mass:</strong> 1 unit is one-thousandth of the Sun. The Sun is 1000.</li>
+        <li><strong>Time:</strong> with gravity's constant set to 1, those two choices fix the clock: 1 unit of time is <span data-value="daysPerUnit">1.84</span> days. A body 100 units out takes exactly one year to go around.</li>
+      </ul>
+      <p>That's why the clock, speeds (km/s), distances (AU) and masses (in Earths, Jupiters or Suns) mean what they say. At 1× speed, one real second is <span data-value="rate1">about 5 weeks</span>; at 64× it's <span data-value="rate64">about 6 years</span>.</p>
+
+      <h2>Gravity</h2>
+      <p>Each body is pulled toward every other body by Newton's law: the pull grows with mass and fades with the square of distance.</p>
+      <p class="doc__formula">a = G · m / (d² + ε²)<sup>3/2</sup> · (direction × d)</p>
+      <p>With up to <span data-value="maxBodies">50</span> bodies that's <span data-value="pairs">1225</span> pairs, worked out fresh every step. The small <strong>ε</strong> (softening, <span data-value="softeningAu">0.015</span> AU) stops the pull from becoming infinite when two bodies pass very close, which would fling them off at absurd speeds.</p>
+
+      <h2>Moving time forward</h2>
+      <p>Time advances in fixed steps of <span data-value="stepHours">2.2</span> hours of sim time, using a method called <strong>leapfrog</strong> (kick, drift, kick):</p>
+      <ol>
+        <li>Nudge each velocity by half a step of gravity.</li>
+        <li>Move each body along its velocity for a full step.</li>
+        <li>Recompute gravity at the new positions and nudge velocities by the other half.</li>
+      </ol>
+      <p>Leapfrog keeps an orbit's energy steady over thousands of laps instead of slowly spiralling in or out. The test suite checks that a circular orbit loses less than 1% of its energy over 20,000 steps.</p>
+
+      <h2>Collisions</h2>
+      <p>Two bodies touch when the distance between their centers is less than their radii added together. What happens next is your choice:</p>
+      <div class="doc__table-wrap">
+        <table>
+          <thead><tr><th>Mode</th><th>What happens</th><th>What's kept</th></tr></thead>
+          <tbody>
+            <tr><td>Merge</td><td>They become one body at their shared center of mass. The heavier one keeps its name and colour.</td><td>Total mass and momentum</td></tr>
+            <tr><td>Bounce</td><td>They push apart along the line between them, losing a little speed (<span data-value="restitution">80</span>% of the head-on speed survives).</td><td>Total momentum</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Bodies that drift more than <span data-value="dropAu">80</span> AU from the system's center are dropped.</p>
+
+      <h2>Launching and the predicted path</h2>
+      <p>When you drag, the arrow sets the new body's direction and speed. The dotted line is a forecast: the sim runs <span data-value="previewSteps">300</span> quick steps ahead for the new body, treating everything else as frozen. The dots are evenly spaced in time, so where they bunch up the body is slow, and where they spread out it's fast. An ✕ means it's heading into something.</p>
+
+      <h2>The real Solar system</h2>
+      <p>The Solar system preset starts on <strong>1 January 2000</strong>, using published orbital elements for each planet: how big its orbit is, how stretched it is (eccentricity), and where it was on that date. Orbit flattens everything to 2D and leaves out moons; our Moon sits closer to Earth than the softening distance.</p>
+      <figure>
+        <svg viewBox="0 0 320 200" role="img" aria-label="Mercury's orbit drawn to scale: an ellipse barely different from a circle, with the Sun visibly off-center.">
+          <circle class="plot-line--soft" cx="141.9" cy="100" r="88" fill="none" stroke-dasharray="3 5" />
+          <ellipse class="plot-line" cx="160" cy="100" rx="88" ry="86.1" />
+          <circle class="plot-fill" cx="141.9" cy="100" r="6" />
+          <line class="plot-axis" x1="72" y1="100" x2="248" y2="100" />
+          <circle cx="72" cy="100" r="3.5" fill="var(--doc-accent-2)" />
+          <circle cx="248" cy="100" r="3.5" fill="var(--doc-accent-2)" />
+          <text class="plot-label plot-label--strong" x="141.9" y="88" text-anchor="middle">Sun</text>
+          <text class="plot-label" x="46" y="96" text-anchor="end">closest</text>
+          <text class="plot-label" x="46" y="111" text-anchor="end">0.31 AU</text>
+          <text class="plot-label" x="256" y="96">farthest</text>
+          <text class="plot-label" x="256" y="111">0.47 AU</text>
+        </svg>
+        <figcaption>Mercury's orbit to scale (solid), with a dashed circle around the Sun for comparison. Even the most stretched planet's orbit is only 2% narrower than it is wide. What really shows is that the Sun sits off to one side, so Mercury swings close and then far.</figcaption>
+      </figure>
+      <div class="doc__table-wrap">
+        <table>
+          <thead><tr><th>Planet</th><th>Closest</th><th>Farthest</th><th>Eccentricity</th><th>Year</th></tr></thead>
+          <tbody id="planets">
+            <tr><td>Earth</td><td>0.98 AU</td><td>1.02 AU</td><td>0.017</td><td>1.00 yr</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Each planet's year in the sim lands within 0.5% of the real one (checked by tests).</p>
+
+      <h2>The rest</h2>
+      <ul>
+        <li><strong>Gravity</strong> and <strong>Sun mass</strong> multiply the real values (¼× to 4×) without touching velocities, so balanced orbits stop being balanced.</li>
+        <li>Unnamed bodies are labelled by real thresholds: rocky planet under 10 Earths, gas giant under 13 Jupiters, brown dwarf under 80 Jupiters, then star.</li>
+        <li>Saved systems stay in this browser. It's 2D, with no relativity, tides or moons, and bodies are drawn bigger than life.</li>
+      </ul>
+
+      <p class="doc__foot"><a href="./">Back to Orbit</a>, or see <a href="../../">all games</a>.</p>
+    </main>
+
+    <script type="module">
+      import { fillValues } from '../../shared/js/dom.js';
+      import { MAX_BODIES, SOFTENING, DT, SIM_RATE, RESTITUTION, DROP_DISTANCE, PREVIEW } from './src/config.js';
+      import { DAYS_PER_UNIT, toAu, toDays } from './src/sim/units.js';
+      import { formatRate } from './src/view/format.js';
+      import { PLANETS, REAL_PERIODS } from './src/sim/solar-system.js';
+
+      const sig = (n, p = 3) => String(Number(n.toPrecision(p)));
+      fillValues(document, {
+        daysPerUnit: sig(DAYS_PER_UNIT),
+        rate1: formatRate(SIM_RATE).replace('1 s ≈ ', 'about '),
+        rate64: formatRate(SIM_RATE * 64).replace('1 s ≈ ', 'about '),
+        maxBodies: MAX_BODIES,
+        pairs: (MAX_BODIES * (MAX_BODIES - 1)) / 2,
+        softeningAu: sig(toAu(SOFTENING), 2),
+        stepHours: sig(toDays(DT) * 24, 2),
+        restitution: Math.round(RESTITUTION * 100),
+        dropAu: Math.round(toAu(DROP_DISTANCE)),
+        previewSteps: PREVIEW.steps,
+      });
+
+      const rows = PLANETS.map((p) => {
+        const tr = document.createElement('tr');
+        for (const text of [
+          p.name,
+          `${(p.a * (1 - p.e)).toFixed(2)} AU`,
+          `${(p.a * (1 + p.e)).toFixed(2)} AU`,
+          p.e.toFixed(3),
+          `${sig(REAL_PERIODS[p.name] / 365.25)} yr`,
+        ]) {
+          const td = document.createElement('td');
+          td.textContent = text;
+          tr.append(td);
+        }
+        return tr;
+      });
+      document.getElementById('planets').replaceChildren(...rows);
+    </script>
+  </body>
+</html>

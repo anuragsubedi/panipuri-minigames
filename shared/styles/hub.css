@@ -30,6 +30,22 @@
   list-style: none;
 }
 
+.hub__section {
+  margin-top: 48px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.hub__note {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.hub__grid--toys {
+  margin-top: 20px;
+}
+
 .game-tile {
   display: flex;
   flex-direction: column;
@@ -61,6 +77,34 @@ a.game-tile:hover {
   background-position: 3px 5px;
 }
 
+.game-tile__art--pin-drop {
+  background:
+    radial-gradient(circle at 63% 46%, #e8552f 0 9px, transparent 10px),
+    linear-gradient(135deg, transparent 49%, rgba(29, 26, 23, 0.55) 49% 51%, transparent 51%) 38% 64% / 90px 60px no-repeat,
+    radial-gradient(circle at 35% 72%, #2f9a5c 0 7px, transparent 8px),
+    radial-gradient(ellipse 22% 30% at 30% 58%, #f7f1e6 96%, transparent),
+    radial-gradient(ellipse 26% 22% at 68% 40%, #f7f1e6 96%, transparent),
+    repeating-linear-gradient(90deg, transparent 0 39px, rgba(60, 90, 120, 0.14) 39px 40px),
+    repeating-linear-gradient(0deg, transparent 0 34px, rgba(60, 90, 120, 0.14) 34px 35px),
+    #dce9f0;
+}
+
+.game-tile__art--beatween {
+  background:
+    radial-gradient(ellipse 34% 60% at 42% 50%, transparent 62%, #ff8a5c 64%, transparent 70%),
+    radial-gradient(ellipse 34% 60% at 58% 50%, transparent 62%, #46d0de 64%, transparent 70%),
+    #07090d;
+}
+
+.game-tile__art--orbit {
+  background:
+    radial-gradient(circle at 74% 34%, #82c8ff 0 5px, transparent 6px),
+    radial-gradient(circle at 30% 70%, #ffb26b 0 3.5px, transparent 4.5px),
+    radial-gradient(circle at 50% 50%, #fffbea 0 9px, #ffae45 12px, rgba(255, 168, 70, 0.28) 14px, transparent 36px),
+    radial-gradient(ellipse 30% 46% at 50% 50%, transparent 96%, rgba(170, 190, 255, 0.22) 97% 100%, transparent 101%),
+    radial-gradient(ellipse 120% 90% at 50% 45%, #121c3e 0%, #04060f 100%);
+}
+
 .game-tile__art--soon {
   background: repeating-linear-gradient(45deg, var(--surface-2) 0 10px, transparent 10px 20px);
 }
@@ -83,4 +127,10 @@ a.game-tile:hover {
 
 .game-tile--soon {
   opacity: 0.7;
+}
+
+.hub__how {
+  margin-top: 48px;
+  color: var(--muted);
+  line-height: 1.5;
 }

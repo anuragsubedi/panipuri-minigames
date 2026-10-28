@@ -1,6 +1,6 @@
 # Architecture
 
-> Status: **Hue Recall v0.1** and **Glimpse v0.1** playable. Both games share `shared/js` + `shared/styles/game-kit.css`.
+> Status: **Hue Recall v0.1**, **Glimpse v0.1**, **Pin Drop v0.2 (World, India, Nepal)**, **Beatween v0.1** and **Orbit v0.2** playable. Both games share `shared/js` + `shared/styles/game-kit.css`.
 > The module table and state section below describe Hue Recall in detail; Glimpse mirrors the same shape (see "Glimpse" section).
 
 ## Principles
@@ -16,13 +16,15 @@ panipuri-minigames/
 ├── CLAUDE.md                     # agent guide
 ├── README.md                     # non-technical setup + play guide
 ├── start.command                 # macOS double-click launcher (python3 http.server + open browser)
+├── .nojekyll                     # GitHub Pages: serve files as-is (Pages deploys the `live` branch root)
 ├── .claude/launch.json           # "static" server config for the Claude desktop preview
-├── docs/
+├── docs/                         # long-term memory; docs/specs/ holds specs (games/<name>.md, pipeline, architect)
 ├── package.json                  # only "type": "module" + `npm test`; no dependencies
 ├── index.html                    # hub: links to each game
 ├── shared/                       # code used by more than one game (see "Shared code")
 │   ├── js/
-│   │   ├── dom.js                # el() element builder, onKey() page-level key listener
+│   │   ├── dom.js                # el() element builder, onKey() page-level key listener, fillValues() for doc pages
+│   │   ├── plot.js               # curvePath(): SVG path for y = f(x) (doc page charts)
 │   │   ├── format.js             # formatPoints()
 │   │   ├── rng.js                # createRng(seed), randomInt(), seedFromQuery()
 │   │   ├── score.js              # roundScore(error, curve), totalScore()
@@ -61,12 +63,18 @@ panipuri-minigames/
 │                   ├── recreate.js
 │                   ├── round-result.js
 │                   └── summary.js
-│   └── glimpse/                  # same shape; see "Glimpse" below
+│   ├── glimpse/                  # same shape; see "Glimpse" below
+│   ├── pin-drop/                 # same shape + data/ and tools/; see "Pin Drop" below
+│   ├── beatween/                 # tool; see "Beatween" below
+│   └── orbit/                    # toy; see "Orbit" below
 └── tests/
     ├── shared/
     │   ├── rng.test.js
     │   └── score.test.js
     ├── glimpse/                  # dots, error, game
+    ├── pin-drop/                 # geo (project, haversine, describe), viewport, packs (bundled data checked), pick, game
+    ├── beatween/                 # core (settings, scale, bands, lissajous), noise
+    ├── orbit/                    # physics (energy, merge, bounce, preview), presets, world, camera, trails
     └── hue-recall/
         ├── convert.test.js
         ├── distance.test.js
@@ -169,6 +177,113 @@ games/glimpse/src/
 
 Round: `{ count, dots: [{x, y}], guess, error, score }`. Transitions: `startGame`, `endReady`, `endFlash`, `submitGuess` (throws `RangeError` unless `isValidGuess`), `nextRound`. The flash screen owns a `setTimeout`; its cleanup clears it.
 
+## Pin Drop
+
+```
+games/pin-drop/
+├── data/maps/<id>.json      # {bounds, countries: SVG path}; equirectangular, x = lon, y = −lat (degrees).
+│                            #   Country maps add focus (the country), states (internal lines only) and note (provenance);
+│                            #   Nepal also has districts, locals (palikas, fade in on zoom) and rivers
+├── data/packs/*.json        # {id, name, map, scoreScaleKm, source, places: [{name, detail, lat, lon, tier 1–3, region,
+│                            #   blurb?, wikidata?, osm?, clue?, shape?: {kind: line|area, paths: [[lon, lat]…]}}]}
+├── tools/                   # run by hand, stdlib Python (see each file's header for its command):
+│   ├── geojson-to-map.py        # world map (Natural Earth 1:110m)
+│   ├── build-region-map.py      # country map: Natural Earth 1:10m point-of-view outline + admin-1 state lines;
+│   │                            #   "cod" mode (Nepal): Survey Dept. admin-0/admin-3 via HDX → provinces, districts, palikas, rivers
+│   ├── nepal-palikas.py         # 753 palikas (HDX) → OSM town point inside each → nepal-palikas.json (resumable)
+│   ├── nepal-cities.py          # nepal-palikas.json + nepal-cities-source.json (HQs, spellings, tiers) → nepal-cities pack
+│   ├── geocode-nepal.py         # nepal-*-source.json → OSM (district-checked), HOT waterways, Wikidata points → pack
+│   ├── places-to-packs.py       # world capitals/cities (Natural Earth 1:50m)
+│   ├── region-packs.py          # a country's capitals/cities (Natural Earth 1:10m), tiers from fame.json
+│   ├── geocode-landmarks.py     # *-landmarks-source.json → OSM Nominatim → landmarks pack (osm + wikidata ids)
+│   ├── fetch-fame.py            # every pack's wikidata ids → Wikipedia language counts → fame.json
+│   └── apply-fame.py            # promote (never demote) landmark tiers from fame.json
+├── how.html
+└── src/
+    ├── main.js              # fetches packs + maps once, then the usual render loop
+    ├── config.js            # ROUND_OPTIONS, MAPS (label, detailLabel, gridStep, topics → packs), DIFFICULTIES, SCORE_CURVE, VERDICTS, MAP_VIEW
+    ├── geo/project.js       # lat/lon ↔ map units, bounds rect, clamp
+    ├── geo/haversine.js     # distanceKm, bearingDeg, compassPoint
+    ├── geo/viewport.js      # pure pan/zoom: view {cx, cy, zoom} → viewBox; zoomAt, panBy, fitPoints, screen ↔ map
+    ├── geo/describe.js      # formatKm, directionHint (on-target radius scales with the pack)
+    ├── geo/shape.js         # nearestOnShape (rivers, areas: 0 km inside), insideArea
+    ├── data/load-pack.js    # validatePack (pure), loadPack(url, fetch)
+    ├── data/pick-places.js  # poolFor(packs, tiers), pickPlaces (seeded; spreads regions and packs)
+    ├── data/clue.js         # clueFor(place, {showDetail}) → {type: 'text', …} or the place's own clue; answerLabel
+    ├── state/game.js        # intro → clue → reveal → summary
+    └── ui/
+        ├── components/world-map.js     # SVG map + HTML pins/dots (constant size), ResizeObserver, frame()
+        ├── components/map-gestures.js  # pointer → tap / pin drag / pan / pinch / wheel intents
+        ├── components/clue.js          # one renderer per clue type (text now; photo later for Lost Lens)
+        └── screens/                    # intro (preview map of the current pool), clue, reveal, summary
+```
+
+Round: `{ place (with packId, scaleKm), guess, target, distanceKm, score }`; `target` is the place's point, or for a shape the nearest point of it. Transitions: `createGame({mapId, topic, difficulty, roundCount})`, `setOptions`, `startGame(state, packsById, rng)`, `submitPin` (throws `RangeError` unless `isValidPin`), `nextRound`. The clue screen keeps the working pin locally and reports it once on "Lock it in". Score scale comes from the place's pack, so a regional pack can be stricter. **Adding a country map:** add it to `REGIONS` in `build-region-map.py` (focus code, bounds, point-of-view file, admin-1 remaps for areas a neighbour administers) and in `region-packs.py` (capitals, renames, zones), write `tools/<id>-landmarks-source.json`, run the tools (order: map → region-packs → geocode-landmarks → fetch-fame → region-packs → apply-fame), then add a `MAPS` entry in `config.js`. Nepal took a different route because Natural Earth's Nepal data is outdated: map from the Survey Department (HDX) → `nepal-palikas.py` → `nepal-cities.py`, and `geocode-nepal.py` for landmarks and nature, then the map again with the nature pack (rivers layer); D-035. Tests check every map × topic × difficulty has enough places, every place and shape lies inside its map, and Nepal's cities cover all 77 districts.
+
+## Beatween (tool)
+
+A toy/tool rather than a round-based game, so it **doesn't use the phase state machine or the card**. It's a one-screen instrument whose controls are updated in place (no re-render, so sliders keep working mid-drag).
+
+```
+games/beatween/src/
+├── main.js                 # holds settings, drives engine, calls each control's update()
+├── config.js               # FREQ_RANGE, presets, bands, noise, timer, AUDIO levels, VISUAL tempo
+├── state/settings.js       # pure: setChannel (link keeps the beat), stepChannel (½ −1 +1 ×2), setBeat, presets…
+├── tone/{scale,bands}.js   # log slider mapping; band names
+├── audio/noise.js          # pure pink/brown generators + loop crossfade
+├── audio/engine.js         # Web Audio: 2 sines → ChannelMerger (L/R) → master; noise → master
+├── visual/lissajous.js     # pure XY figure + slowed tempo (no flicker)
+├── storage.js              # guarded localStorage
+└── ui/                     # scope (canvas), beat-control, channel-panel, link-toggle, presets, transport, icons
+```
+
+Styles: `games/beatween/styles/app.css` (doesn't use `game-kit.css`). Layout: scope over deck on phones; side by side when ≥ 860 px wide or landscape ≤ 540 px tall; `body` is one screen tall and `.app` scrolls only as a fallback.
+
+## Orbit (toy)
+
+A gravity sandbox. Like Beatween it is a one-screen toy with no phase machine and no card: **one continuous `requestAnimationFrame` loop** in `main.js`. Controls are built once and updated in place.
+
+```
+games/orbit/src/
+├── main.js                 # owns world + loop; accumulator → advance(); camera eases to the center of mass; zoom; saves
+├── config.js               # sim units (= real units, see UNITS), G, softening, DT, SIM_RATE, speeds, ranges, kinds, launch, zoom, trails
+├── storage.js              # guarded localStorage for saved systems
+├── physics/                # pure
+│   ├── gravity.js          # O(n²) softened accelerations, energy, momentum
+│   ├── integrate.js        # leapfrog (kick-drift-kick) step
+│   ├── collide.js          # merge (momentum-conserving) or bounce (impulse + COM-neutral separation)
+│   └── predict.js          # aim preview: probe vs frozen bodies, capped steps, stops on a hit
+├── sim/                    # pure
+│   ├── bodies.js           # body shape, radiusOf, kindOf, nameOf, centerOfMass, recenter
+│   ├── units.js            # sim ↔ days, AU, km/s, solar masses
+│   ├── solar-system.js     # J2000 elements → state vectors (Kepler), real periods
+│   ├── presets.js          # Solar system, Heavy planets, Binary star, Chaos (+ start view, epoch)
+│   ├── snapshot.js         # world ↔ JSON for saves, validated on restore
+│   └── world.js            # world object + transitions (advance, launch, remove, setGravity, setStarMass…), stepsFor accumulator
+├── view/                   # pure, no DOM
+│   ├── camera.js           # world ↔ screen, hit test, easing
+│   ├── format.js           # elapsed time, calendar date, rate, mass/speed/distance in real units
+│   └── trails.js           # per-body history, sampled by distance moved
+└── ui/
+    ├── canvas-renderer.js  # draws a frame; colours from CSS custom properties; DPR-aware; starfield; AU rings; names
+    ├── launcher.js         # pointer input: tap = select, drag = aim + launch, pinch / wheel = zoom
+    ├── controls.js         # deck: play/pause, speed, reset, System button, log₂ sliders, chips
+    ├── sky-overlay.js      # clock + rate, count → heaviest-bodies list, zoom buttons, paused badge, hint, inspector
+    ├── systems-sheet.js    # <dialog>: presets, saved systems (load/delete), save form
+    └── icons.js
+```
+
+- **Time:** fixed `DT` steps fed by an accumulator (`stepsFor`); real frame time is clamped to `MAX_FRAME_SECONDS` (hidden tabs) and steps per frame are capped.
+- **World is immutable from outside:** `advance(world, n)` copies bodies once, mutates its copies for n steps, returns a new world plus the merges (used for selection follow + flash).
+- **Body:** `{id, x, y, vx, vy, mass, radius, color, star, name}`; `color` is a palette slot (theme decides the colour), `star` marks what the Sun-mass slider scales and what glows, `name` is optional (Solar system planets).
+- **Units (v0.2):** 1 distance unit = 0.01 AU, 1 mass unit = 0.001 M☉, so with G = 1 one time unit ≈ 1.838 days (r = 100 → 1 year). All real-unit readouts go through `sim/units.js` + `view/format.js`.
+- **Zoom** is a view radius in `main.js` (not in the world); presets carry a starting view. Launch speed and preview step scale with it.
+- **Styles:** `games/orbit/styles/app.css`. Sky is night in dark mode, a pale daylight chart in light mode; canvas has `touch-action: none`. Same responsive breakpoints as Beatween.
+
+## "How it works" pages
+
+Each game has `games/<name>/how.html`: a short, plain-language page on the mechanics, styled by `shared/styles/doc.css` and linked from the game's top bar (`.topbar__how`) and one line at the bottom of the hub. Numbers in the text sit in `<span data-value="key">default</span>` and an inline module fills them from the game's own `config.js` (via `fillValues`), so the page can't drift from the code; charts are drawn with `curvePath`. Keep them lean: what you see, how it's computed, the one or two choices worth explaining.
+
 ## Adding a new game
 
 Every game follows Hue Recall's shape so any agent can find their way around.
@@ -177,8 +292,9 @@ Every game follows Hue Recall's shape so any agent can find their way around.
 2. **Folder.** `games/<kebab-name>/` with `index.html` (links `shared/styles/tokens.css`, `base.css`, `game-kit.css`, then its own `styles/game.css`; mounts into `#game.card`), `src/main.js`, `src/config.js`, `src/state/`, `src/scoring/`, `src/ui/{components,screens}/`.
 3. **Pure core + tests.** State transitions in `state/game.js` with `PHASES`, `createGame`, `startGame(state, rng)`, and phase assertions that throw. Tests in `tests/<kebab-name>/`.
 4. **Screens** follow the screen contract above (`renderX(root, props, handlers) → cleanup`), primary action also on Enter via `onKey`.
-5. **Hub + README.** Add a tile to `index.html` (+ art class in `shared/styles/hub.css`) and a row to the README game table.
-6. **Docs.** Update this file's layout, `PROGRESS.md`, and log decisions.
+5. **How it works.** Add `how.html` (copy a sibling's shape) and the top-bar link.
+6. **Hub + README.** Add a tile to `index.html` (+ art class in `shared/styles/hub.css`) and a row to the README game table.
+7. **Docs.** Update this file's layout, `PROGRESS.md`, and log decisions.
 
 ### Shared code
 

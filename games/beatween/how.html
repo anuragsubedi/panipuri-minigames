@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>How Beatween works · panipuri</title>
+    <meta name="description" content="How Beatween makes a binaural beat: two pure tones, one per ear, the scope picture, background noise and the safety choices." />
+    <link rel="stylesheet" href="../../shared/styles/tokens.css" />
+    <link rel="stylesheet" href="../../shared/styles/base.css" />
+    <link rel="stylesheet" href="../../shared/styles/doc.css" />
+    <style>
+      body { --doc-accent: #c9502a; --doc-accent-2: #0c7f8c; }
+      @media (prefers-color-scheme: dark) { body { --doc-accent: #ff8a5c; --doc-accent-2: #46d0de; } }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../../"><span class="brand__mark" aria-hidden="true"></span>panipuri</a>
+      <span class="topbar__sep" aria-hidden="true">/</span>
+      <a class="topbar__title" href="./">Beatween</a>
+      <span class="topbar__how">How it works</span>
+    </header>
+
+    <main class="doc">
+      <h1>How Beatween works</h1>
+      <p class="doc__lede">Beatween plays one pure tone in your left ear and a slightly different one in your right. Your brain hears the gap between them as a slow pulse: a binaural beat.</p>
+      <a class="doc__play" href="./">Open Beatween</a>
+
+      <h2>Two tones, one beat</h2>
+      <p>If the left ear gets 200 Hz and the right gets 210 Hz, nothing in the air actually pulses. Each ear hears a steady tone. The pulse at <strong>10 Hz</strong> (the difference) is put together inside your head, which is why it only works on headphones.</p>
+      <figure>
+        <svg viewBox="0 0 320 190" role="img" aria-label="A left tone, a slightly faster right tone, and what they add up to: a wave that swells and fades once per beat.">
+          <text class="plot-label" x="0" y="12">Left ear</text>
+          <path id="wave-left" class="plot-line" transform="translate(0 20)" d="" />
+          <text class="plot-label" x="0" y="72">Right ear, a little faster</text>
+          <path id="wave-right" class="plot-line plot-line--2" transform="translate(0 80)" d="" />
+          <text class="plot-label" x="0" y="132">Heard together: one swell per beat</text>
+          <path id="wave-env-top" class="plot-line--soft" transform="translate(0 140)" stroke-dasharray="3 4" d="" />
+          <path id="wave-env-bottom" class="plot-line--soft" transform="translate(0 140)" stroke-dasharray="3 4" d="" />
+          <path id="wave-sum" class="plot-line plot-line--soft" style="stroke: var(--fg); opacity: 0.85" transform="translate(0 140)" d="" />
+        </svg>
+        <figcaption>Slowed way down so you can see it. The two waves drift in and out of step; when they line up the sound swells, when they cancel it fades. In Beatween this "adding up" happens in your brain, because each ear only ever gets its own tone.</figcaption>
+      </figure>
+
+      <h2>The sound</h2>
+      <ul>
+        <li><strong>Two sine oscillators</strong>, the purest possible tone, routed hard left and hard right so neither ear hears the other.</li>
+        <li>Each ear can go from <span data-value="freqMin">40</span> to <span data-value="freqMax">1200</span> Hz. Binaural beats are clearest when both tones are below about 1000 Hz.</li>
+        <li>The beat goes up to <span data-value="beatMax">50</span> Hz, in steps of <span data-value="beatStep">0.5</span> Hz. <strong>Link</strong> keeps the beat fixed while you move either ear.</li>
+        <li>Volume is capped below full scale, and play fades in and out so there are no clicks.</li>
+      </ul>
+
+      <h2>Beat names</h2>
+      <p>Beat rates are often named after brainwave bands. Beatween shows the name as a mood label, not a promise:</p>
+      <div class="doc__table-wrap">
+        <table>
+          <thead><tr><th>Band</th><th>Beat</th><th>Mood</th></tr></thead>
+          <tbody id="bands"></tbody>
+        </table>
+      </div>
+
+      <h2>The scope picture</h2>
+      <p>The screen is an <strong>XY scope</strong>: the left tone moves a dot side to side, the right tone moves it up and down. Equal tones trace a tilted ellipse; tones an octave apart trace a figure-eight. As the beat runs, the shape slowly breathes.</p>
+      <p class="doc__formula">x = sin(θ), &nbsp; y = sin(ratio · θ + phase)</p>
+      <div class="doc__note">The picture deliberately does <strong>not</strong> flicker at the beat rate. Shapes changing 2–40 times a second can trigger photosensitive reactions, so the morph is slowed and capped at <span data-value="tempoMax">0.9</span> changes per second.</div>
+
+      <h2>Background noise</h2>
+      <p>Optional noise plays the same in both ears, under the tones:</p>
+      <ul>
+        <li><strong>Pink</strong>: equal energy per octave (−3 dB per octave), like steady rain. Made by filtering random numbers.</li>
+        <li><strong>Brown</strong>: deeper (−6 dB per octave), like a distant waterfall. Made by adding up random steps.</li>
+      </ul>
+
+
+      <h2>A note on claims</h2>
+      <p>Research on binaural beats is mixed. Beatween is a pleasant tone tool, not medical advice. Keep the volume low.</p>
+
+      <p class="doc__foot"><a href="./">Back to Beatween</a>, or see <a href="../../">all games</a>.</p>
+    </main>
+
+    <script type="module">
+      import { fillValues } from '../../shared/js/dom.js';
+      import { curvePath } from '../../shared/js/plot.js';
+      import { FREQ_RANGE, BEAT_MAX, BEAT_STEP, BANDS, VISUAL } from './src/config.js';
+
+      fillValues(document, {
+        freqMin: FREQ_RANGE.min,
+        freqMax: FREQ_RANGE.max,
+        beatMax: BEAT_MAX,
+        beatStep: BEAT_STEP,
+        tempoMax: VISUAL.tempoMax,
+      });
+
+      // Bands table.
+      let from = 0;
+      document.getElementById('bands').replaceChildren(
+        ...BANDS.map((band) => {
+          const tr = document.createElement('tr');
+          const range = band.below === Infinity ? `${from}+ Hz` : from === 0 ? `0 Hz` : `${from}–${band.below} Hz`;
+          for (const text of [band.name, range, band.note]) {
+            const td = document.createElement('td');
+            td.textContent = text;
+            tr.append(td);
+          }
+          from = band.below;
+          return tr;
+        }),
+      );
+
+      // Waves: 9 and 10 cycles across the plot, so they drift through one full beat.
+      const box = { x0: 0, x1: 1, y0: -1.1, y1: 1.1, w: 320, h: 40, samples: 640 };
+      const tone = (f) => (x) => Math.sin(2 * Math.PI * f * x);
+      const set = (id, d) => document.getElementById(id).setAttribute('d', d);
+      set('wave-left', curvePath(tone(9), box));
+      set('wave-right', curvePath(tone(10), box));
+      const sumBox = { ...box, y0: -2.2, y1: 2.2 };
+      set('wave-sum', curvePath((x) => tone(9)(x) + tone(10)(x), sumBox));
+      const envelope = (x) => 2 * Math.abs(Math.cos(Math.PI * x));
+      set('wave-env-top', curvePath(envelope, sumBox));
+      set('wave-env-bottom', curvePath((x) => -envelope(x), sumBox));
+    </script>
+  </body>
+</html>

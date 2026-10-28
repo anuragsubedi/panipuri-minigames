@@ -1,0 +1,978 @@
+/* Orbit: a sky panel (canvas) and a control deck, one screen tall. Stacked on
+   phones; side by side on wide or landscape screens. The sky is night in dark
+   mode and a pale daylight chart in light mode. Requires tokens.css, base.css. */
+
+:root {
+  --sol: #e0861a;
+  --on-sol: #1b1206;
+
+  --sky-bg: radial-gradient(ellipse 120% 90% at 50% 45%, #eef3f8 0%, #dbe4ee 55%, #c9d5e3 100%);
+  --starfield: 0;
+  --sky-ink: #16233d;
+  --sky-dim: rgba(22, 35, 61, 0.62);
+  --sky-ring: rgba(22, 35, 61, 0.09);
+  --sky-glass: rgba(250, 252, 255, 0.9);
+  --sky-glass-line: rgba(22, 35, 61, 0.12);
+  --sky-hover: rgba(22, 35, 61, 0.07);
+  --aim: #b4500c;
+  --trail-alpha: 0.75;
+
+  --star-core: #fff3d1;
+  --star-mid: #ec7f1c;
+  --star-glow: rgba(255, 150, 40, 0.42);
+  --star-glow-edge: rgba(255, 150, 40, 0);
+  --planet-shade: #26314d;
+  --planet-0: #2a7fd0;
+  --planet-1: #d9701a;
+  --planet-2: #3f9a3a;
+  --planet-3: #d23f67;
+  --planet-4: #7a55d8;
+  --planet-5: #0f8f86;
+  --planet-6: #7d746a;
+  --planet-7: #b8892f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sol: #ffb547;
+
+    --sky-bg: radial-gradient(ellipse 120% 90% at 50% 45%, #121c3e 0%, #0a1129 50%, #04060f 100%);
+    --starfield: 1;
+    --sky-ink: #e9eefb;
+    --sky-dim: rgba(233, 238, 251, 0.6);
+    --sky-ring: rgba(170, 190, 255, 0.06);
+    --sky-glass: rgba(9, 14, 34, 0.88);
+    --sky-glass-line: rgba(233, 238, 251, 0.12);
+    --sky-hover: rgba(233, 238, 251, 0.08);
+    --aim: #ffcf7a;
+    --trail-alpha: 0.6;
+
+    --star-core: #fffbea;
+    --star-mid: #ffae45;
+    --star-glow: rgba(255, 168, 70, 0.3);
+    --star-glow-edge: rgba(255, 168, 70, 0);
+    --planet-shade: #070b1c;
+    --planet-0: #82c8ff;
+    --planet-1: #ffb26b;
+    --planet-2: #a3e07a;
+    --planet-3: #ff8ca6;
+    --planet-4: #c4a8ff;
+    --planet-5: #66e0cc;
+    --planet-6: #b9b1a6;
+    --planet-7: #e8c27a;
+  }
+}
+
+/* Page frame: one screen tall */
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.topbar {
+  flex: none;
+  width: 100%;
+  max-width: 1240px;
+  padding-block: 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+.app {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(220px, 1fr) auto;
+  gap: 12px;
+  width: min(1240px, 100%);
+  margin: 0 auto;
+  padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* Wide screens and phones held sideways: sky left, deck right. */
+@media (min-width: 860px) and (min-height: 540px), (orientation: landscape) and (max-height: 540px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+    grid-template-rows: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .deck {
+    align-content: center;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 540px) {
+  .topbar {
+    padding-block: 6px;
+  }
+
+  .app {
+    gap: 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Sky. Overlays use a solid tint, not backdrop blur: blurring a canvas that
+   redraws every frame costs phones a lot of GPU time. */
+
+.sky {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 24px;
+  background: var(--sky-bg);
+  box-shadow: inset 0 0 0 1px var(--sky-glass-line), 0 24px 48px -30px rgba(0, 0, 0, 0.55);
+  color: var(--sky-ink);
+}
+
+.sky__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: crosshair;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sky__canvas.is-aiming {
+  cursor: grabbing;
+}
+
+.sky__overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sky__overlay button {
+  pointer-events: auto;
+}
+
+.sky__top {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  right: 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.clock {
+  display: grid;
+  gap: 1px;
+  padding-top: 2px;
+}
+
+.clock__time {
+  font-size: 17px;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock__rate {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sky-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.sky__right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sky__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 30px;
+  padding: 0 6px 0 10px;
+  border: 0;
+  border-radius: 99px;
+  background: transparent;
+  color: var(--sky-dim);
+  font-size: 13px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.sky__count svg {
+  width: 16px;
+  height: 16px;
+  transition: rotate 0.15s ease;
+}
+
+.sky__count[aria-expanded='true'] {
+  background: var(--sky-glass);
+  color: var(--sky-ink);
+  box-shadow: inset 0 0 0 1px var(--sky-glass-line);
+}
+
+.sky__count[aria-expanded='true'] svg {
+  rotate: 180deg;
+}
+
+.sky__paused {
+  padding: 5px 12px;
+  border: 0;
+  border-radius: 99px;
+  background: var(--sol);
+  color: var(--on-sol);
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+/* Components set display, so `hidden` needs the last word. */
+.sky__overlay [hidden] {
+  display: none !important;
+}
+
+/* Heaviest-bodies list, under the count */
+
+.bodies {
+  position: absolute;
+  top: 46px;
+  right: 10px;
+  width: min(250px, calc(100% - 20px));
+  max-height: calc(100% - 150px);
+  overflow-y: auto;
+  padding: 8px 6px 6px;
+  border-radius: 16px;
+  background: var(--sky-glass);
+  box-shadow: inset 0 0 0 1px var(--sky-glass-line), 0 16px 32px -18px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+}
+
+.bodies__title {
+  padding: 0 8px 4px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--sky-dim);
+}
+
+.bodies__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bodies__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sky-ink);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bodies__row[aria-pressed='true'] {
+  background: var(--sky-hover);
+}
+
+.bodies__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 650;
+}
+
+.bodies__mass {
+  flex: none;
+  color: var(--sky-dim);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Zoom, bottom right */
+
+.zoom {
+  position: absolute;
+  right: 10px;
+  bottom: 12px;
+  display: grid;
+  border-radius: 12px;
+  background: var(--sky-glass);
+  box-shadow: inset 0 0 0 1px var(--sky-glass-line);
+  pointer-events: auto;
+}
+
+.zoom__btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sky-ink);
+  cursor: pointer;
+}
+
+.zoom__btn + .zoom__btn {
+  border-top: 1px solid var(--sky-glass-line);
+}
+
+.zoom__btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* First-run hint, bottom center of the sky */
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  max-width: calc(100% - 110px);
+  padding: 9px 14px 9px 10px;
+  border-radius: 14px;
+  background: var(--sky-glass);
+  box-shadow: inset 0 0 0 1px var(--sky-glass-line);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.hint__icon {
+  flex: none;
+  display: grid;
+  color: var(--aim);
+}
+
+.hint__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* Inspector card for the selected body */
+
+.inspector {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  width: min(300px, calc(100% - 66px));
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-radius: 18px;
+  background: var(--sky-glass);
+  box-shadow: inset 0 0 0 1px var(--sky-glass-line), 0 16px 32px -18px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+}
+
+.inspector__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.swatch {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--planet-0);
+}
+
+.swatch[data-slot='1'] { background: var(--planet-1); }
+.swatch[data-slot='2'] { background: var(--planet-2); }
+.swatch[data-slot='3'] { background: var(--planet-3); }
+.swatch[data-slot='4'] { background: var(--planet-4); }
+.swatch[data-slot='5'] { background: var(--planet-5); }
+.swatch[data-slot='6'] { background: var(--planet-6); }
+.swatch[data-slot='7'] { background: var(--planet-7); }
+.swatch[data-slot='star'] {
+  background: radial-gradient(circle, var(--star-core) 0 35%, var(--star-mid) 100%);
+  box-shadow: 0 0 8px 1px var(--star-glow);
+}
+
+.inspector__name {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+
+.inspector__close {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-right: -6px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sky-dim);
+  cursor: pointer;
+}
+
+.inspector__close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.inspector__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, auto));
+  justify-content: start;
+  gap: 8px 18px;
+}
+
+.inspector__stats > [hidden] {
+  display: none;
+}
+
+.inspector__stats dt {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sky-dim);
+}
+
+.inspector__stats dd {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.inspector__unit {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--sky-dim);
+}
+
+.inspector__delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 0 10px 0 8px;
+  border: 0;
+  border-radius: 99px;
+  background: color-mix(in srgb, #e5484d 16%, transparent);
+  color: color-mix(in srgb, #e5484d 75%, var(--sky-ink));
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.inspector__delete svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Deck */
+
+.deck {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.deck__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.play {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--fg);
+  color: var(--bg);
+  cursor: pointer;
+}
+
+.play.is-paused {
+  background: var(--sol);
+  color: var(--on-sol);
+}
+
+.play svg {
+  width: 22px;
+  height: 22px;
+}
+
+.icon-btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Segmented controls: speed and systems */
+
+.seg {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+
+.seg__item {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.seg__item[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--fg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px var(--line);
+}
+
+.system {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px 0 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.system__caption {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.system__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.system svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+}
+
+/* Systems sheet (dialog): bottom sheet on phones, centered panel elsewhere */
+
+.sheet {
+  width: min(420px, 100%);
+  max-width: 100%;
+  max-height: min(640px, 86dvh);
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 24px 24px 0 0;
+  background: var(--surface);
+  color: var(--fg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.sheet[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 560px) and (min-height: 540px) {
+  .sheet {
+    margin: auto;
+    border-radius: 24px;
+  }
+}
+
+.sheet::backdrop {
+  background: rgba(10, 8, 6, 0.45);
+}
+
+.sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 12px 6px 20px;
+}
+
+.sheet__title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.sheet__close {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.sheet__body {
+  overflow-y: auto;
+  padding: 4px 12px max(16px, env(safe-area-inset-bottom, 0px));
+}
+
+.sheet__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sheet__item {
+  display: grid;
+  gap: 1px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.sheet__item-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.sheet__item-note {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.sheet__section {
+  margin: 14px 10px 4px;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.sheet__saved {
+  display: flex;
+  align-items: center;
+}
+
+.sheet__saved .sheet__item {
+  flex: 1;
+  min-width: 0;
+}
+
+.sheet__delete {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.sheet__delete svg,
+.sheet__close svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sheet__empty {
+  padding: 4px 10px 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.sheet__empty[hidden] {
+  display: none;
+}
+
+.sheet__form {
+  display: flex;
+  gap: 8px;
+  margin: 8px 4px 0;
+}
+
+.sheet__input {
+  flex: 1;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--fg);
+  font: inherit;
+  font-size: 16px;
+}
+
+.sheet__save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--fg);
+  color: var(--bg);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sheet__save svg {
+  width: 17px;
+  height: 17px;
+}
+
+.sheet__status {
+  min-height: 1.4em;
+  margin: 6px 8px 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Sliders */
+
+.deck__row--sliders {
+  gap: 16px;
+  padding: 2px 4px 0;
+}
+
+.slider {
+  flex: 1;
+  min-width: 0;
+}
+
+.slider__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.slider__caption {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.slider__value {
+  padding: 2px 4px;
+  margin-right: -4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.range {
+  --fill: 50%;
+  width: 100%;
+  height: 26px;
+  margin: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+.range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--fg) var(--fill), var(--surface-2) var(--fill));
+}
+
+.range::-moz-range-track {
+  height: 6px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--fg) var(--fill), var(--surface-2) var(--fill));
+}
+
+.range::-webkit-slider-thumb {
+  width: 22px;
+  height: 22px;
+  margin-top: -8px;
+  border: 3px solid var(--fg);
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 3px solid var(--fg);
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.range:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* Toggle chips */
+
+.chip {
+  flex: 1 1 0;
+  min-width: 0;
+  display: grid;
+  justify-items: start;
+  gap: 1px;
+  padding: 7px 11px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.chip__caption {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.chip__value {
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.chip.is-off .chip__value {
+  color: var(--muted);
+}
+
+@media (hover: hover) {
+  .seg__item:hover:not([aria-pressed='true']),
+  .chip:hover,
+  .icon-btn:hover,
+  .system:hover {
+    color: var(--fg);
+    background-color: color-mix(in srgb, var(--fg) 7%, var(--surface-2));
+  }
+
+  .chip:hover {
+    background-color: color-mix(in srgb, var(--fg) 4%, var(--surface));
+  }
+
+  .sheet__item:hover,
+  .sheet__delete:hover {
+    background: var(--surface-2);
+  }
+
+  .bodies__row:hover,
+  .zoom__btn:hover,
+  .sky__count:hover {
+    background-color: var(--sky-hover);
+  }
+}
+
+/* Short phones: tighten the deck so the sky keeps its room. */
+@media (max-height: 700px) and (orientation: portrait) {
+  .topbar {
+    padding-block: 8px;
+  }
+
+  .deck {
+    gap: 8px;
+  }
+
+  .chip {
+    padding-block: 5px;
+  }
+}

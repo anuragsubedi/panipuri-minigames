@@ -6,11 +6,15 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 |------|--------|--------|
 | Hue Recall — memorize a color, rebuild it | `games/hue-recall/` | v0.1 shipped; polish **parked** by the user |
 | Glimpse — flash of dots, guess how many | `games/glimpse/` | v0.1 shipped |
+| Pin Drop — place name, drop a pin on a map | `games/pin-drop/` | v0.2 shipped (World, India, Nepal); NZ, USA next |
+| Nepal Atlas — interactive school atlas (tool) | `games/nepal-atlas/` (planned) | spec only (`docs/specs/games/nepal-atlas.md`); next goal |
+| Beatween — binaural beats generator (tool) | `games/beatween/` | v0.1 shipped |
+| Orbit — gravity sandbox (toy) | `games/orbit/` | v0.1 shipped |
 
 ## Who reads what
 
 - `AGENTS.md` — short pointer here for non-Claude agents (Codex, Cursor, Antigravity). Keep it in sync with this file's essentials.
-- `docs/GAME-SPECS.md` — ranked, self-contained specs for future games (each with a sanity check).
+- `docs/specs/` — all specs. `README.md` (rules + ranking) → `games/<name>.md` (one per planned game; read only the one you need) · `pipeline.md` (release mode + long-term CI/CD) · `architect-agent.md` (long-term automated PR review).
 - `README.md` — for **non-technical humans**: how to start and play. Keep it jargon-free; update its game table when a game ships.
 - `CLAUDE.md` (this file) — for **agents**: rules, conventions, where things live.
 - `docs/` — long-term project memory (below).
@@ -36,6 +40,7 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 - Keep it simple: the smallest change that solves the problem. No frameworks, bundlers or npm packages.
 - Games are **original**: a game may share a genre with existing games, but never copy a specific product's name, branding, layout or copy (D-006).
 - One commit per completed step, with a clear message.
+- **Release flow now (D-025):** work on the `live` branch; GitHub Pages serves it at https://anuragsubedi.github.io/panipuri-minigames/ (≈1 min after push). Run `npm test` before pushing; push only after the user OKs the change, because pushing publishes. `main` is an older snapshot; don't build on it. PR review and auto-merge (Architect agent) are long-term goals, not in use.
 - Keep replies **short**; it's a simple prototype. Once a feature is approved, finish it without extra review stops unless asked.
 
 ## Code conventions
@@ -55,7 +60,7 @@ A collection of small, self-contained browser minigames built with **vanilla HTM
 
 ## Adding a new game
 
-Follow the checklist in `docs/ARCHITECTURE.md` → "Adding a new game". In short: spec in `PROJECT.md` → user OK → `games/<name>/` mirroring Hue Recall's layout → tests in `tests/<name>/` → hub tile in `index.html` → README table → docs.
+Follow the checklist in `docs/ARCHITECTURE.md` → "Adding a new game". In short: spec in `PROJECT.md` → user OK → `games/<name>/` mirroring Hue Recall's layout → tests in `tests/<name>/` → a lean `how.html` ("How it works") → hub tile in `index.html` → README table → docs.
 
 ## Running
 
@@ -68,6 +73,7 @@ python3 -m http.server 5173
 Then open http://localhost:5173/ (hub) or http://localhost:5173/games/hue-recall/.
 Add `?seed=42` to a game URL for a reproducible game.
 Humans can double-click `start.command` (macOS), which does the same and opens the browser.
+The user also drives **cloud sessions from a phone**: work must succeed from a fresh clone with only git/Node/Python, and results should reach the user as a pushed commit on `live` + its public URL, not a localhost URL.
 In the Claude desktop app, `.claude/launch.json` defines the same server as `static`.
 
 ## Testing
