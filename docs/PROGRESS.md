@@ -104,3 +104,6 @@ Open repo-wide questions (user's call):
 - Engine: places may be shapes (`geo/shape.js`): score to the nearest point of a river, or 0 km inside a park; reveal highlights it. Faint rivers on the base map. "Right on it" now scales with the pack (7.5 km in Nepal).
 - Wikimedia rate-limited this cloud IP to 1 request/min; Overpass, Geofabrik and Wikipedia were unreachable. A handover prompt for a local session was written (not used yet). The auto-mode safety check also failed for a while, blocking commands.
 - Wrote the **Nepal Atlas** spec (user's next goal; ranked 2 / 8) with a feature ranking and verified data sources. D-035. 141 tests.
+
+### 2026-10-28 — Light Speed Roads spec filed
+- User supplied a spec for a new toy, **Light Speed Roads** (road networks light up area by area at a configurable speed; shared engine + standalone host + Nepal Atlas Roads view; Nepal v0.1, US v0.2, India/China v0.3). Filed verbatim as `docs/specs/games/light-speed-roads.md` and linked from `docs/specs/README.md` as an unranked proposal. Nothing implemented; no D-number yet (its §15 requires a critique and a residency decision first). The build happens in a separate session.

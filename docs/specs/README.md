@@ -45,6 +45,8 @@ Each idea is scored 1–5 on three axes (feasibility means feasible as vanilla J
 | 7 | [**Lost Lens**](games/lost-lens.md) | photo geo-guessing (Pin Drop pack) | 3 | 5 | 2 | **10** ⚠️ | +1 session code, +1–2 asset curation | game mode |
 | 8 | [**Blockyard**](games/blockyard.md) | voxel sandbox ("mini Minecraft") | 2 | 5 | 1 | **8** ⚠️ | 2–3 (three.js) / 4–6 (raw WebGL) | toy |
 
+**Unranked proposal:** [**Light Speed Roads**](games/light-speed-roads.md) (toy; country road networks lighting up at a configurable speed; Nepal pilot, then US, India, China). Added 2026-10-28, not yet scored or approved. It needs the critique in its §15 and a `D-0xx` residency decision before any build, and it proposes a Roads view for Nepal Atlas.
+
 **Ties are broken by feasibility.** Each game spec ends with a **Sanity check**: a one-pass review of what's verified, what's risky, and what changed from the first draft. Read it before building.
 
 **Suggested build order** (this differs from the rank, because it front-loads cheap wins):
