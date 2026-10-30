@@ -65,5 +65,3 @@ Use this if the double-click doesn't work, or you're on Windows or Linux.
 ---
 
 *Working on the code? Start with [`CLAUDE.md`](CLAUDE.md) and the [`docs/`](docs/) folder.*
-
-<!-- musa-koala write-access test, 2026-10-30: dummy line on test branch only, not live -->
