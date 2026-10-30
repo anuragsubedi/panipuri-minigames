@@ -1,6 +1,6 @@
 # NSO Data Report — Spec for the Nepal Atlas
 
-**Status:** Draft for review, 2026-10-30. Not committed to any repository.
+**Status:** Draft for review, 2026-10-30. Committed on feature branch musa-koala-nepal-atlas-nso-pointers, merged into musa-koala; not merged to live.
 **Purpose:** Decide what Nepal Statistics Office (NSO) data can feed the
 Nepal Atlas, in what form, and how to archive it reliably — without
 building a PDF-transcription pipeline first, and without building the
