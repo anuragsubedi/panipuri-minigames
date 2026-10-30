@@ -23,16 +23,18 @@ Scored 1–5 like the specs README (feasibility = vanilla JS, static site, free 
 | 2 | **Cross-section tool**: drag a line, get the elevation profile (the classic textbook Terai–Hills–Himal diagram) | 5 | 5 | 3 | **13** | same DEM | v0.2 |
 | 3 | **Rivers & lakes view**: every river drawn by size (stream order), blue lakes, glaciers, dams; tap a river → name, length, basin | 3 | 4 | 4 | **11** | HOT OSM waterways on HDX (ODbL, Oct 2026) or HydroRIVERS (CC BY 4.0, has stream order + discharge); Survey Dept watercourses on HDX (terms to check) | v0.1 |
 | 4 | **Political view**: provinces / districts / palikas with names; tap → card (HQ, area, population, palikas) | 2 | 3 | 5 | **10** | have it + CoD-PS population (HDX, CC BY 3.0 IGO) | v0.1 |
-| 5 | **People view**: population, density, growth; **mother tongues** and literacy by district (Census 2021) as choropleths | 3 | 4 | 4 | **11** | CoD-PS 2023 (HDX) ✓; Census 2021 tables (NSO; site not reachable from this cloud session, try from the user's machine) | v0.2 |
+| 5 | **People view**: population, density, growth; **mother tongues** and literacy by district (Census 2021) as choropleths | 3 | 4 | 4 | **11** | CoD-PS 2023 (HDX) ✓; Census 2021 tables via NSO National Data Portal (nationaldata.gov.np, province → district → local → ward drill-down, direct HTML-table downloads, names only — pcode mapping required; see supplementary NSO report) | v0.2 |
 | 6 | **Forests & parks view**: forest cover raster + forest % per district; national parks, reserves, conservation areas, buffer zones | 3 | 4 | 3 | **10** | ESA WorldCover 10 m (CC BY 4.0) or Hansen tree cover (CC BY 4.0) ✓; parks from OSM ✓ | v0.2 |
 | 7 | **Nepali / English toggle** (नेपाली labels), important for the school audience | 4 | 4 | 3 | **11** | OSM `name` tags are Nepali (seen in Nominatim); district/province names hand-checked | v0.2 |
 | 8 | **Climate view**: rainfall and temperature (annual + monsoon month slider) | 3 | 4 | 3 | **10** | WorldClim 2.1 (CC BY 4.0) | v0.3 |
-| 9 | **Economy view**: GDP by province, district HDI, hydropower plants, industrial areas, trade routes / border points | 2 | 3 | 3 | **8** | NSO provincial GDP; Nepal Human Development Report (district HDI, PDF tables); OSM | v0.3 |
-| 10 | **Farming view**: main crop by district (rice, maize, wheat, millet, tea, cardamom, oranges…) | 3 | 3 | 2 | **8** | MoALD "Statistical Information on Nepalese Agriculture" (district tables in PDF, hand extraction); FAOSTAT national only | v0.3 |
+| 9 | **Economy view**: GDP by province, district HDI, hydropower plants, industrial areas, trade routes / border points | 2 | 3 | 3 | **8** | NSO provincial GDP; Nepal Human Development Report (district HDI, PDF tables); main-site XLSX price/production releases as context; OSM | v0.3 |
+| 10 | **Farming view**: main crop by district (rice, maize, wheat, millet, tea, cardamom, oranges…) | 3 | 3 | 2 | **8** | MoALD "Statistical Information on Nepalese Agriculture" (district tables in PDF, hand extraction); Agriculture Census 2021/22 portal currently unreachable in Oct 2026 checks, National Data Portal Agriculture indicators as an alternative to verify indicator by indicator; FAOSTAT national only | v0.3 |
 | 11 | **Quiz link**: "Find this district/peak" opens Pin Drop's Nepal map with that pack | 3 | 3 | 5 | **11** | Pin Drop packs | v0.2 |
 | 12 | 3D terrain fly-over (raw WebGL) | 4 | 5 | 2 | **11** ⚠️ | same DEM | later |
 
 **Recommended v0.1 (≈ 2 sessions):** Political + Physical + Rivers & lakes, with a view switcher. These three are the heart of a school atlas, all data is verified reachable, and they reuse what Pin Drop built. **v0.2:** cross-section, People, Forests & parks, Nepali toggle, quiz link. **v0.3:** Climate, Economy, Farming.
+
+**Supplementary NSO data:** see `docs/specs/supplementary/nepal-atlas/nso-data-report.md` for the detailed NSO inventory, portal availability, district/local/ward drill-down, and archive plan. The pointers above are a summary only; the supplementary report is the source of record for NSO formats, licences and portal status.
 
 ## Design
 
@@ -58,13 +60,13 @@ Scored 1–5 like the specs README (feasibility = vanilla JS, static site, free 
 | `build-dem.py` | AWS Terrarium PNG tiles (z8–z10) over Nepal | elevation grid (binary) + hypsometric/hillshade tiles |
 | `build-water.py` | HOT OSM waterways GeoJSON (HDX) or HydroRIVERS | rivers by order, lakes, glaciers (SVG paths), clipped to Nepal |
 | `build-landcover.py` | ESA WorldCover tiles N27–N30, E080–E088 | forest tiles + forest % per district |
-| `build-stats.py` | CoD-PS CSV, census tables | `stats.json` keyed by pcode |
+| `build-stats.py` | CoD-PS CSV, census tables, National Data Portal HTML-table downloads (parsed to CSV) | `stats.json` keyed by pcode |
 
 ⚠️ **Dependency decision (user):** Terrarium tiles are PNGs, so `build-dem.py` can stay standard-library Python (zlib + PNG unfiltering; verified idea, not yet built). WorldCover/Hansen/WorldClim are **GeoTIFFs**; reading them with only the standard library means writing a TIFF/deflate tile reader (doable, slow). The alternative is allowing `pip` packages (numpy, Pillow, rasterio) **for offline tools only**, never in the site. Either way the shipped site stays dependency-free (D-001). Needs a `D-0xx` either way.
 
 ## Attribution (on an "About this atlas" page and the map note)
 
-Survey Department of Nepal / OCHA HDX (CC BY 3.0 IGO) · © OpenStreetMap contributors (ODbL) · Natural Earth (public domain) · AWS Terrain Tiles (SRTM, GMTED, ETOPO1 and others; credit per their README) · ESA WorldCover (CC BY 4.0) · WorldClim (CC BY 4.0) · population: NSO / OCHA CoD-PS (CC BY 3.0 IGO).
+Survey Department of Nepal / OCHA HDX (CC BY 3.0 IGO) · © OpenStreetMap contributors (ODbL) · Natural Earth (public domain) · AWS Terrain Tiles (SRTM, GMTED, ETOPO1 and others; credit per their README) · ESA WorldCover (CC BY 4.0) · WorldClim (CC BY 4.0) · population: NSO / OCHA CoD-PS (CC BY 3.0 IGO) · NSO National Data Portal (licence check pending).
 
 ## Tests
 
@@ -84,7 +86,7 @@ Political, Physical and Rivers & lakes views; tap cards for districts, rivers, p
 
 ## Sanity check
 
-- **Verified reachable on 2026-10-27 from this cloud session:** HDX (boundaries, CoD-PS, HOT OSM waterways, land use), AWS Terrarium tiles, ESA WorldCover, Hansen GFC, HydroSHEDS. **Not reachable:** NSO census site, Overpass, Geofabrik, Wikipedia (Wikidata query service rate-limited to 1 request/min during an outage).
+- **Verified reachable on 2026-10-27 from this cloud session:** HDX (boundaries, CoD-PS, HOT OSM waterways, land use), AWS Terrarium tiles, ESA WorldCover, Hansen GFC, HydroSHEDS, NSO main site and National Data Portal (Oct 2026 checks). **Not reachable in Oct 2026 checks:** NSO Census, Agriculture Census and Microdata portals, MICSDG and IP Data Portal (some also failed on a mobile browser where the IP portal worked — per-portal, per-network confirmation still needed); Overpass, Geofabrik, Wikipedia (Wikidata query service rate-limited to 1 request/min during an outage).
 - **Riskiest part:** raster pipeline size and phone performance. Mitigate with the tile budget and by drawing rasters as images, not SVG.
 - **Second risk:** statistics hidden in PDFs (farming, HDI). That's why they're v0.3, with hand extraction and source notes.
 - **Changed from the user's list:** added the cross-section tool (highest score), the Nepali toggle and the quiz link; GDP is only official per province, so district economy uses HDI and other indicators instead.
